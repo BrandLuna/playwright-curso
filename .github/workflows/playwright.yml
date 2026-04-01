@@ -1,9 +1,10 @@
 name: Playwright Tests
 on:
   push:
-    branches: [main, master]
+    branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
   pull_request:
-    branches: [main, master]
+    branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
+  workflow_dispatch:
 jobs:
   test:
     timeout-minutes: 60
