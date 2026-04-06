@@ -17,6 +17,8 @@ jobs:
     name: Playwright Tests
     timeout-minutes: 60      # cancela el job si supera 60 minutos
     runs-on: ubuntu-latest   # maquina virtual Linux en la nube de GitHub
+    # Los secrets del Environment solo son accesibles si el job declara el environment
+    environment: development
     steps:
       # Descarga el codigo del repositorio en la maquina virtual
       - name: Checkout code
@@ -50,7 +52,7 @@ jobs:
       # Notificacion a Slack al finalizar (pase o falle)
       # Requisito: agregar SLACK_WEBHOOK_URL como secret en Settings > Secrets del repo
       - name: Notify Slack - Playwright
-        # Se ejecuta siempre, incluso si los tests fallaron (!cancelled evita solo si se cancela el job a mano)
+        # Se ejecuta siempre, incluso si los tests fallaron
         if: ${{ !cancelled() }}
         # Action oficial de Slack para enviar mensajes via webhook
         uses: slackapi/slack-github-action@v2.1.0
@@ -87,6 +89,8 @@ jobs:
     name: Cucumber Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    # Los secrets del Environment solo son accesibles si el job declara el environment
+    environment: development
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -112,7 +116,7 @@ jobs:
 
       # Notificacion a Slack al finalizar (pase o falle)
       - name: Notify Slack - Cucumber
-        # Se ejecuta siempre, incluso si los tests fallaron (!cancelled evita solo si se cancela el job a mano)
+        # Se ejecuta siempre, incluso si los tests fallaron
         if: ${{ !cancelled() }}
         # Action oficial de Slack para enviar mensajes via webhook
         uses: slackapi/slack-github-action@v2.1.0
