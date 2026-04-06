@@ -1,28 +1,44 @@
 name: Playwright Tests
+
 on:
+  # Se ejecuta al hacer push en estas ramas
   push:
     branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
+  # Se ejecuta al abrir un Pull Request hacia estas ramas
   pull_request:
     branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
+  # Permite ejecutar manualmente desde GitHub Actions
+  # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
   workflow_dispatch:
+  
 jobs:
+  # JOB 1: Tests con el runner de Playwright (.spec.ts) - corre EN PARALELO con cucumber
   playwright:
     name: Playwright Tests
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
+    timeout-minutes: 60      # cancela el job si supera 60 minutos
+    runs-on: ubuntu-latest   # maquina virtual Linux en la nube de GitHub
     steps:
+      # Descarga el codigo del repositorio en la maquina virtual
       - name: Checkout code
         uses: actions/checkout@v4
+      # Instala Node.js en su version LTS mas reciente
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # npm ci es mas estricto que npm install, usa package-lock.json exacto
       - name: Install dependencies
         run: npm ci
+      # Instala Chromium + librerias del sistema necesarias en Linux
+      # --with-deps: el OS Linux no trae esas librerias por defecto
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      # Ejecuta todos los archivos .spec.ts con el runner de Playwright
       - name: Run Playwright tests
         run: npx playwright test
+      # Sube el reporte como artefacto descargable desde la pestana Actions
+      # !cancelled() -> sube aunque los tests fallen (para ver que paso)
+      # retention-days: 30 -> se elimina automaticamente despues de 30 dias
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -31,6 +47,42 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      # Notificacion a Slack al finalizar (pase o falle)
+      # Requisito: agregar SLACK_WEBHOOK_URL como secret en Settings > Secrets del repo
+      - name: Notify Slack - Playwright
+        # Se ejecuta siempre, incluso si los tests fallaron (!cancelled evita solo si se cancela el job a mano)
+        if: ${{ !cancelled() }}
+        # Action oficial de Slack para enviar mensajes via webhook
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          # URL del Incoming Webhook de Slack (guardada como secret para no exponerla)
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # Tipo de webhook: incoming-webhook es el mas simple, no requiere bot token
+          webhook-type: incoming-webhook
+          # Payload en formato Slack Block Kit (JSON)
+          # "text"   -> texto fallback (notificaciones push del movil o previews)
+          # "blocks" -> tarjetas visuales con formato en el canal de Slack
+          # "type: section" -> bloque de texto con markdown de Slack (mrkdwn)
+          # mrkdwn permite: *negrita*, `codigo`, <url|texto>, emojis :white_check_mark:
+          # job.status == 'success' muestra checkmark verde, cualquier otro estado muestra X roja
+          # github.ref_name  -> nombre de la rama que disparo el workflow (ej: main)
+          # github.sha       -> hash del commit (identifica exactamente que codigo se probo)
+          # github.run_id    -> ID del run, permite armar el link directo a Actions
+          payload: |
+            {
+              "text": "Playwright Tests: ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Playwright Tests* ${{ job.status == 'success' && ':white_check_mark: PASSED' || ':x: FAILED' }}\n*Branch:* `${{ github.ref_name }}`\n*Commit:* `${{ github.sha }}`\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ver resultado en Actions>"
+                  }
+                }
+              ]
+            }
+
+  # JOB 2: Tests BDD con Cucumber (.feature) - corre EN PARALELO con playwright
   cucumber:
     name: Cucumber Tests
     timeout-minutes: 60
@@ -46,8 +98,10 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      # Ejecuta los escenarios Gherkin con el runner de Cucumber
       - name: Run Cucumber tests
         run: npm run cucumber
+      # Sube el reporte HTML de Cucumber como artefacto descargable
       - name: Upload Cucumber report
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -55,3 +109,37 @@ jobs:
           name: cucumber-report
           path: cucumber-report.html
           retention-days: 30
+
+      # Notificacion a Slack al finalizar (pase o falle)
+      - name: Notify Slack - Cucumber
+        # Se ejecuta siempre, incluso si los tests fallaron (!cancelled evita solo si se cancela el job a mano)
+        if: ${{ !cancelled() }}
+        # Action oficial de Slack para enviar mensajes via webhook
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          # URL del Incoming Webhook de Slack (guardada como secret para no exponerla)
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # Tipo de webhook: incoming-webhook es el mas simple, no requiere bot token
+          webhook-type: incoming-webhook
+          # Payload en formato Slack Block Kit (JSON)
+          # "text"   -> texto fallback (notificaciones push del movil o previews)
+          # "blocks" -> tarjetas visuales con formato en el canal de Slack
+          # "type: section" -> bloque de texto con markdown de Slack (mrkdwn)
+          # mrkdwn permite: *negrita*, `codigo`, <url|texto>, emojis :white_check_mark:
+          # job.status == 'success' muestra checkmark verde, cualquier otro estado muestra X roja
+          # github.ref_name  -> nombre de la rama que disparo el workflow (ej: main)
+          # github.sha       -> hash del commit (identifica exactamente que codigo se probo)
+          # github.run_id    -> ID del run, permite armar el link directo a Actions
+          payload: |
+            {
+              "text": "Cucumber Tests: ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Cucumber Tests* ${{ job.status == 'success' && ':white_check_mark: PASSED' || ':x: FAILED' }}\n*Branch:* `${{ github.ref_name }}`\n*Commit:* `${{ github.sha }}`\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ver resultado en Actions>"
+                  }
+                }
+              ]
+            }
