@@ -12,7 +12,7 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 Continúas el proyecto de la Clase 2 — no hay paquetes nuevos que instalar.
 
-**Lo nuevo en esta clase son scripts de ejecución.** Agrégalos a tu `package.json` en la sección `"scripts"`:
+**1. Scripts de ejecución** — agrégalos a tu `package.json` en la sección `"scripts"`:
 
 ```json
 "scripts": {
@@ -24,15 +24,13 @@ Continúas el proyecto de la Clase 2 — no hay paquetes nuevos que instalar.
 }
 ```
 
-Una vez agregados, puedes usar los comandos cortos:
+**2. Fixture de login** — crea la carpeta y el archivo (los fixtures son nativos de Playwright, sin `npm install`):
 
 ```bash
-npm test                  # ejecutar todos los tests
-npm run test:smoke        # solo tests etiquetados con @smoke
-npm run test:regression   # solo tests etiquetados con @regression
-npm run test:headed       # con navegador visible
-npm run test:report       # abrir el último reporte HTML
+mkdir tests/fixtures
 ```
+
+Crea el archivo `tests/fixtures/auth.fixture.ts` con el contenido del bloque **B5** de esta clase.
 
 ## Ejecutar los tests
 
@@ -87,46 +85,40 @@ playwright-curso/
 
 ---
 
-## B1 — Assertions y Esperas `60 min`
+## B1 — Assertions en Profundidad `60 min`
 
-Una assertion verifica que algo es verdadero en el test. Si la condición no se cumple, el test falla.
+En la Clase 2 viste las básicas: `toBeVisible`, `toHaveURL`, `toHaveText`, `toHaveCount`, `.not`. Aquí ampliamos con las que faltaron y profundizamos en esperas explícitas.
 
-### Assertions más usadas
+### Assertions nuevas en esta clase
 
 | Assertion | ¿Qué verifica? |
 |---|---|
-| `toBeVisible()` | El elemento está visible en pantalla |
-| `toBeHidden()` | El elemento no está visible (existe pero oculto) |
-| `toHaveText('X')` | El elemento contiene exactamente el texto X |
-| `toContainText('X')` | El elemento contiene el texto X (parcial) |
-| `toHaveValue('X')` | El campo de input tiene el valor X |
-| `toHaveURL(/regex/)` | La URL actual coincide con la expresión regular |
-| `toHaveTitle('X')` | El título de la página es X |
+| `toHaveTitle('X')` | El título de la pestaña del navegador |
+| `toBeHidden()` | El elemento existe en el DOM pero no es visible |
+| `toHaveValue('X')` | El valor actual de un input |
 | `toBeEnabled()` | El elemento está habilitado |
 | `toBeDisabled()` | El elemento está deshabilitado |
 | `toBeChecked()` | El checkbox está marcado |
-| `toHaveCount(n)` | El número de elementos encontrados es n |
 
-### Assertions negativas — `.not`
+### Assertions negativas `.not` — más ejemplos
 
 ```typescript
-await expect(page.getByText('Error')).not.toBeVisible();
-await expect(page.getByRole('button', { name: 'Login' })).not.toBeDisabled();
+await expect(page.locator('.shopping_cart_badge')).not.toBeVisible(); // carrito vacío
+await expect(page.locator('.title')).not.toHaveText('Checkout');
+await expect(page).not.toHaveURL(/cart/);
 ```
 
-### Auto-waiting de Playwright
-
-Playwright espera automáticamente a que los elementos estén listos. No necesitas `sleep()`.
+### Esperas explícitas — cuándo el auto-waiting no alcanza
 
 | Método | Para qué sirve |
 |---|---|
-| Auto-waiting | Reintenta el locator hasta que el elemento esté listo (30s por defecto) |
-| `waitForURL()` | Esperar a que la URL cambie a un valor específico |
-| `waitForLoadState()` | Esperar a que la página cargue (`'load'`, `'networkidle'`) |
+| Auto-waiting | Reintenta el locator hasta que esté listo (30s por defecto) |
+| `waitForURL()` | Esperar a que la URL cambie — útil en redirects |
+| `waitForLoadState()` | Esperar `'load'` o `'networkidle'` |
 | `waitForSelector()` | Esperar a que un elemento aparezca en el DOM |
-| `waitForTimeout(ms)` | Espera fija — **usar solo como último recurso** |
+| `waitForTimeout(ms)` | Espera fija — **último recurso** |
 
-> ⚠️ Evita `waitForTimeout()` — hace los tests lentos y frágiles. El auto-waiting cubre el 90% de los casos.
+> ⚠️ Evita `waitForTimeout()` — el auto-waiting cubre el 90% de los casos.
 
 ### Archivo de práctica → `tests/clase-03/01-assertions.spec.ts`
 
