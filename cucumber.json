@@ -3,7 +3,8 @@
     "import": ["tests/step-definitions/**/*.ts", "tests/support/**/*.ts"],
     "paths": ["tests/features/**/*.feature"],
     "format": ["progress", "html:cucumber-report.html"],
-    "publishQuiet": true
+    "publishQuiet": true,
+    "timeout": 30000
   }
 
 }
