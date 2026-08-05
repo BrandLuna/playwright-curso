@@ -1,10 +1,12 @@
-// Clase 3 — B1: Assertions y esperas
+// Clase 3 — B1: Assertions en profundidad
+// En clase-02 viste las básicas (toBeVisible, toHaveURL, toHaveText, toHaveCount).
+// Aquí ampliamos con las que no cubrimos: toHaveTitle, toBeHidden, toHaveValue,
+// toBeEnabled/Disabled, y esperas explícitas.
 // App: https://www.saucedemo.com
 // Ejecutar: npx playwright test tests/clase-03/01-assertions.spec.ts --headed
 
 import { test, expect } from '@playwright/test';
 
-// helper reutilizable para hacer login — evita repetir el código en cada test
 async function login(page: any) {
   await page.goto('https://www.saucedemo.com');
   await page.getByPlaceholder('Username').fill('standard_user');
@@ -12,92 +14,61 @@ async function login(page: any) {
   await page.getByRole('button', { name: 'Login' }).click();
 }
 
-// ─── toHaveURL / toHaveTitle ──────────────────────────────────────────────────
-test('toHaveURL y toHaveTitle después del login', async ({ page }) => {
+// toHaveTitle — verifica el título de la pestaña del navegador
+test('toHaveTitle: título de la página', async ({ page }) => {
   await login(page);
-
-  // verifica que la URL contiene /inventory
-  await expect(page).toHaveURL(/inventory/);
-
-  // verifica el título de la pestaña del navegador
   await expect(page).toHaveTitle('Swag Labs');
 });
 
-// ─── toBeVisible / toBeHidden ─────────────────────────────────────────────────
-test('toBeVisible y toBeHidden', async ({ page }) => {
+// toBeHidden — el elemento existe en el DOM pero no es visible
+test('toBeHidden: el mensaje de error está oculto en login exitoso', async ({ page }) => {
   await login(page);
-
-  // el título de la página de productos debe estar visible
-  await expect(page.locator('.title')).toBeVisible();
-
-  // el mensaje de error NO debe estar visible en un login exitoso
   await expect(page.locator('[data-test="error"]')).toBeHidden();
 });
 
-// ─── toHaveText / toContainText ───────────────────────────────────────────────
-test('toHaveText y toContainText', async ({ page }) => {
-  await login(page);
-
-  // texto exacto del título
-  await expect(page.locator('.title')).toHaveText('Products');
-
-  // texto parcial — el nombre del primer producto contiene "Sauce Labs"
-  await expect(page.locator('.inventory_item_name').first()).toContainText('Sauce Labs');
-});
-
-// ─── toHaveCount ──────────────────────────────────────────────────────────────
-test('toHaveCount — número de productos en el inventario', async ({ page }) => {
-  await login(page);
-
-  // saucedemo siempre muestra 6 productos en el inventario
-  await expect(page.locator('.inventory_item')).toHaveCount(6);
-});
-
-// ─── toHaveValue ──────────────────────────────────────────────────────────────
-test('toHaveValue — valor de un input', async ({ page }) => {
+// toHaveValue — verifica el valor actual de un input
+test('toHaveValue: el campo tiene el valor que escribimos', async ({ page }) => {
   await page.goto('https://www.saucedemo.com');
-
   await page.getByPlaceholder('Username').fill('standard_user');
-
-  // verifica que el campo tiene el valor que escribimos
   await expect(page.getByPlaceholder('Username')).toHaveValue('standard_user');
 });
 
-// ─── toBeEnabled / toBeDisabled ───────────────────────────────────────────────
+// toBeEnabled / toBeDisabled — verifica el estado del elemento
 test('toBeEnabled y toBeDisabled', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com');
+  // el botón de login siempre está habilitado
+  await expect(page.getByRole('button', { name: 'Login' })).toBeEnabled();
+
+  await login(page);
+  // el botón de ordenamiento está habilitado en el inventario
+  await expect(page.locator('.product_sort_container')).toBeEnabled();
+});
+
+// Assertions negativas más usadas en pruebas reales
+test('assertions negativas: .not en distintos contextos', async ({ page }) => {
   await login(page);
 
-  // el botón de carrito está habilitado
-  await expect(page.locator('.shopping_cart_link')).toBeEnabled();
+  // el carrito no muestra badge cuando está vacío
+  await expect(page.locator('.shopping_cart_badge')).not.toBeVisible();
+
+  // el título no dice otra cosa
+  await expect(page.locator('.title')).not.toHaveText('Checkout');
+
+  // la URL no contiene cart
+  await expect(page).not.toHaveURL(/cart/);
 });
 
-// ─── Assertions negativas con .not ────────────────────────────────────────────
-test('assertions negativas con .not', async ({ page }) => {
-  await page.goto('https://www.saucedemo.com');
-
-  // el mensaje de error NO debe ser visible antes de intentar el login
-  await expect(page.locator('[data-test="error"]')).not.toBeVisible();
-
-  // login fallido — ahora sí debe aparecer el error
-  await page.getByPlaceholder('Username').fill('usuario_invalido');
-  await page.getByPlaceholder('Password').fill('pass_incorrecta');
-  await page.getByRole('button', { name: 'Login' }).click();
-
-  await expect(page.locator('[data-test="error"]')).toBeVisible();
-  await expect(page.locator('[data-test="error"]')).toContainText('Username and password do not match');
-});
-
-// ─── Esperas explícitas (cuando el auto-waiting no alcanza) ───────────────────
-test('waitForURL y waitForLoadState', async ({ page }) => {
+// waitForURL — espera explícita cuando auto-waiting no alcanza
+test('waitForURL: espera a que la URL cambie tras login', async ({ page }) => {
   await page.goto('https://www.saucedemo.com');
   await page.getByPlaceholder('Username').fill('standard_user');
   await page.getByPlaceholder('Password').fill('secret_sauce');
   await page.getByRole('button', { name: 'Login' }).click();
 
-  // waitForURL espera a que la URL cambie — útil tras acciones que redirigen
+  // waitForURL espera hasta que la URL coincida — útil en redirects lentos
   await page.waitForURL('**/inventory.html');
   await expect(page).toHaveURL(/inventory/);
 });
 
-// EJERCICIO: agrega un test que verifique que el carrito muestra '1'
-// después de agregar un producto
+// EJERCICIO: agrega un test que verifique toHaveCount después de agregar 2 productos
+
