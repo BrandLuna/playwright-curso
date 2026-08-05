@@ -9,9 +9,9 @@
 
 import { Given, When, Then, Before, After } from '@cucumber/cucumber';
 import { Browser, BrowserContext, Page, chromium } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { CartPage } from '../pages/CartPage';
+import { LoginPage } from '../../pages/LoginPage';
+import { InventoryPage } from '../../pages/InventoryPage';
+import { CartPage } from '../../pages/CartPage';
 
 // Variables globales del módulo — estado compartido entre todos los escenarios @Simple
 let browser: Browser;

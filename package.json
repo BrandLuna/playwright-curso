@@ -4,7 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js"
+    "test": "npx playwright test",
+    "test:smoke": "npx playwright test --grep @smoke",
+    "test:regression": "npx playwright test --grep @regression",
+    "test:headed": "npx playwright test --headed",
+    "test:report": "npx playwright show-report",
+    "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
+    "cucumber:smoke": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @smoke",
+    "cucumber:regression": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @regression"
   },
   "keywords": [],
   "author": "",

@@ -8,9 +8,9 @@ import { World, setWorldConstructor } from '@cucumber/cucumber';
 import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playwright/test';
 
 // Importamos nuestras páginas POM para usarlas en los steps
-import { LoginPage } from '../pages/LoginPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { CartPage } from '../pages/CartPage';
+import { LoginPage } from '../../pages/LoginPage';
+import { InventoryPage } from '../../pages/InventoryPage';
+import { CartPage } from '../../pages/CartPage';
 
 // Extendemos World para agregar nuestras propias propiedades.
 // El "!" le dice a TypeScript "confía en mí, esto se va a inicializar antes de usarse"
