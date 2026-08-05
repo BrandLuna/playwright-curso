@@ -10,22 +10,29 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 ## Configuración para esta clase
 
-Viene de la Clase 2. Solo ejecuta:
+Continúas el proyecto de la Clase 2 — no hay paquetes nuevos que instalar.
 
-```bash
-npm install
+**Lo nuevo en esta clase son scripts de ejecución.** Agrégalos a tu `package.json` en la sección `"scripts"`:
+
+```json
+"scripts": {
+  "test": "npx playwright test",
+  "test:smoke": "npx playwright test --grep @smoke",
+  "test:regression": "npx playwright test --grep @regression",
+  "test:headed": "npx playwright test --headed",
+  "test:report": "npx playwright show-report"
+}
 ```
 
-**Nuevo en esta clase:** scripts de ejecución por suite en `package.json`:
+Una vez agregados, puedes usar los comandos cortos:
 
 ```bash
-npm run test:smoke       # npx playwright test --grep @smoke
-npm run test:regression  # npx playwright test --grep @regression
-npm run test:headed      # npx playwright test --headed
-npm run test:report      # npx playwright show-report
+npm test                  # ejecutar todos los tests
+npm run test:smoke        # solo tests etiquetados con @smoke
+npm run test:regression   # solo tests etiquetados con @regression
+npm run test:headed       # con navegador visible
+npm run test:report       # abrir el último reporte HTML
 ```
-
-No hay dependencias nuevas — los scripts ya están en el `package.json` del repo.
 
 ## Ejecutar los tests
 
