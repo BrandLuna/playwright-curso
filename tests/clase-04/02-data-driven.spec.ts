@@ -8,7 +8,7 @@ import * as path from 'path';
 
 // ─── Data-driven con JSON ─────────────────────────────────────────────────────
 // Importamos los datos directamente — TypeScript los tipea automáticamente
-import usuarios from '../data/usuarios.json';
+import usuarios from '../utils/data/usuarios.json';
 
 // for...of genera un test por cada fila del JSON
 for (const { usuario, password, esperado } of usuarios) {
@@ -29,7 +29,7 @@ for (const { usuario, password, esperado } of usuarios) {
 
 // ─── Data-driven con CSV ──────────────────────────────────────────────────────
 // csv-parse lee el archivo y lo convierte en un array de objetos
-const csvPath = path.join(__dirname, '../data/productos.csv');
+const csvPath = path.join(__dirname, '../utils/data/productos.csv');
 const csvData = fs.readFileSync(csvPath, 'utf-8');
 const productos = parse(csvData, { columns: true, skip_empty_lines: true }) as Array<{
   nombre: string;

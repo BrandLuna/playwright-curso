@@ -26,10 +26,10 @@ npm install --save-dev allure-commandline
 **Crea el fixture de login** — es nativo de Playwright, sin instalación extra:
 
 ```bash
-mkdir tests/fixtures
+mkdir tests/utils/fixtures
 ```
 
-Crea `tests/fixtures/auth.fixture.ts` con el contenido del bloque **B1** de esta clase.
+Crea `tests/utils/fixtures/auth.fixture.ts` con el contenido del bloque **B1** de esta clase.
 
 **Actualiza `playwright.config.ts`** — agrega `screenshot`, `video` y el reporter de Allure:
 
