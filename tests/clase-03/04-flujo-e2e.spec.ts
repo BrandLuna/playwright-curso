@@ -15,13 +15,13 @@ test.describe('Flujo de compra completo', () => {
   });
 
   // ─── Smoke: verificación básica del flujo ──────────────────────────────────
-  test('agregar producto al carrito @smoke', async ({ page }) => {
+  test('agregar producto al carrito', { tag: '@smoke' }, async ({ page }) => {
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
   });
 
   // ─── Regression: flujo completo de checkout ───────────────────────────────
-  test('checkout completo desde login hasta confirmación @regression', async ({ page }) => {
+  test('checkout completo desde login hasta confirmación', { tag: ['@smoke', '@regression'] }, async ({ page }) => {
     // — Agregar producto —
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
@@ -54,7 +54,7 @@ test.describe('Flujo de compra completo', () => {
   });
 
   // ─── Regression: verificar que el carrito persiste entre páginas ──────────
-  test('el carrito persiste al navegar entre páginas @regression', async ({ page }) => {
+  test('el carrito persiste al navegar entre páginas', { tag: '@regression' }, async ({ page }) => {
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 

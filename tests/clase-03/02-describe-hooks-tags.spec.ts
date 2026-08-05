@@ -7,7 +7,11 @@ import { test, expect } from '@playwright/test';
 // ─── describe() ───────────────────────────────────────────────────────────────
 // Agrupa tests relacionados bajo un nombre común — mejora la lectura del reporte
 
+// FORMA 1: tag al final del nombre — simple, funciona con --grep
+// FORMA 2: { tag: '@smoke' } — nombre limpio, tags separados (recomendada desde v1.42)
+
 test.describe('Login en saucedemo', () => {
+  // Forma 1: tag en el nombre
   test('login exitoso con standard_user @smoke', async ({ page }) => {
     await page.goto('https://www.saucedemo.com');
     await page.getByPlaceholder('Username').fill('standard_user');
@@ -16,7 +20,8 @@ test.describe('Login en saucedemo', () => {
     await expect(page).toHaveURL(/inventory/);
   });
 
-  test('login fallido con credenciales incorrectas @smoke', async ({ page }) => {
+  // Forma 2: tag separado — el nombre queda limpio en el reporte
+  test('login fallido con credenciales incorrectas', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('https://www.saucedemo.com');
     await page.getByPlaceholder('Username').fill('usuario_invalido');
     await page.getByPlaceholder('Password').fill('pass_incorrecta');
@@ -24,7 +29,8 @@ test.describe('Login en saucedemo', () => {
     await expect(page.locator('[data-test="error"]')).toBeVisible();
   });
 
-  test('login fallido con usuario bloqueado @regression', async ({ page }) => {
+  // Forma 2 con múltiples tags
+  test('login fallido con usuario bloqueado', { tag: ['@smoke', '@regression'] }, async ({ page }) => {
     await page.goto('https://www.saucedemo.com');
     // locked_out_user es un usuario especial de saucedemo para probar bloqueos
     await page.getByPlaceholder('Username').fill('locked_out_user');
@@ -48,13 +54,13 @@ test.describe('Carrito de compras', () => {
     await expect(page).toHaveURL(/inventory/);
   });
 
-  test('agregar primer producto al carrito @smoke', async ({ page }) => {
+  test('agregar primer producto al carrito', { tag: '@smoke' }, async ({ page }) => {
     // el beforeEach ya hizo login — aquí solo probamos el carrito
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
   });
 
-  test('agregar y quitar producto del carrito @regression', async ({ page }) => {
+  test('agregar y quitar producto del carrito', { tag: '@regression' }, async ({ page }) => {
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
 
@@ -64,7 +70,7 @@ test.describe('Carrito de compras', () => {
     await expect(page.locator('.shopping_cart_badge')).not.toBeVisible();
   });
 
-  test('agregar múltiples productos al carrito @regression', async ({ page }) => {
+  test('agregar múltiples productos al carrito', { tag: '@regression' }, async ({ page }) => {
     // agrega los primeros 3 productos
     const buttons = page.locator('.btn_inventory');
     await buttons.nth(0).click();
@@ -78,12 +84,12 @@ test.describe('Carrito de compras', () => {
 
 test.describe('Funcionalidad en construcción', () => {
   // test.skip: salta el test pero lo muestra en el reporte como "skipped"
-  test.skip('ordenar productos por precio @regression', async ({ page }) => {
+  test.skip('ordenar productos por precio', { tag: '@regression' }, async ({ page }) => {
     // TAREA: implementa este test en clase
   });
 
   // test.fixme: similar a skip pero indica que el test está roto y necesita arreglo
-  test.fixme('validar cupón de descuento @regression', async ({ page }) => {
+  test.fixme('validar cupón de descuento', { tag: '@regression' }, async ({ page }) => {
     // saucedemo no tiene cupones — marcamos como fixme para recordarlo
   });
 });
