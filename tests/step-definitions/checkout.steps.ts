@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { CustomWorld } from '../utils/world';
+import { CustomWorld } from '../support/world';
 
 Given('el usuario navega a la pagina de SauceDemo', async function (this: CustomWorld) {
   await this.page.goto('https://www.saucedemo.com/');
