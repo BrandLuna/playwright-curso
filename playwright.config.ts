@@ -1,35 +1,48 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// carga .env antes de leer process.env — necesario para environments (Clase 5)
+dotenv.config();
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
+ * CLASE 5 — Se agrega: dotenv para variables de entorno y baseURL desde .env
+ * Documentación oficial: https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+  // Carpeta donde Playwright busca los archivos .spec.ts
   testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  // Ejecuta los tests del archivo en paralelo
+  fullyParallel: true,
+
+  // En CI falla si alguien dejó un test.only()
+  forbidOnly: !!process.env.CI,
+
+  // Reintentos automáticos: 2 en CI, 0 en local
+  retries: process.env.CI ? 2 : 0,
+
+  // En CI usa un solo worker para mayor estabilidad
+  workers: process.env.CI ? 1 : undefined,
+
+  // Reporte HTML nativo + Allure (Clase 4) — npx playwright show-report / npx allure open
+  reporter: [
+    ['html', { open: 'never' }],
+    ['allure-playwright'],
+  ],
+
+  // Configuración compartida para todos los navegadores
+  use: {
+    // baseURL desde .env — permite usar page.goto('/') en los tests
+    baseURL: process.env.BASE_URL ?? 'https://www.saucedemo.com',
+
+    // Guarda trace cuando un test falla y se reintenta
     trace: 'on-first-retry',
+
+    // Captura automática solo cuando el test falla
+    screenshot: 'only-on-failure',
+
+    // Video: graba siempre pero solo guarda si el test falla
+    video: 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
