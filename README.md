@@ -46,8 +46,6 @@ npx playwright --version # Version 1.x.x
 
 ```text
 playwright-curso/
-├── docs/
-│   └── ejemplo.md
 ├── tests/
 │   ├── clase-01/
 │   │   ├── 01-anatomia-de-un-test.spec.ts
@@ -61,11 +59,6 @@ playwright-curso/
 ├── package.json
 └── tsconfig.json
 ```
-
-## Documentación adicional
-
-- [Ejemplo en Markdown](docs/ejemplo.md)
-- GitHub Wiki vive aparte del repositorio, por eso no aparece como carpeta dentro del código
 
 ---
 
