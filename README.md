@@ -55,7 +55,8 @@ playwright-curso/
 │   │   ├── 01-locators-modernos.spec.ts
 │   │   ├── 02-xpath-css.spec.ts
 │   │   ├── 03-interacciones.spec.ts
-│   │   └── 04-mini-flujo-completo.spec.ts
+│   │   ├── 04-mini-flujo-completo.spec.ts
+│   │   └── 05-assertions-intro.spec.ts
 ├── playwright.config.ts
 ├── package.json
 └── tsconfig.json
@@ -74,6 +75,7 @@ playwright-curso/
 - Conocer XPath y CSS como alternativa cuando los modernos no alcanzan
 - Escribir interacciones básicas: click, fill, hover, select, keyboard
 - Construir un mini flujo completo combinando todo lo aprendido
+- Introducir las assertions básicas: `toBeVisible`, `toHaveText`, `toHaveURL`, `toHaveCount`
 
 ---
 
@@ -317,6 +319,36 @@ Pega el código generado por Codegen en Copilot y pregunta:
 
 ---
 
+## B5 — Introducción a Assertions `20 min`
+
+Un locator encuentra el elemento. Una **assertion verifica que es el correcto**. Sin assertion, el test siempre pasa aunque la app esté rota.
+
+```typescript
+// toHaveURL — la URL cambió tras una navegación
+await expect(page).toHaveURL(/inventory/);
+
+// toBeVisible — el elemento está en pantalla
+await expect(page.locator('.title')).toBeVisible();
+
+// toHaveText — texto exacto
+await expect(page.locator('.title')).toHaveText('Products');
+
+// toContainText — texto parcial
+await expect(page.locator('.inventory_item_name').first()).toContainText('Sauce Labs');
+
+// toHaveCount — número de elementos
+await expect(page.locator('.inventory_item')).toHaveCount(6);
+
+// .not — invierte cualquier assertion
+await expect(page.locator('[data-test="error"]')).not.toBeVisible();
+```
+
+> Las assertions se profundizarán en la Clase 3. Aquí vemos las más esenciales para que tus tests verifiquen algo real.
+
+### Archivo de práctica → `tests/clase-02/05-assertions-intro.spec.ts`
+
+---
+
 ## Resumen de la Clase 2
 
 ### ✅ Lo que vimos hoy
@@ -326,10 +358,12 @@ Pega el código generado por Codegen en Copilot y pregunta:
 - Interacciones: click, fill, hover, select, keyboard, checkbox
 - Playwright Inspector para probar locators en vivo
 - Mini flujo completo con el formulario de demoqa
+- Assertions básicas: `toBeVisible`, `toHaveURL`, `toHaveText`, `toHaveCount`
 
 ### 🔜 Clase 3 — Flujos, Organización & Ejecución
 
-- Assertions: `toBeVisible`, `toHaveText`, `toHaveURL`...
+- Assertions en profundidad + negativas con `.not`
+- Fixtures de Playwright — login reutilizable sin `beforeEach`
 - `describe`, `test.only`, `test.skip`, hooks
 - Tags: `@smoke`, `@regression`
 - CLI: `--headed`, `--grep`, `--project`
