@@ -3,7 +3,7 @@
 // Ejecutar: npx playwright test tests/clase-04/01-fixtures.spec.ts --headed
 
 // importa test y expect desde el fixture en vez de @playwright/test
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect } from '../utils/fixtures/auth.fixture';
 
 // el fixture 'loggedInPage' provee una página ya autenticada — sin beforeEach
 
