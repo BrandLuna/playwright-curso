@@ -8,21 +8,17 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 - [Git](https://git-scm.com)
 - [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
 
-## Instalación desde cero
+## Configuración para esta clase
+
+Viene de la Clase 1 — el proyecto ya está inicializado. Solo ejecuta:
 
 ```bash
-mkdir playwright-curso
-cd playwright-curso
-npm init playwright@latest
-
-# Durante el asistente selecciona:
-#   · TypeScript
-#   · tests  (carpeta de tests)
-#   · false  (no agregar GitHub Actions por ahora — lo haremos en Clase 4)
-#   · true   (instalar navegadores)
+npm install
 ```
 
-> **¿Los navegadores no se instalaron?** Ejecútalos manualmente: `npx playwright install`
+> Primera vez con el repo: `npx playwright install` para los navegadores.
+
+No hay dependencias nuevas en esta clase.
 
 ## Ejecutar los tests
 
