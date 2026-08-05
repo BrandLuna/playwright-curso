@@ -1,34 +1,48 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * ============================================================
+ * CLASE 1 — playwright.config.ts
+ * Configuración principal del proyecto Playwright
+ * ============================================================
+ *
+ * Este archivo controla cómo se ejecutan todos los tests.
+ * No necesitas tocarlo por ahora — en la Clase 4 lo personalizaremos.
+ *
+ * Documentación oficial: https://playwright.dev/docs/test-configuration
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
+  // Carpeta donde Playwright busca los archivos de tests (*.spec.ts)
   testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  // Ejecuta los tests dentro de cada archivo en paralelo
+  // → más rápido, pero requiere que los tests sean independientes entre sí
+  fullyParallel: true,
+
+  // En CI: falla si alguien olvidó un test.only() — evita subir código con tests filtrados
+  forbidOnly: !!process.env.CI,
+
+  // Reintentos automáticos: 2 en CI (para evitar falsos negativos), 0 en local
+  // → En la Clase 4 veremos por qué esto importa en GitHub Actions
+  retries: process.env.CI ? 2 : 0,
+
+  // En CI usa 1 worker (ejecución secuencial) para mayor estabilidad
+  workers: process.env.CI ? 1 : undefined,
+
+  // Formato del reporte de resultados
+  // 'html' genera un reporte visual que se abre con: npx playwright show-report
+  reporter: 'html',
+
+  // Configuración compartida para todos los navegadores/proyectos
+  use: {
+    // URL base de la aplicación — en la Clase 5 (Environments) lo usaremos
+    // Cuando esté configurado, puedes usar page.goto('/') en vez de la URL completa
+    // baseURL: 'https://www.saucedemo.com',
+
+    // Trace: graba una grabación detallada del test para depuración
+    // 'on-first-retry' → solo graba cuando un test falla y se reintenta
+    // Para ver el trace: npx playwright show-trace trace.zip
     trace: 'on-first-retry',
   },
 
