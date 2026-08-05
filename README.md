@@ -10,15 +10,20 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 ## Configuración para esta clase
 
-Viene de la Clase 1 — el proyecto ya está inicializado. Solo ejecuta:
+Continúas el proyecto de la Clase 1 — no hay dependencias nuevas.
+
+Verifica que tu entorno sigue listo:
+
+```bash
+node --version            # v20.x.x o superior
+npx playwright --version  # Version 1.x.x
+```
+
+Si instalaste algo nuevo en tu máquina desde la Clase 1, actualiza las dependencias:
 
 ```bash
 npm install
 ```
-
-> Primera vez con el repo: `npx playwright install` para los navegadores.
-
-No hay dependencias nuevas en esta clase.
 
 ## Ejecutar los tests
 
