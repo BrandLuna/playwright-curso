@@ -10,22 +10,39 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 ## Configuración para esta clase
 
-Viene de la Clase 3. Nuevas dependencias instaladas en esta clase:
+Continúas el proyecto de la Clase 3. Instala las nuevas dependencias una por una:
 
 ```bash
-npm install  # instala csv-parse, allure-playwright y allure-commandline
+# Parser de archivos CSV — para data-driven testing con CSV
+npm install --save-dev csv-parse
+
+# Reporter de Allure — integra Playwright con Allure
+npm install --save-dev allure-playwright
+
+# CLI de Allure — para generar y abrir el reporte desde la terminal
+npm install --save-dev allure-commandline
 ```
 
-**Cambios en `playwright.config.ts`** respecto a la Clase 3:
-- `screenshot: 'only-on-failure'` — captura automática al fallar
-- `video: 'retain-on-failure'` — video solo si falla
-- `reporter` — ahora incluye `allure-playwright` además del HTML nativo
+**Actualiza `playwright.config.ts`** — agrega `screenshot`, `video` y el reporter de Allure:
 
-**Comandos Allure nuevos:**
+```typescript
+// en la sección use: {}
+screenshot: 'only-on-failure',  // captura automática solo cuando el test falla
+video: 'retain-on-failure',     // graba video pero solo lo guarda si falla
 
-```bash
-npx allure generate allure-results --clean -o allure-report
-npx allure open allure-report
+// reemplaza reporter: 'html' por:
+reporter: [
+  ['html', { open: 'never' }],
+  ['allure-playwright'],
+],
+```
+
+**Agrega a `.gitignore`** para no subir archivos generados:
+
+```
+/allure-results/
+/allure-report/
+/evidencias/
 ```
 
 ## Ejecutar los tests
