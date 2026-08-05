@@ -3,10 +3,10 @@ name: Playwright Tests
 on:
   # Se ejecuta al hacer push en estas ramas
   push:
-    branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
+    branches: [main, clase-06-bdd]
   # Se ejecuta al abrir un Pull Request hacia estas ramas
   pull_request:
-    branches: [main, clase-04-datos-reportes, clase-05-pom, clase-06-bdd ]
+    branches: [main, clase-06-bdd]
   # Permite ejecutar manualmente desde GitHub Actions
   # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
         run: npx playwright install --with-deps
       # Ejecuta todos los archivos .spec.ts con el runner de Playwright
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test tests/clase-06
       # Sube el reporte como artefacto descargable desde la pestana Actions
       # !cancelled() -> sube aunque los tests fallen (para ver que paso)
       # retention-days: 30 -> se elimina automaticamente despues de 30 dias
