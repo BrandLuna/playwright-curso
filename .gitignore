@@ -6,3 +6,9 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Allure y evidencias generadas en runtime
+/allure-results/
+/allure-report/
+/evidencias/
+
