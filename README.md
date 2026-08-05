@@ -32,6 +32,8 @@ npx playwright test                        # todos los tests
 npx playwright test tests/clase-02/        # solo los tests de esta clase
 npx playwright test --headed               # con navegador visible
 npx playwright test --ui                   # UI Mode interactivo
+npx playwright test --project=chromium     # solo en Chrome (más rápido mientras practicas)
+npx playwright test --debug                # pausa el test para inspeccionar locators en vivo
 npx playwright show-report                 # ver el último reporte HTML
 ```
 
