@@ -6,10 +6,10 @@ export class LoginPage extends BasePage {
     super(page);
   }
 
-  // locators como getters — se re-evalúan en cada llamada
-  get usernameInput() { return this.page.getByPlaceholder('Username'); }
-  get passwordInput() { return this.page.getByPlaceholder('Password'); }
-  get loginButton()   { return this.page.getByRole('button', { name: 'Login' }); }
+  // data-test es el locator más estable en saucedemo
+  get usernameInput() { return this.page.locator('[data-test="username"]'); }
+  get passwordInput() { return this.page.locator('[data-test="password"]'); }
+  get loginButton()   { return this.page.locator('[data-test="login-button"]'); }
   get errorMessage()  { return this.page.locator('[data-test="error"]'); }
 
   async login(username: string, password: string) {

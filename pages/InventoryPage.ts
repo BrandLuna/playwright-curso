@@ -6,12 +6,13 @@ export class InventoryPage extends BasePage {
     super(page);
   }
 
-  get title()          { return this.page.locator('.title'); }
-  get items()          { return this.page.locator('.inventory_item'); }
-  get addButtons()     { return this.page.locator('.btn_inventory'); }
-  get cartBadge()      { return this.page.locator('.shopping_cart_badge'); }
-  get cartLink()       { return this.page.locator('.shopping_cart_link'); }
-  get sortDropdown()   { return this.page.locator('.product_sort_container'); }
+  get items()             { return this.page.locator('.inventory_item'); }
+  get cartBadge()         { return this.page.locator('.shopping_cart_badge'); }
+  get cartLink()          { return this.page.locator('[data-test="shopping-cart-link"]'); }
+  get sortDropdown()      { return this.page.locator('[data-test="product-sort-container"]'); }
+  // [data-test^="add-to-cart"] selecciona todos los botones de agregar al carrito
+  get addButtons()        { return this.page.locator('[data-test^="add-to-cart"]'); }
+  get addBackpackButton() { return this.page.locator('[data-test="add-to-cart-sauce-labs-backpack"]'); }
 
   async addFirstItemToCart() {
     await this.addButtons.first().click();
@@ -22,6 +23,12 @@ export class InventoryPage extends BasePage {
   }
 
   async openCart() {
+    await this.cartLink.click();
+  }
+
+  // método compuesto usado en step-definitions de BDD
+  async addBackpackAndGoToCart() {
+    await this.addBackpackButton.click();
     await this.cartLink.click();
   }
 
