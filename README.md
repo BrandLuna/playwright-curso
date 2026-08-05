@@ -12,7 +12,7 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 Continúas el proyecto de la Clase 2 — no hay paquetes nuevos que instalar.
 
-**1. Scripts de ejecución** — agrégalos a tu `package.json` en la sección `"scripts"`:
+**Scripts de ejecución** — agrégalos a tu `package.json` en la sección `"scripts"`:
 
 ```json
 "scripts": {
@@ -23,14 +23,6 @@ Continúas el proyecto de la Clase 2 — no hay paquetes nuevos que instalar.
   "test:report": "npx playwright show-report"
 }
 ```
-
-**2. Fixture de login** — crea la carpeta y el archivo (los fixtures son nativos de Playwright, sin `npm install`):
-
-```bash
-mkdir tests/fixtures
-```
-
-Crea el archivo `tests/fixtures/auth.fixture.ts` con el contenido del bloque **B5** de esta clase.
 
 ## Ejecutar los tests
 
@@ -252,70 +244,27 @@ Analiza el código generado, verifica que los locators sean correctos y mejóral
 
 ---
 
-## B5 — Fixtures de Playwright `30 min`
-
-Los fixtures son la evolución natural del `beforeEach`. En vez de repetir el login en cada archivo, lo defines una vez y lo inyectas en cualquier test que lo necesite.
-
-```typescript
-// tests/fixtures/auth.fixture.ts
-import { test as base, Page } from '@playwright/test';
-
-type AuthFixtures = { loggedInPage: Page };
-
-export const test = base.extend<AuthFixtures>({
-  loggedInPage: async ({ page }, use) => {
-    await page.goto('https://www.saucedemo.com');
-    await page.getByPlaceholder('Username').fill('standard_user');
-    await page.getByPlaceholder('Password').fill('secret_sauce');
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.waitForURL(/inventory/);
-    await use(page);
-  },
-});
-export { expect } from '@playwright/test';
-```
-
-Usar el fixture en un test:
-
-```typescript
-// importa desde el fixture en vez de @playwright/test
-import { test, expect } from '../fixtures/auth.fixture';
-
-test('agregar producto', { tag: '@smoke' }, async ({ loggedInPage }) => {
-  // ya está logueado — sin beforeEach, sin repetición
-  await loggedInPage.locator('.btn_inventory').first().click();
-  await expect(loggedInPage.locator('.shopping_cart_badge')).toHaveText('1');
-});
-```
-
-> Con el fixture ya no necesitas `beforeEach` en ningún archivo que lo importe.
-
-### Archivo de práctica → `tests/clase-03/05-fixtures.spec.ts`
-
----
-
 ## Resumen de la Clase 3
 
 ### ✅ Lo que vimos hoy
 
-- Assertions en profundidad: `toBeVisible`, `toHaveText`, `toHaveURL`, `.not`...
-- Auto-waiting y esperas explícitas
+- Assertions en profundidad: `toHaveTitle`, `toBeHidden`, `toHaveValue`, `toBeEnabled`, `.not`
+- Auto-waiting y esperas explícitas (`waitForURL`)
 - `describe()` para agrupar tests
 - `test.only()`, `test.skip()`, `test.fixme()`
 - Hooks: `beforeEach`, `afterEach`, `beforeAll`, `afterAll`
 - Tags con sintaxis `{ tag: '@smoke' }`
 - Scripts en `package.json`
-- Headless vs Headed y UI Mode
+- `--grep` para filtrar por tag desde terminal
 - Flujo E2E: login → carrito → checkout
-- **Fixtures** — login reutilizable sin `beforeEach`
 
 ### 🔜 Clase 4 — Datos y Reportes
 
+- **Fixtures** de Playwright — login reutilizable entre archivos
 - Data-driven testing con JSON y CSV
-- Capturas de pantalla automáticas y manual
-- Grabación de video
+- Capturas de pantalla y video
 - Reporte HTML nativo y Allure Report
-- Primer workflow de GitHub Actions (preview de Clase 7)
+- Primer workflow de GitHub Actions
 
 ---
 
