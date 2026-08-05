@@ -47,6 +47,9 @@ npx playwright --version # Version 1.x.x
 ```
 playwright-curso/
 ├── tests/
+│   ├── clase-01/
+│   │   ├── 01-anatomia-de-un-test.spec.ts
+│   │   └── 02-login-saucedemo.spec.ts
 │   ├── clase-02/
 │   │   ├── 01-locators-modernos.spec.ts
 │   │   ├── 02-xpath-css.spec.ts
