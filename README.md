@@ -8,16 +8,25 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 - [Git](https://git-scm.com)
 - [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
 
-## Instalación desde cero
+## Configuración para esta clase
+
+Viene de la Clase 3. Nuevas dependencias instaladas en esta clase:
 
 ```bash
-mkdir playwright-curso
-cd playwright-curso
-npm init playwright@latest
-npm install --save-dev allure-playwright allure-commandline csv-parse
+npm install  # instala csv-parse, allure-playwright y allure-commandline
 ```
 
-> **¿Los navegadores no se instalaron?** Ejecútalos manualmente: `npx playwright install`
+**Cambios en `playwright.config.ts`** respecto a la Clase 3:
+- `screenshot: 'only-on-failure'` — captura automática al fallar
+- `video: 'retain-on-failure'` — video solo si falla
+- `reporter` — ahora incluye `allure-playwright` además del HTML nativo
+
+**Comandos Allure nuevos:**
+
+```bash
+npx allure generate allure-results --clean -o allure-report
+npx allure open allure-report
+```
 
 ## Ejecutar los tests
 
