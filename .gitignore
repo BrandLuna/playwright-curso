@@ -7,10 +7,8 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
-# Allure
+# Allure y evidencias generadas en runtime
 /allure-results/
 /allure-report/
-
-# Evidencias generadas en runtime
 /evidencias/
 

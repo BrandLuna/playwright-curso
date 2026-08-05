@@ -17,8 +17,6 @@ export const test = base.extend<AuthFixtures>({
 
     // provee la página al test
     await use(page);
-
-    // teardown: aquí podrías cerrar sesión si fuera necesario
   },
 });
 

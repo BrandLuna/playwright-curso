@@ -87,60 +87,17 @@ playwright-curso/
 
 ## 🎯 Objetivos
 
-- Usar fixtures para organizar datos de prueba reutilizables
+- Aplicar fixtures (vistos en Clase 3) en tests data-driven
 - Ejecutar tests data-driven con JSON y CSV
 - Generar capturas y videos como evidencia
 - Configurar reportes HTML nativos y Allure
-- Crear el primer pipeline de GitHub Actions
+- Conocer GitHub Actions como preview de la Clase 7
 
 ---
 
-## B1 — Fixtures y Datos Externos `60 min`
+## B1 — Data-driven Testing `60 min`
 
-### ¿Qué son los Fixtures?
-
-Los fixtures son datos o funciones reutilizables inyectados en los tests. Evitan repetir el código de configuración en cada archivo.
-
-| Concepto | Descripción |
-|---|---|
-| **Fixture de Playwright** | Función que provee datos, páginas o contextos reutilizables |
-| **Scope: test** | Se crea y destruye para cada test individual |
-| **Scope: worker** | Se crea una vez y se comparte entre todos los tests del worker |
-| **Uso típico** | Login reutilizable, datos de usuario, configuración de contexto |
-
-### Fixture de login — `tests/fixtures/auth.fixture.ts`
-
-```typescript
-import { test as base, Page } from '@playwright/test';
-
-type AuthFixtures = { loggedInPage: Page };
-
-export const test = base.extend<AuthFixtures>({
-  loggedInPage: async ({ page }, use) => {
-    await page.goto('https://www.saucedemo.com');
-    await page.getByPlaceholder('Username').fill('standard_user');
-    await page.getByPlaceholder('Password').fill('secret_sauce');
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.waitForURL(/inventory/);
-    await use(page); // provee la página al test
-  },
-});
-export { expect } from '@playwright/test';
-```
-
-Usar el fixture en un test:
-
-```typescript
-import { test, expect } from '../fixtures/auth.fixture';
-
-test('agregar producto', { tag: '@smoke' }, async ({ loggedInPage }) => {
-  // ya está logueado — el fixture hizo el login
-  await loggedInPage.locator('.btn_inventory').first().click();
-  await expect(loggedInPage.locator('.shopping_cart_badge')).toHaveText('1');
-});
-```
-
-> Con el fixture de login ya no necesitas `beforeEach` en cada archivo.
+Los fixtures ya los aprendiste en la Clase 3. Aquí los usamos como base para construir tests data-driven: un mismo test ejecutado con múltiples conjuntos de datos.
 
 ### Data-driven con JSON — `tests/data/usuarios.json`
 
@@ -291,13 +248,13 @@ on:
 
 ### ✅ Lo que vimos hoy
 
-- Fixtures para login reutilizable
-- Data-driven con JSON y CSV
+- Data-driven con JSON — múltiples escenarios desde un archivo
+- Data-driven con CSV — `csv-parse`
 - Capturas: `on-failure`, manual, `fullPage`
 - Video: `retain-on-failure`
 - Reporte HTML nativo y Trace Viewer
 - Allure Report — instalación y generación
-- GitHub Actions — primer workflow en `.yml`
+- GitHub Actions — primer vistazo al pipeline (se profundiza en Clase 7)
 
 ### 🔜 Clase 5 — POM & Environments
 
