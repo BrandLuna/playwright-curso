@@ -1,74 +1,126 @@
 # playwright-curso
-# QA Automation con Playwright + TypeScript + Cucumber
+# QA Automation Framework — Playwright + TypeScript + Cucumber (BDD) + CI/CD
 
-Curso completo de automatización de pruebas — **8 clases · 3 horas cada una**
+[![Playwright Tests](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml/badge.svg)](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml)
 
-## Requisitos previos
+Curso completo de automatización de pruebas — **8 clases · 3 horas cada una**. Este repositorio
+es, además, un **framework de QA Automation funcional de punta a punta**: Page Object Model,
+tests E2E, BDD con Gherkin, pipeline de CI/CD con notificaciones y reportes, y una demo de
+Playwright MCP.
 
-- [Node.js LTS](https://nodejs.org) (v20 o superior)
-- [Git](https://git-scm.com)
-- [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
+## Descripción del proyecto
 
-## Configuración para esta clase
+Framework de automatización para **saucedemo.com** que combina dos formas de escribir tests
+(clásica con Playwright Test y BDD con Cucumber/Gherkin) sobre una misma capa de Page Objects,
+ejecutado automáticamente en GitHub Actions con reportes HTML/Allure y notificaciones a Slack
+y Microsoft Teams.
 
-Continúas el proyecto de la Clase 5. Instala las nuevas dependencias:
+## Stack tecnológico
 
-```bash
-# Framework BDD + runner TypeScript
-npm install --save-dev @cucumber/cucumber tsx
-```
+| Categoría | Herramienta |
+|---|---|
+| Test runner E2E | [Playwright](https://playwright.dev) + TypeScript |
+| BDD / Gherkin | [Cucumber.js](https://cucumber.io) + `tsx` |
+| Patrón de diseño | Page Object Model (`BasePage` + páginas específicas) |
+| Reportes | HTML nativo de Playwright/Cucumber + [Allure](https://allurereport.org) |
+| CI/CD principal | GitHub Actions |
+| CI/CD alternativo (demo) | Jenkins (`jenkins/`) |
+| Notificaciones | Slack (Incoming Webhook) + Microsoft Teams (Incoming Webhook) |
+| IA / Copilot | `.github/copilot-instructions.md` + demo de Playwright MCP (`mcp/`) |
 
-Agrega a `.gitignore`:
-```
-cucumber-report.html
-```
-
-**Agrega scripts** a tu `package.json`:
-```json
-"cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
-"cucumber:smoke": "... --tags @smoke",
-"cucumber:regression": "... --tags @regression"
-```
-
-## Ejecutar los tests
+## Instalación paso a paso
 
 ```bash
-# Tests Playwright (.spec.ts)
-npm test
-npm run test:smoke
+# 1. Clonar el repositorio y entrar a la carpeta
+git clone https://github.com/BrandLuna/playwright-curso.git
+cd playwright-curso
 
-# Tests BDD con Cucumber (.feature)
-npm run cucumber                    # todos los escenarios
-npm run cucumber:smoke              # solo escenarios @smoke
-npm run cucumber:regression         # solo escenarios @regression
+# 2. Instalar dependencias
+npm install
+
+# 3. Instalar los navegadores de Playwright
+npx playwright install
+
+# 4. Configurar variables de entorno (opcional para correr contra saucedemo.com)
+cp .env.example .env
 ```
+
+## Comandos disponibles
+
+| Comando | Descripción |
+|---|---|
+| `npm test` | Ejecuta todos los tests Playwright (`.spec.ts`) |
+| `npm run test:smoke` | Solo tests marcados `@smoke` |
+| `npm run test:regression` | Solo tests marcados `@regression` |
+| `npm run test:headed` | Corre los tests con navegador visible |
+| `npm run test:ui` | Abre el modo UI interactivo de Playwright |
+| `npm run test:report` | Abre el último reporte HTML de Playwright |
+| `npm run cucumber` | Ejecuta todos los escenarios BDD (`.feature`) |
+| `npm run cucumber:smoke` | Solo escenarios Gherkin `@smoke` |
+| `npm run cucumber:regression` | Solo escenarios Gherkin `@regression` |
+| `npm run test:all` | Corre Playwright y luego Cucumber en secuencia |
+| `npm run allure:generate` | Genera `allure-report/` a partir de `allure-results/` |
+| `npm run allure:open` | Abre el reporte Allure en el navegador |
 
 ## Estructura del proyecto
 
 ```
 playwright-curso/
-├── pages/                          ← Page Objects (reutilizados por spec y steps)
-│   ├── BasePage.ts
-│   ├── LoginPage.ts
-│   ├── InventoryPage.ts
-│   ├── CartPage.ts
-│   └── CheckoutPage.ts
+├── pages/                    ← Page Objects (BasePage + paginas especificas de saucedemo.com)
 ├── tests/
-│   ├── clase-01/ … clase-05/       ← tests Playwright acumulativos
-│   ├── features/
-│   │   ├── checkout.feature
-│   │   ├── checkout-simple.feature
-│   │   └── checkout2.feature
-│   ├── step-definitions/
-│   │   ├── checkout.steps.ts       ← usa CustomWorld
-│   │   └── checkout-simple.steps.ts ← enfoque sin World (comparación)
+│   ├── clase-01 … clase-05/   ← specs Playwright acumulativos por clase
+│   ├── features/              ← archivos Gherkin (.feature)
+│   ├── step-definitions/      ← implementacion de steps Cucumber
+│   ├── support/                ← world.ts (CustomWorld) + hooks.ts
 │   └── utils/
-│       ├── world.ts                ← CustomWorld: estado por escenario
-│       └── hooks.ts                ← Before/AfterStep/After
-├── cucumber.json                   ← configuración de Cucumber
-├── playwright.config.ts
+│       ├── data/               ← JSON/CSV para data-driven testing
+│       ├── fixtures/           ← Playwright fixtures
+│       └── helpers.ts          ← funciones genericas reutilizables
+├── jenkins/                   ← Jenkinsfile + guia (demo del instructor, no es el flujo principal)
+├── mcp/                       ← demo de Playwright MCP (material de aprendizaje, no se ejecuta en CI)
+├── .github/
+│   ├── workflows/playwright.yml ← pipeline principal de CI/CD (GitHub Actions)
+│   └── copilot-instructions.md  ← estandares de codigo y prompts para IA/Copilot
+├── cucumber.json               ← configuracion de Cucumber
+├── playwright.config.ts        ← configuracion de Playwright (reporters: html + allure)
+├── PROYECTO-FINAL.md           ← criterios de evaluacion del proyecto final (Clase 8)
 └── package.json
 ```
+
+## Buenas prácticas aplicadas
+
+- **Page Object Model** con clase base (`BasePage`) y locators como getters (`data-test`)
+- **BDD y automation clásico conviviendo** sobre la misma capa de Page Objects
+- **Aislamiento de estado por escenario** con `CustomWorld` en Cucumber
+- **Data-driven testing** (JSON/CSV) en lugar de casos hardcodeados
+- **Variables de entorno** (`.env`) en vez de credenciales o URLs hardcodeadas
+- **CI/CD real**: pipeline en verde con tests, artefactos (reportes) y notificaciones automáticas
+- **Reportes trazables**: HTML de Playwright/Cucumber + Allure para evidencia de ejecución
+- **Convenciones documentadas** para el uso de IA/Copilot, no improvisadas
+
+## Sobre este proyecto (para reclutadores / entrevistas)
+
+Este repositorio demuestra el ciclo completo de un framework de QA Automation en un contexto
+real de equipo, no solo tests sueltos:
+
+- **Diseño escalable**: Page Object Model que se reutiliza tanto en tests clásicos como en BDD,
+  evitando duplicar locators o lógica de UI.
+- **Dos enfoques de testing**: automation clásico (`.spec.ts`) y BDD con Gherkin (`.feature`),
+  para trabajar tanto con equipos técnicos como con negocio/QA no técnico.
+- **CI/CD end-to-end**: cada push ejecuta el pipeline completo (install → tests → reportes →
+  notificación a Slack/Teams), igual que en un entorno profesional.
+- **Doble plataforma de CI**: GitHub Actions como flujo principal y Jenkins documentado aparte,
+  mostrando comprensión de ambas herramientas sin mezclarlas.
+- **Uso estandarizado de IA**: convenciones y prompts documentados para Copilot, más una demo de
+  Playwright MCP para automatización asistida por agentes de IA.
+
+---
+
+## Documentación del curso (por clase)
+
+El resto de este README documenta el curso clase por clase (Clase 6 en adelante). Las Clases 1-5
+sentaron las bases: fundamentos de Playwright, locators, flujos E2E, data-driven testing y
+Page Object Model.
 
 ---
 
@@ -373,6 +425,42 @@ el mismo estilo en cualquier sesión de trabajo.
 | `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (demo) |
 | `.github/copilot-instructions.md` | Estándares de código y prompts para Copilot |
 
+---
+
+# Clase 8 — Proyecto Final, MCP & Cierre
+
+> **Duración:** 3 horas &nbsp;|&nbsp; **Clase final del curso**
+
+## 🎯 Objetivos
+
+- Consolidar el framework completo: POM + BDD + CI/CD + reportes + IA, todo funcionando junto
+- Conocer Playwright MCP como forma avanzada de automatizar con IA (agentes autónomos)
+- Dejar el README listo para mostrarse en una entrevista de trabajo
+- Entender los criterios de evaluación del proyecto final del curso
+
+## Playwright MCP — IA avanzada
+
+Ver [`mcp/README-mcp.md`](mcp/README-mcp.md) y [`mcp/mcp-demo.ts`](mcp/mcp-demo.ts). Es material
+de aprendizaje: explica qué es el Model Context Protocol aplicado a Playwright y cómo un agente
+de IA puede navegar saucedemo.com de forma autónoma (sin un script de test fijo), a diferencia
+de los tests deterministas de `tests/`. No se ejecuta en el pipeline.
+
+## Proyecto final
+
+Ver [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md) para los criterios de evaluación, los flujos mínimos
+requeridos sobre saucedemo.com, los entregables esperados y cómo crear tu rama
+`proyecto-final-TUNOMBRE` a partir de este framework.
+
+## Checklist de integración final
+
+- [x] `pages/`, `tests/features/`, `tests/step-definitions/`, `tests/support/` presentes y en uso
+- [x] `.github/workflows/playwright.yml`, `.env.example`, `cucumber.json`, `playwright.config.ts` presentes
+- [x] `npx playwright test` y `npm run cucumber` corren sin errores
+- [x] Pipeline de GitHub Actions con Playwright + Cucumber + artefactos + notificaciones Slack/Teams
+- [x] `jenkins/` como alternativa documentada, homologada a los mismos comandos
+- [x] `.github/copilot-instructions.md` con estándares de código y prompts reutilizables
+- [x] `mcp/` con demo de Playwright MCP
+
 ## ✅ Resumen final del curso
 
 - Clase 1-2: fundamentos de Playwright y locators
@@ -381,3 +469,5 @@ el mismo estilo en cualquier sesión de trabajo.
 - Clase 5: Page Object Model y variables de entorno
 - Clase 6: BDD con Cucumber/Gherkin
 - Clase 7: CI/CD con GitHub Actions + Jenkins, notificaciones y estandarización de IA
+- Clase 8: proyecto final integrado, Playwright MCP y cierre del curso
+
