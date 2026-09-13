@@ -11,7 +11,9 @@
     "test:report": "npx playwright show-report",
     "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "cucumber:smoke": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @smoke",
-    "cucumber:regression": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @regression"
+    "cucumber:regression": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @regression",
+    "report:allure:generate": "allure generate allure-results --clean -o allure-report",
+    "report:allure:open": "allure open allure-report"
   },
   "keywords": [],
   "author": "",
