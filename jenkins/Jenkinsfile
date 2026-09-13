@@ -1,0 +1,101 @@
+// jenkins/Jenkinsfile
+// Pipeline declarativo para ejecutar el framework QA Automation.
+// SOLO para demostracion del instructor -- el flujo principal del curso usa GitHub Actions.
+//
+// Para usarlo en Jenkins:
+//   1. Instalar plugins: NodeJS, Pipeline, HTML Publisher, Slack Notification, Office 365 Connector
+//   2. Configurar NodeJS 20 en Jenkins > Global Tool Configuration
+//   3. Agregar credenciales (Manage Jenkins > Credentials): SAUCEDEMO_BASE_URL, SAUCEDEMO_USER,
+//      SAUCEDEMO_PASS, SLACK_WEBHOOK, TEAMS_WEBHOOK_URL
+//   4. Crear un Pipeline job apuntando a este Jenkinsfile (Script Path: jenkins/Jenkinsfile)
+
+pipeline {
+    agent any
+
+    tools {
+        // 'NodeJS-20' debe coincidir con el nombre configurado en Jenkins > Tools
+        nodejs 'NodeJS-20'
+    }
+
+    environment {
+        CI = 'true'
+        BASE_URL = credentials('SAUCEDEMO_BASE_URL')          // secret en Jenkins
+        SAUCEDEMO_USERNAME = credentials('SAUCEDEMO_USER')    // secret en Jenkins
+        SAUCEDEMO_PASSWORD = credentials('SAUCEDEMO_PASS')    // secret en Jenkins
+    }
+
+    options {
+        timeout(time: 60, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // descarga el codigo del repositorio
+                checkout scm
+            }
+        }
+
+        stage('Install') {
+            steps {
+                sh 'npm ci'
+                sh 'npx playwright install --with-deps chromium'
+            }
+        }
+
+        stage('Playwright Tests') {
+            steps {
+                sh 'npx playwright test --project=chromium'
+            }
+            post {
+                always {
+                    // publica el reporte HTML de Playwright en Jenkins
+                    publishHTML(target: [
+                        reportDir  : 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName : 'Playwright Report'
+                    ])
+                }
+            }
+        }
+
+        stage('Cucumber BDD Tests') {
+            steps {
+                sh 'npm run cucumber'
+            }
+            post {
+                always {
+                    publishHTML(target: [
+                        reportDir  : '.',
+                        reportFiles: 'cucumber-report.html',
+                        reportName : 'Cucumber Report'
+                    ])
+                }
+            }
+        }
+    }
+
+    post {
+        // se ejecuta siempre, pase o falle
+        always {
+            // archiva los resultados crudos de Allure
+            archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
+
+            // notificacion Slack -- requiere plugin "Slack Notification" + credential SLACK_WEBHOOK
+            slackSend(
+                channel: '#qa-automation',
+                color  : currentBuild.result == 'SUCCESS' ? 'good' : 'danger',
+                message: "${currentBuild.result}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
+            )
+
+            // notificacion Microsoft Teams -- requiere plugin "Office 365 Connector"
+            office365ConnectorSend(
+                webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
+                status    : currentBuild.result,
+                color     : currentBuild.result == 'SUCCESS' ? '00B294' : 'C4314B',
+                message   : "Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
+            )
+        }
+    }
+}
