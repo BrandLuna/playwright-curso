@@ -85,11 +85,16 @@ pipeline
 ├── environment              ← variables de entorno / secrets inyectados
 ├── stages
 │   ├── Checkout             ← descarga el código (checkout scm)
-│   ├── Install               ← npm ci + playwright install --with-deps chromium
-│   ├── Playwright Tests      ← npx playwright test + publishHTML
+│   ├── Install               ← npm ci + playwright install --with-deps
+│   ├── Playwright Tests      ← npx playwright test tests/clase-05 + publishHTML
+│   │    └── post: always     ← notifica Slack y Teams con el resultado de ESTE stage
 │   └── Cucumber BDD Tests    ← npm run cucumber + publishHTML
-└── post: always              ← archiva Allure results + notifica Slack y Teams
+│        └── post: always     ← notifica Slack y Teams con el resultado de ESTE stage
+└── post: always              ← archiva los resultados crudos de Allure
 ```
+
+Cada stage notifica su propio resultado (igual que los jobs `playwright` y `cucumber` en
+GitHub Actions) en vez de mandar una sola notificación consolidada al final del pipeline.
 
 ## Relación con GitHub Actions
 

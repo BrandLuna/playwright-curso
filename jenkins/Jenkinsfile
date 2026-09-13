@@ -40,13 +40,14 @@ pipeline {
         stage('Install') {
             steps {
                 sh 'npm ci'
-                sh 'npx playwright install --with-deps chromium'
+                sh 'npx playwright install --with-deps'
             }
         }
 
         stage('Playwright Tests') {
             steps {
-                sh 'npx playwright test --project=chromium'
+                // mismo alcance que el job "playwright" de GitHub Actions
+                sh 'npx playwright test tests/clase-05'
             }
             post {
                 always {
@@ -56,6 +57,18 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName : 'Playwright Report'
                     ])
+                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack/Teams - Playwright" de GitHub Actions
+                    slackSend(
+                        channel: '#qa-automation',
+                        color  : currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
+                        message: "Playwright Tests: ${currentBuild.currentResult} -- `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
+                    )
+                    office365ConnectorSend(
+                        webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
+                        status    : currentBuild.currentResult,
+                        color     : currentBuild.currentResult == 'SUCCESS' ? '00B294' : 'C4314B',
+                        message   : "Playwright Tests | Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
+                    )
                 }
             }
         }
@@ -71,31 +84,27 @@ pipeline {
                         reportFiles: 'cucumber-report.html',
                         reportName : 'Cucumber Report'
                     ])
+                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack/Teams - Cucumber" de GitHub Actions
+                    slackSend(
+                        channel: '#qa-automation',
+                        color  : currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
+                        message: "Cucumber Tests: ${currentBuild.currentResult} -- `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
+                    )
+                    office365ConnectorSend(
+                        webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
+                        status    : currentBuild.currentResult,
+                        color     : currentBuild.currentResult == 'SUCCESS' ? '00B294' : 'C4314B',
+                        message   : "Cucumber Tests | Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
+                    )
                 }
             }
         }
     }
 
     post {
-        // se ejecuta siempre, pase o falle
+        // se ejecuta siempre, pase o falle -- solo archiva Allure, las notificaciones ya van por stage
         always {
-            // archiva los resultados crudos de Allure
             archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
-
-            // notificacion Slack -- requiere plugin "Slack Notification" + credential SLACK_WEBHOOK
-            slackSend(
-                channel: '#qa-automation',
-                color  : currentBuild.result == 'SUCCESS' ? 'good' : 'danger',
-                message: "${currentBuild.result}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
-            )
-
-            // notificacion Microsoft Teams -- requiere plugin "Office 365 Connector"
-            office365ConnectorSend(
-                webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
-                status    : currentBuild.result,
-                color     : currentBuild.result == 'SUCCESS' ? '00B294' : 'C4314B',
-                message   : "Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
-            )
         }
     }
 }
