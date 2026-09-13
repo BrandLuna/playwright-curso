@@ -3,14 +3,20 @@ name: Playwright Tests
 on:
   # Se ejecuta al hacer push en estas ramas
   push:
-    branches: [main, clase-06-bdd]
+    branches: [main, clase-06-bdd, clase-07-cicd]
   # Se ejecuta al abrir un Pull Request hacia estas ramas
   pull_request:
-    branches: [main, clase-06-bdd]
+    branches: [main, clase-06-bdd, clase-07-cicd]
   # Permite ejecutar manualmente desde GitHub Actions
   # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
   workflow_dispatch:
-  
+
+# Si se hace push varias veces seguidas al mismo branch/PR, cancela la corrida anterior
+# que siga en curso (evita gastar minutos de Actions en corridas ya obsoletas)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # JOB 1: Tests con el runner de Playwright (.spec.ts) - corre EN PARALELO con cucumber
   playwright:
@@ -24,10 +30,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       # Instala Node.js en su version LTS mas reciente
+      # cache: npm -> reutiliza node_modules entre corridas usando package-lock.json como llave
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: npm
       # npm ci es mas estricto que npm install, usa package-lock.json exacto
       - name: Install dependencies
         run: npm ci
@@ -36,8 +44,13 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       # Ejecuta todos los archivos .spec.ts con el runner de Playwright
+      # Las credenciales/URL vienen de secrets; si no estan configurados, se usan los defaults del test
       - name: Run Playwright tests
         run: npx playwright test tests/clase-05
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
       # Sube el reporte como artefacto descargable desde la pestana Actions
       # !cancelled() -> sube aunque los tests fallen (para ver que paso)
       # retention-days: 30 -> se elimina automaticamente despues de 30 dias
@@ -48,6 +61,15 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+      # allure-playwright (configurado en playwright.config.ts) genera esta carpeta en cada corrida
+      - name: Upload Allure results - Playwright
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-results-playwright
+          path: allure-results/
+          retention-days: 30
+          if-no-files-found: ignore
 
       # Notificacion a Slack al finalizar (pase o falle)
       # Requisito: agregar SLACK_WEBHOOK_URL como secret en Settings > Secrets del repo
@@ -84,6 +106,34 @@ jobs:
               ]
             }
 
+      # Notificacion a Microsoft Teams al finalizar (pase o falle)
+      # Requisito: agregar TEAMS_WEBHOOK_URL como secret en Settings > Secrets del repo
+      # Se omite sola si el secret no esta configurado (env.TEAMS_WEBHOOK_URL queda vacio)
+      - name: Notify Teams - Playwright
+        if: ${{ !cancelled() && env.TEAMS_WEBHOOK_URL != '' }}
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        # curl directo a un Incoming Webhook de Teams (MessageCard), sin depender de una Action de terceros
+        run: |
+          curl -sS -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Playwright Tests",
+            "themeColor": "${{ job.status == 'success' && '00B294' || 'C4314B' }}",
+            "title": "Playwright Tests - ${{ job.status }}",
+            "sections": [{
+              "facts": [
+                { "name": "Branch", "value": "${{ github.ref_name }}" },
+                { "name": "Commit", "value": "${{ github.sha }}" }
+              ]
+            }],
+            "potentialAction": [{
+              "@type": "OpenUri",
+              "name": "Ver resultado en Actions",
+              "targets": [{ "os": "default", "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
+            }]
+          }' "$TEAMS_WEBHOOK_URL"
+
   # JOB 2: Tests BDD con Cucumber (.feature) - corre EN PARALELO con playwright
   cucumber:
     name: Cucumber Tests
@@ -98,6 +148,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
@@ -105,6 +156,10 @@ jobs:
       # Ejecuta los escenarios Gherkin con el runner de Cucumber
       - name: Run Cucumber tests
         run: npm run cucumber
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
       # Sube el reporte HTML de Cucumber como artefacto descargable
       - name: Upload Cucumber report
         uses: actions/upload-artifact@v4
@@ -113,6 +168,7 @@ jobs:
           name: cucumber-report
           path: cucumber-report.html
           retention-days: 30
+          if-no-files-found: ignore
 
       # Notificacion a Slack al finalizar (pase o falle)
       - name: Notify Slack - Cucumber
@@ -147,3 +203,29 @@ jobs:
                 }
               ]
             }
+
+      # Notificacion a Microsoft Teams al finalizar (pase o falle)
+      # Se omite sola si el secret TEAMS_WEBHOOK_URL no esta configurado
+      - name: Notify Teams - Cucumber
+        if: ${{ !cancelled() && env.TEAMS_WEBHOOK_URL != '' }}
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          curl -sS -H "Content-Type: application/json" -d '{
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "summary": "Cucumber Tests",
+            "themeColor": "${{ job.status == 'success' && '00B294' || 'C4314B' }}",
+            "title": "Cucumber Tests - ${{ job.status }}",
+            "sections": [{
+              "facts": [
+                { "name": "Branch", "value": "${{ github.ref_name }}" },
+                { "name": "Commit", "value": "${{ github.sha }}" }
+              ]
+            }],
+            "potentialAction": [{
+              "@type": "OpenUri",
+              "name": "Ver resultado en Actions",
+              "targets": [{ "os": "default", "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
+            }]
+          }' "$TEAMS_WEBHOOK_URL"
