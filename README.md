@@ -345,8 +345,8 @@ omiten automáticamente — el pipeline nunca falla por falta de un secret de no
 corrida genera `allure-results/`. Para verlo localmente:
 
 ```bash
-npm run report:allure:generate   # combina allure-results/ en allure-report/
-npm run report:allure:open       # abre el reporte en el navegador
+npm run allure:generate   # combina allure-results/ en allure-report/
+npm run allure:open       # abre el reporte en el navegador
 ```
 
 ## Jenkins (material de aprendizaje)
@@ -367,8 +367,8 @@ el mismo estilo en cualquier sesión de trabajo.
 
 | Comando | ¿Qué hace? |
 |---|---|
-| `npm run report:allure:generate` | Genera `allure-report/` desde `allure-results/` |
-| `npm run report:allure:open` | Abre el reporte Allure en el navegador |
+| `npm run allure:generate` | Genera `allure-report/` desde `allure-results/` |
+| `npm run allure:open` | Abre el reporte Allure en el navegador |
 | `.github/workflows/playwright.yml` | Pipeline principal (GitHub Actions) |
 | `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (demo) |
 | `.github/copilot-instructions.md` | Estándares de código y prompts para Copilot |
