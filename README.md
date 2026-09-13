@@ -310,17 +310,22 @@ push → GitHub Actions
 ## Pipeline de GitHub Actions (flujo principal)
 
 Definido en [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml). Se dispara con
-`push` a `main`/`clase-07-cicd`, con `pull_request` hacia `main`, o manualmente (`workflow_dispatch`).
+`push` a `main`/`clase-06-bdd`/`clase-07-cicd`, con `pull_request` hacia esas mismas ramas, o
+manualmente (`workflow_dispatch`).
 
 ```
 push / pull_request → GitHub Actions
-         ├── Job "playwright"  → npx playwright test --project=chromium
+         ├── Job "playwright"  → npx playwright test tests/clase-05 (flujo clasico, sin BDD)
          │                       sube playwright-report/ y allure-results/
-         ├── Job "cucumber"    → npm run cucumber
-         │                       sube cucumber-report.html
-         └── Job "notify"      → espera a los dos jobs anteriores (needs + if: always())
-                                  envía UNA notificación consolidada a Slack y Teams
+         │                       notifica Slack y Teams con el resultado de ESTE job
+         └── Job "cucumber"    → npm run cucumber (flujo BDD)
+                                  sube cucumber-report.html
+                                  notifica Slack y Teams con el resultado de ESTE job
 ```
+
+Los dos jobs corren en paralelo y son independientes a propósito: sirven para comparar,
+lado a lado, cómo se ve el pipeline con el enfoque clásico de Playwright y cómo se ve con BDD.
+Cada uno notifica su propio resultado — no hay un job de notificación consolidado.
 
 ### Secrets necesarios (Settings → Secrets and variables → Actions)
 
