@@ -292,3 +292,87 @@ push → GitHub Actions
 1. Agrega un nuevo `Scenario` en `checkout.feature` para el caso de login fallido
 2. Implementa los steps correspondientes
 3. Verifica que el pipeline de GitHub Actions ejecuta ambos jobs correctamente
+
+---
+
+# Clase 7 — CI/CD completo, Jenkins y estandarización de IA
+
+> **Duración:** 3 horas &nbsp;|&nbsp; **Clase final del curso**
+
+## 🎯 Objetivos
+
+- Consolidar el pipeline de GitHub Actions como flujo principal de CI/CD
+- Conocer Jenkins como alternativa (material de aprendizaje, carpeta separada)
+- Configurar notificaciones a Slack y Microsoft Teams al finalizar el pipeline
+- Generar reportes Allure además de los reportes HTML de Playwright/Cucumber
+- Adoptar un uso estandarizado de GitHub Copilot en el proyecto
+
+## Pipeline de GitHub Actions (flujo principal)
+
+Definido en [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml). Se dispara con
+`push` a `main`/`clase-07-cicd`, con `pull_request` hacia `main`, o manualmente (`workflow_dispatch`).
+
+```
+push / pull_request → GitHub Actions
+         ├── Job "playwright"  → npx playwright test --project=chromium
+         │                       sube playwright-report/ y allure-results/
+         ├── Job "cucumber"    → npm run cucumber
+         │                       sube cucumber-report.html
+         └── Job "notify"      → espera a los dos jobs anteriores (needs + if: always())
+                                  envía UNA notificación consolidada a Slack y Teams
+```
+
+### Secrets necesarios (Settings → Secrets and variables → Actions)
+
+| Secret | Uso |
+|---|---|
+| `BASE_URL` | URL base de la app (ej. `https://www.saucedemo.com`) |
+| `SAUCEDEMO_USERNAME` / `SAUCEDEMO_PASSWORD` | Credenciales usadas en los tests |
+| `SLACK_WEBHOOK_URL` | Incoming Webhook de Slack (opcional) |
+| `TEAMS_WEBHOOK_URL` | Incoming Webhook de Microsoft Teams (opcional) |
+
+Si `SLACK_WEBHOOK_URL` o `TEAMS_WEBHOOK_URL` no están configurados, esos pasos se
+omiten automáticamente — el pipeline nunca falla por falta de un secret de notificación.
+
+### Reportes Allure
+
+`playwright.config.ts` usa dos reporters (`html` + `allure-playwright`), por lo que cada
+corrida genera `allure-results/`. Para verlo localmente:
+
+```bash
+npm run report:allure:generate   # combina allure-results/ en allure-report/
+npm run report:allure:open       # abre el reporte en el navegador
+```
+
+## Jenkins (material de aprendizaje)
+
+Ver [`jenkins/README.md`](jenkins/README.md) y [`jenkins/Jenkinsfile`](jenkins/Jenkinsfile).
+Esta carpeta **no** forma parte del flujo automático del repositorio: es una guía para practicar
+cómo se configuraría el mismo pipeline (mismos comandos `npm ci` / `playwright test` / `cucumber`)
+en un servidor Jenkins propio, con notificaciones a Slack y Teams equivalentes.
+
+## Estandarización de IA / Copilot
+
+Las convenciones de código, nombrado y prompts reutilizables del proyecto están documentadas en
+[`.github/copilot-instructions.md`](.github/copilot-instructions.md). Úsalo como referencia antes
+de pedirle a Copilot que genere Page Objects, tests, features o cambios al pipeline, para mantener
+el mismo estilo en cualquier sesión de trabajo.
+
+## Referencia rápida — Clase 7
+
+| Comando | ¿Qué hace? |
+|---|---|
+| `npm run report:allure:generate` | Genera `allure-report/` desde `allure-results/` |
+| `npm run report:allure:open` | Abre el reporte Allure en el navegador |
+| `.github/workflows/playwright.yml` | Pipeline principal (GitHub Actions) |
+| `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (demo) |
+| `.github/copilot-instructions.md` | Estándares de código y prompts para Copilot |
+
+## ✅ Resumen final del curso
+
+- Clase 1-2: fundamentos de Playwright y locators
+- Clase 3: flujos E2E, hooks y tags
+- Clase 4: data-driven testing, fixtures y evidencias
+- Clase 5: Page Object Model y variables de entorno
+- Clase 6: BDD con Cucumber/Gherkin
+- Clase 7: CI/CD con GitHub Actions + Jenkins, notificaciones y estandarización de IA
