@@ -23,4 +23,13 @@ export class BasePage {
   async takeScreenshot(name: string) {
     await this.page.screenshot({ path: `evidencias/${name}.png` });
   }
+
+  // banner de error data-test="error" — presente tanto en Login como en Checkout step-one
+  get errorMessage() {
+    return this.page.locator('[data-test="error"]');
+  }
+
+  async expectErrorMessage(text: string) {
+    await expect(this.errorMessage).toContainText(text);
+  }
 }

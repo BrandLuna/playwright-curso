@@ -9,6 +9,12 @@ export class CartPage extends BasePage {
   get cartItems()      { return this.page.locator('.cart_item'); }
   get checkoutButton() { return this.page.locator('[data-test="checkout"]'); }
   get continueButton() { return this.page.getByRole('button', { name: 'Continue Shopping' }); }
+  // botones "Remove" tienen data-test="remove-<slug-del-producto>"
+  get removeButtons()  { return this.page.locator('[data-test^="remove"]'); }
+
+  async removeFirstItem() {
+    await this.removeButtons.first().click();
+  }
 
   async proceedToCheckout() {
     await this.checkoutButton.click();
