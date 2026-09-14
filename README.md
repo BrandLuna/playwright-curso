@@ -154,6 +154,14 @@ playwright-curso/
 └── .gitignore
 ```
 
+| Archivo/Carpeta | Para qué sirve |
+|---|---|
+| `tests/` | Acá escribirás todos tus tests — extensión `.spec.ts` |
+| `playwright.config.ts` | Configuración principal: navegadores, timeout, reporte, baseURL |
+| `package.json` | Lista de dependencias y scripts del proyecto |
+| `node_modules/` | Dependencias instaladas — NO tocar, NO subir a GitHub |
+| `.gitignore` | Archivos que Git ignora — ya excluye `node_modules` automáticamente |
+
 > La estructura base (`tests/`, `playwright.config.ts`, `package.json`, `.gitignore`) se creó en
 > `clase-00-setup`. En cada clase vas a ver acá cómo va creciendo con los archivos nuevos que agreguemos.
 
