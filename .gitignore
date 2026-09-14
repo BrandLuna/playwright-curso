@@ -6,3 +6,12 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Evidencias generadas en runtime (capturas manuales)
+/evidencias/
+
+# Variables de entorno — nunca subir al repo
+.env
+.env.local
+.env.staging
+.env.production
