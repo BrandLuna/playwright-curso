@@ -26,7 +26,7 @@ y Microsoft Teams.
 | CI/CD principal | GitHub Actions |
 | CI/CD alternativo (demo) | Jenkins (`jenkins/`) |
 | Notificaciones | Slack (Incoming Webhook) + Microsoft Teams (Incoming Webhook) |
-| IA / Copilot | `.github/copilot-instructions.md` + demo de Playwright MCP (`mcp/`) |
+| IA / Copilot | `.github/copilot-instructions.md` + Playwright MCP como extra opcional (`mcp/`) |
 
 ## Instalación paso a paso
 
@@ -77,7 +77,7 @@ playwright-curso/
 │       ├── fixtures/           ← Playwright fixtures
 │       └── helpers.ts          ← funciones genericas reutilizables
 ├── jenkins/                   ← Jenkinsfile + guia (demo del instructor, no es el flujo principal)
-├── mcp/                       ← demo de Playwright MCP (material de aprendizaje, no se ejecuta en CI)
+├── mcp/                       ← Playwright MCP: extra opcional, no forma parte de la evaluacion
 ├── .github/
 │   ├── workflows/playwright.yml ← pipeline principal de CI/CD (GitHub Actions)
 │   └── copilot-instructions.md  ← estandares de codigo y prompts para IA/Copilot
@@ -434,16 +434,17 @@ el mismo estilo en cualquier sesión de trabajo.
 ## 🎯 Objetivos
 
 - Consolidar el framework completo: POM + BDD + CI/CD + reportes + IA, todo funcionando junto
-- Conocer Playwright MCP como forma avanzada de automatizar con IA (agentes autónomos)
+- Conocer Playwright MCP como extra opcional para generar tests o estructura inicial con IA
 - Dejar el README listo para mostrarse en una entrevista de trabajo
 - Entender los criterios de evaluación del proyecto final del curso
 
-## Playwright MCP — IA avanzada
+## Playwright MCP — extra opcional (no evaluado)
 
-Ver [`mcp/README-mcp.md`](mcp/README-mcp.md) y [`mcp/mcp-demo.ts`](mcp/mcp-demo.ts). Es material
-de aprendizaje: explica qué es el Model Context Protocol aplicado a Playwright y cómo un agente
-de IA puede navegar saucedemo.com de forma autónoma (sin un script de test fijo), a diferencia
-de los tests deterministas de `tests/`. No se ejecuta en el pipeline.
+Ver [`mcp/README-mcp.md`](mcp/README-mcp.md). Es contenido **aparte** del framework principal y
+de los criterios de [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md): solo busca que conozcas que
+Playwright tiene un MCP oficial (`@playwright/mcp`) y para qué sirve en la práctica — generar
+casos de test o el esqueleto inicial de un proyecto a partir de un prompt, en vez de escribirlos
+a mano. El repo incluye [`.vscode/mcp.json`](.vscode/mcp.json) para habilitarlo si querés probarlo.
 
 ## Proyecto final
 
@@ -459,7 +460,7 @@ requeridos sobre saucedemo.com, los entregables esperados y cómo crear tu rama
 - [x] Pipeline de GitHub Actions con Playwright + Cucumber + artefactos + notificaciones Slack/Teams
 - [x] `jenkins/` como alternativa documentada, homologada a los mismos comandos
 - [x] `.github/copilot-instructions.md` con estándares de código y prompts reutilizables
-- [x] `mcp/` con demo de Playwright MCP
+- [x] `mcp/` documentado como extra opcional, aparte del framework evaluado
 
 ## ✅ Resumen final del curso
 

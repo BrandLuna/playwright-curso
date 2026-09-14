@@ -1,0 +1,11 @@
+{
+  // Configuracion real del servidor Playwright MCP para este workspace.
+  // VS Code detecta este archivo y ofrece habilitar el servidor "playwright"
+  // desde el panel de MCP Servers (Extensions > MCP, o Command Palette > "MCP: List Servers").
+  "servers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}

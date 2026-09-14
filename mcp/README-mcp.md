@@ -1,75 +1,56 @@
-# Playwright MCP — Demo de IA avanzada (Clase 8)
+# Playwright MCP — Extra opcional (no forma parte de la evaluación)
 
-Esta carpeta es **material de aprendizaje**: no se ejecuta en el pipeline ni forma parte del
-framework de tests. Su objetivo es mostrar cómo un agente de IA (como GitHub Copilot) puede
-controlar un navegador real usando el **Model Context Protocol (MCP)** en lugar de que un humano
-escriba cada `page.click()` a mano.
+Esta carpeta es **material complementario**, aparte del framework principal del curso. No se
+ejecuta en el pipeline, no es un criterio de [`PROYECTO-FINAL.md`](../PROYECTO-FINAL.md), y no
+requiere que instales nada en `package.json`. La idea es simplemente que conozcas que Playwright
+tiene un MCP oficial y para qué se usa en la práctica.
 
 ## ¿Qué es Playwright MCP?
 
-[`@playwright/mcp`](https://github.com/microsoft/playwright-mcp) es un servidor MCP oficial de
-Microsoft que expone las capacidades de Playwright (navegar, hacer click, llenar formularios,
-tomar snapshots de accesibilidad, etc.) como **herramientas** que un agente de IA puede invocar.
+[`@playwright/mcp`](https://github.com/microsoft/playwright-mcp) es un servidor MCP (Model
+Context Protocol) oficial de Microsoft. Expone las capacidades de Playwright (navegar, hacer
+click, llenar formularios, tomar snapshots de accesibilidad) como **herramientas** que un agente
+de IA (Copilot Chat, Claude, etc.) puede invocar directamente sobre un navegador real.
 
-En vez de generar código de test primero y ejecutarlo después, el agente:
-1. Pide un "snapshot" de accesibilidad de la página actual (no una captura de pantalla — una
-   representación estructurada del DOM: roles, textos, elementos interactivos).
-2. Decide qué acción tomar (`click`, `type`, `navigate`, etc.) en base a ese snapshot.
-3. Ejecuta la acción a través del servidor MCP y recibe el nuevo estado de la página.
-4. Repite el ciclo hasta cumplir el objetivo (ej. completar un checkout).
+## ¿Para qué sirve en este curso?
 
-Esto es lo que hace posible que Copilot (u otro agente) "navegue" saucedemo.com de forma
-autónoma: no corre un script fijo, sino que decide el próximo paso según lo que ve en cada
-snapshot.
+En la práctica, lo más útil de Playwright MCP para un QA es pedirle al agente que:
 
-## Instalación
+- **Genere casos de test automáticamente**: le describís un flujo en lenguaje natural
+  ("agrega un producto al carrito y haz checkout") y el agente lo ejecuta en un navegador real
+  paso a paso, y a partir de eso te genera el `.spec.ts` o el `.feature` correspondiente.
+- **Cree la estructura inicial de un proyecto**: en vez de escribir a mano el primer Page Object
+  o el primer test, le pedís al agente que explore la app y te arme el esqueleto inicial
+  (locators, Page Object, primer test) basándose en lo que realmente ve en la página.
 
-Playwright MCP se ejecuta como un servidor aparte, no como una dependencia del proyecto. Se
-configura una sola vez en el cliente MCP (VS Code, Claude Desktop, etc.), **no** en
-`package.json`.
+Es una forma de **acelerar el arranque** de un proyecto de automatización, no de reemplazar los
+tests deterministas que ya tenés en `tests/`.
 
-### Opción A — VS Code (GitHub Copilot)
+## Habilitarlo en este repo
 
-1. Abre la paleta de comandos → `MCP: Add Server...`
-2. Elige `npx` como tipo de servidor
-3. Comando: `npx @playwright/mcp@latest`
-4. Guarda y habilita el servidor desde el panel de MCP Servers
+Este workspace ya incluye [`.vscode/mcp.json`](../.vscode/mcp.json) con la configuración del
+servidor. Para activarlo:
 
-### Opción B — configuración manual (`mcp.json`)
+1. Abre la Command Palette → `MCP: List Servers` → selecciona `playwright` → `Start Server`
+2. Verifica que el servidor quedó disponible para Copilot Chat (icono de herramientas del chat)
 
-```jsonc
-{
-  "servers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    }
-  }
-}
-```
-
-## Ejemplo básico de uso
-
-Una vez conectado el servidor, le puedes pedir al agente algo como:
+## Ejemplo de prompt
 
 ```
-Navega a https://www.saucedemo.com, inicia sesión con standard_user / secret_sauce,
-agrega el "Sauce Labs Backpack" al carrito y completa el checkout con datos de ejemplo.
-Cuéntame en qué paso quedó y qué viste en la confirmación final.
+Usando Playwright MCP, navega a https://www.saucedemo.com, inicia sesión con
+standard_user / secret_sauce, agrega el "Sauce Labs Backpack" al carrito y completa
+el checkout con datos de ejemplo. Cuando termines, genera un archivo .spec.ts en
+tests/clase-08/ que reproduzca ese mismo flujo usando los Page Objects de pages/.
 ```
 
-El agente usará las herramientas de Playwright MCP (`browser_navigate`, `browser_snapshot`,
-`browser_click`, `browser_type`, etc.) para cumplir la tarea paso a paso, sin que nadie haya
-escrito un `.spec.ts` para ese flujo.
+El agente navega el flujo real (no un script fijo) y, al final, te entrega código de test
+determinista que sí se integra al framework — ahí es donde se conecta con todo lo demás del curso.
 
-## Relación con el framework de este curso
+## Diferencia clave
 
 | | Tests de este repo (`tests/`) | Playwright MCP |
 |---|---|---|
-| Quién decide las acciones | El código que escribiste (POM + specs/steps) | El agente de IA, en tiempo real |
-| Repetible / determinista | ✅ Sí, siempre el mismo flujo | ❌ Puede variar según el snapshot |
-| Uso típico | Regresión, CI/CD, pipelines | Exploración, prototipado, generación asistida de tests |
-| Vive en | `pages/`, `tests/` | `mcp/` (solo demo, no se ejecuta en CI) |
-
-Ver [`mcp-demo.ts`](./mcp-demo.ts) para un ejemplo comentado de cómo se vería, a alto nivel, el
-razonamiento de un agente usando estas herramientas.
+| Quién decide las acciones | El código que ya escribiste | El agente de IA, en tiempo real |
+| Repetible / determinista | ✅ Siempre el mismo flujo | ❌ Puede variar según lo que "ve" |
+| Se ejecuta en CI/CD | ✅ Sí (GitHub Actions / Jenkins) | ❌ No, es una herramienta de autoría |
+| Uso típico | Regresión, smoke, pipelines | Generar/prototipar tests o estructura inicial |
