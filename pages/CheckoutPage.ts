@@ -20,6 +20,11 @@ export class CheckoutPage extends BasePage {
     await this.continueButton.click();
   }
 
+  // deja los campos vacios a proposito para disparar la validacion de campos obligatorios
+  async continueWithoutData() {
+    await this.continueButton.click();
+  }
+
   async finishPurchase() {
     await this.finishButton.click();
   }

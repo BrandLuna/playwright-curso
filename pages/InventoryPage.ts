@@ -13,6 +13,7 @@ export class InventoryPage extends BasePage {
   // [data-test^="add-to-cart"] selecciona todos los botones de agregar al carrito
   get addButtons()        { return this.page.locator('[data-test^="add-to-cart"]'); }
   get addBackpackButton() { return this.page.locator('[data-test="add-to-cart-sauce-labs-backpack"]'); }
+  get itemPrices()        { return this.page.locator('.inventory_item_price'); }
 
   async addFirstItemToCart() {
     await this.addButtons.first().click();
@@ -20,6 +21,12 @@ export class InventoryPage extends BasePage {
 
   async addItemByIndex(index: number) {
     await this.addButtons.nth(index).click();
+  }
+
+  async addItemsToCart(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.addButtons.nth(i).click();
+    }
   }
 
   async openCart() {
@@ -33,7 +40,15 @@ export class InventoryPage extends BasePage {
   }
 
   async sortBy(option: string) {
-    await this.sortDropdown.selectOption(option);
+    // option acepta el texto visible (ej. "Price (low to high)") en vez del value tecnico
+    await this.sortDropdown.selectOption({ label: option });
+  }
+
+  async expectFirstItemPriceIsLowest() {
+    const prices = (await this.itemPrices.allTextContents())
+      .map((p) => parseFloat(p.replace('$', '')));
+    const lowest = Math.min(...prices);
+    expect(prices[0]).toBe(lowest);
   }
 
   async expectItemCount(count: number) {

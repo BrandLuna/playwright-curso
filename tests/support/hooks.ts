@@ -1,5 +1,9 @@
-import { Before, After, AfterStep } from '@cucumber/cucumber';
+import { Before, After, AfterStep, setDefaultTimeout } from '@cucumber/cucumber';
 import { CustomWorld } from './world';
+
+// "timeout" en cucumber.json NO existe como opcion real de Cucumber.js (se ignora en
+// silencio) — el timeout por step se configura asi, con setDefaultTimeout(ms).
+setDefaultTimeout(4000);
 
 // "not @Simple" excluye los escenarios etiquetados con @Simple,
 // que tienen su propio Before/After con variables "let" (sin World).
