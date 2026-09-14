@@ -11,7 +11,8 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 ## Configuración para esta clase
 
-Continúas el proyecto de la Clase 5. Instala las nuevas dependencias:
+Continúas el proyecto de la Clase 5 (ya debe tener `dotenv` y `baseURL` configurados en
+`playwright.config.ts` — eso no cambia en esta clase). Instala las nuevas dependencias:
 
 ```bash
 # Framework BDD + runner TypeScript
@@ -29,6 +30,11 @@ cucumber-report.html
 "cucumber:smoke": "... --tags @smoke",
 "cucumber:regression": "... --tags @regression"
 ```
+
+**Crea `cucumber.json`** en la raíz apuntando a `tests/features/`, `tests/step-definitions/` y
+`tests/support/`.
+
+**Crea la carpeta `tests/support/`** con `world.ts` (CustomWorld) y `hooks.ts` (Before/AfterStep/After).
 
 ## Ejecutar los tests
 
@@ -56,15 +62,18 @@ playwright-curso/
 ├── tests/
 │   ├── clase-01/ … clase-05/       ← tests Playwright acumulativos
 │   ├── features/
-│   │   ├── checkout.feature
-│   │   ├── checkout-simple.feature
-│   │   └── checkout2.feature
+│   │   ├── comparativa-sin-world.feature
+│   │   └── flujo-de-compra.feature
 │   ├── step-definitions/
-│   │   ├── checkout.steps.ts       ← usa CustomWorld
-│   │   └── checkout-simple.steps.ts ← enfoque sin World (comparación)
+│   │   ├── flujo-de-compra.steps.ts       ← usa CustomWorld
+│   │   └── comparativa-sin-world.steps.ts ← enfoque sin World (comparación)
+│   ├── support/
+│   │   ├── world.ts                ← CustomWorld: estado por escenario
+│   │   └── hooks.ts                ← Before/AfterStep/After
 │   └── utils/
-│       ├── world.ts                ← CustomWorld: estado por escenario
-│       └── hooks.ts                ← Before/AfterStep/After
+│       ├── data/                   ← JSON/CSV para data-driven testing
+│       ├── fixtures/                ← Playwright fixtures
+│       └── helpers.ts
 ├── cucumber.json                   ← configuración de Cucumber
 ├── playwright.config.ts
 └── package.json
@@ -128,7 +137,7 @@ Feature: Checkout flow en SauceDemo
 ```json
 {
   "default": {
-    "import": ["tests/step-definitions/**/*.ts", "tests/utils/**/*.ts"],
+    "import": ["tests/step-definitions/**/*.ts", "tests/support/**/*.ts"],
     "paths": ["tests/features/**/*.feature"],
     "format": ["progress", "html:cucumber-report.html"]
   }
@@ -142,9 +151,9 @@ Feature: Checkout flow en SauceDemo
 ### Step Definitions — el puente entre Gherkin y código
 
 ```typescript
-// tests/step-definitions/checkout.steps.ts
+// tests/step-definitions/flujo-de-compra.steps.ts
 import { Given, When, Then } from '@cucumber/cucumber';
-import { CustomWorld } from '../utils/world';
+import { CustomWorld } from '../support/world';
 
 Given('el usuario navega a la pagina de SauceDemo', async function(this: CustomWorld) {
   await this.page.goto('https://www.saucedemo.com/');
@@ -162,7 +171,7 @@ Los step definitions **llaman a los mismos Page Objects** que usaste en clase-05
 ### World Object — estado compartido entre pasos
 
 ```typescript
-// tests/utils/world.ts
+// tests/support/world.ts
 export class CustomWorld extends World {
   browser!: Browser;
   page!: Page;
@@ -184,7 +193,7 @@ export class CustomWorld extends World {
 ### Hooks de Cucumber
 
 ```typescript
-// tests/utils/hooks.ts
+// tests/support/hooks.ts
 Before(async function(this: CustomWorld) {
   await this.init();              // inicia browser antes de cada escenario
 });
@@ -203,7 +212,7 @@ After(async function(this: CustomWorld) {
 
 Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 
-| | `checkout.steps.ts` | `checkout-simple.steps.ts` |
+| | `flujo-de-compra.steps.ts` | `comparativa-sin-world.steps.ts` |
 |---|---|---|
 | Patrón | CustomWorld | Variables `let` de módulo |
 | Aislamiento | ✅ Por escenario | ❌ Estado compartido |
@@ -212,9 +221,9 @@ Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 
 ### Archivos de práctica
 
-- `tests/features/checkout.feature`
-- `tests/step-definitions/checkout.steps.ts`
-- `tests/utils/world.ts` + `tests/utils/hooks.ts`
+- `tests/features/flujo-de-compra.feature`
+- `tests/step-definitions/flujo-de-compra.steps.ts`
+- `tests/support/world.ts` + `tests/support/hooks.ts`
 
 ---
 
@@ -289,6 +298,6 @@ push → GitHub Actions
 
 ## 🎯 Tarea para la próxima clase
 
-1. Agrega un nuevo `Scenario` en `checkout.feature` para el caso de login fallido
+1. Agrega un nuevo `Scenario` en `flujo-de-compra.feature` para el caso de login fallido
 2. Implementa los steps correspondientes
 3. Verifica que el pipeline de GitHub Actions ejecuta ambos jobs correctamente
