@@ -11,6 +11,7 @@ import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playw
 import { LoginPage } from '../../pages/LoginPage';
 import { InventoryPage } from '../../pages/InventoryPage';
 import { CartPage } from '../../pages/CartPage';
+import { CheckoutPage } from '../../pages/CheckoutPage';
 
 // Extendemos World para agregar nuestras propias propiedades.
 // El "!" le dice a TypeScript "confía en mí, esto se va a inicializar antes de usarse"
@@ -23,6 +24,7 @@ export class CustomWorld extends World {
   loginPage!: LoginPage;
   inventoryPage!: InventoryPage;
   cartPage!: CartPage;
+  checkoutPage!: CheckoutPage;
 
   // Se llama en el Before hook antes de cada escenario.
   // Aquí arrancamos el browser y creamos las páginas POM.
@@ -34,6 +36,7 @@ export class CustomWorld extends World {
     this.loginPage = new LoginPage(this.page);
     this.inventoryPage = new InventoryPage(this.page);
     this.cartPage = new CartPage(this.page);
+    this.checkoutPage = new CheckoutPage(this.page);
   }
 
   // Se llama en el After hook después de cada escenario.
