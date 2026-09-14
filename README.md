@@ -8,48 +8,9 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 - [Git](https://git-scm.com)
 - [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
 
-## Instalación desde cero (Clase 1 — B3)
-
-Cada alumno crea su propio proyecto. No se clona este repositorio.
-
-```bash
-# 1. Crear una carpeta para el proyecto y entrar en ella
-mkdir playwright-curso
-cd playwright-curso
-
-# 2. Inicializar el proyecto — esto instala Playwright, TypeScript y genera
-#    playwright.config.ts, tsconfig.json y tests de ejemplo automáticamente
-npm init playwright@latest
-
-# Durante el asistente selecciona:
-#   · TypeScript
-#   · tests  (carpeta de tests)
-#   · false  (no agregar GitHub Actions por ahora — lo haremos en Clase 4)
-#   · true   (instalar navegadores)
-```
-
-> Al terminar tendrás el proyecto listo con todos los archivos necesarios. No necesitas instalar TypeScript ni crear `tsconfig.json` manualmente — `npm init playwright@latest` lo hace todo.
-
-> **¿Los navegadores no se instalaron durante el asistente?** Ejecútalos manualmente:
-> ```bash
-> npx playwright install
-> ```
-
-## Ejecutar los tests
-
-```bash
-# Todos los tests (modo headless)
-npx playwright test
-
-# Con navegador visible
-npx playwright test --headed
-
-# Interfaz visual interactiva (UI Mode)
-npx playwright test --ui
-
-# Ver el último reporte HTML
-npx playwright show-report
-```
+> ℹ️ La instalación completa (crear el proyecto con `npm init playwright@latest`, instalar
+> navegadores, etc.) ya se hizo en la rama `clase-00-setup`. Acá solo verificamos que todo
+> siga funcionando antes de arrancar la Clase 1.
 
 ## Verificar que el entorno está listo
 
@@ -58,17 +19,10 @@ node --version       # v20.x.x o superior
 npm --version        # 10.x.x o superior
 git --version        # git version 2.x.x
 npx playwright --version  # Version 1.x.x
+npx playwright test  # debería correr y mostrar "passed"
 ```
 
-## Estructura del proyecto
-
-```
-playwright-curso/
-├── tests/              # Tests del curso (.spec.ts)
-├── playwright.config.ts  # Configuración principal
-├── package.json          # Dependencias y scripts
-└── .gitignore            # Excluye node_modules y reports
-```
+Si algún comando falla, volvé a los pasos de instalación en el README de `clase-00-setup`.
 
 ---
 
@@ -86,16 +40,11 @@ playwright-curso/
 
 ---
 
-## B0 — Verificación del Entorno `30 min`
+## B0 — Verificación del Entorno `10 min`
 
-Antes de iniciar, ejecuta cada comando y confirma que obtienes una versión:
-
-```bash
-node --version          # debe mostrar v20.x.x o superior
-npm --version           # debe mostrar 10.x.x o superior
-git --version           # debe mostrar git version 2.x.x
-npx playwright --version  # debe mostrar Version 1.x.x
-```
+El entorno ya se instaló y verificó en `clase-00-setup`. Antes de arrancar, corré de nuevo
+los comandos de la sección **"Verificar que el entorno está listo"** al inicio de este README
+y confirmá que todo sigue devolviendo una versión.
 
 | Problema | Solución rápida |
 |---|---|
@@ -190,27 +139,23 @@ git push origin clase-01-TU-NOMBRE          # subir a GitHub
 
 ---
 
-## B3 — Proyecto Playwright y Primer Test `50 min`
+## B3 — Proyecto Playwright y Primer Test `40 min`
 
-### Estructura del proyecto
+### Estructura del proyecto (al terminar esta clase)
 
 ```
 playwright-curso/
 ├── tests/
-│   └── example.spec.ts
-├── node_modules/         # NO tocar, NO subir a GitHub
+│   ├── example.spec.ts
+│   └── login.spec.ts     # nuevo — lo agregamos en B4 con Codegen
+├── node_modules/          # NO tocar, NO subir a GitHub
 ├── playwright.config.ts
 ├── package.json
 └── .gitignore
 ```
 
-| Archivo/Carpeta | Para qué sirve |
-|---|---|
-| `tests/` | Aquí escribirás todos tus tests — extensión `.spec.ts` |
-| `playwright.config.ts` | Configuración principal: navegadores, timeout, reporte, baseURL |
-| `package.json` | Lista de dependencias y scripts del proyecto |
-| `node_modules/` | Dependencias instaladas — NO tocar, NO subir a GitHub |
-| `.gitignore` | Archivos que Git ignora — ya excluye `node_modules` automáticamente |
+> La estructura base (`tests/`, `playwright.config.ts`, `package.json`, `.gitignore`) se creó en
+> `clase-00-setup`. En cada clase vas a ver acá cómo va creciendo con los archivos nuevos que agreguemos.
 
 ### playwright.config.ts — opciones esenciales
 
