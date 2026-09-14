@@ -54,3 +54,16 @@ determinista que sí se integra al framework — ahí es donde se conecta con to
 | Repetible / determinista | ✅ Siempre el mismo flujo | ❌ Puede variar según lo que "ve" |
 | Se ejecuta en CI/CD | ✅ Sí (GitHub Actions / Jenkins) | ❌ No, es una herramienta de autoría |
 | Uso típico | Regresión, smoke, pipelines | Generar/prototipar tests o estructura inicial |
+
+## Ejercicio sugerido (práctica, no evaluada)
+
+Con el servidor Playwright MCP habilitado, pídele al agente que navegue un flujo de
+saucedemo.com que **todavía no tengas automatizado** (ej. ordenar productos por precio, o
+"Continue Shopping" desde el carrito). Que lo ejecute paso a paso y, al final, te genere un
+`.spec.ts` usando los Page Objects de `pages/`.
+
+Después, revisá ese código generado contra [`.github/copilot-instructions.md`](../.github/copilot-instructions.md):
+¿usa locators `data-test`? ¿extiende `BasePage`? ¿hace falta ajustarlo a mano?
+
+El objetivo de este ejercicio es justamente ese último paso: el código generado por IA **siempre
+se revisa y ajusta** al estándar del proyecto, nunca se pega tal cual.

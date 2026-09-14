@@ -445,6 +445,7 @@ de los criterios de [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md): solo busca que con
 Playwright tiene un MCP oficial (`@playwright/mcp`) y para qué sirve en la práctica — generar
 casos de test o el esqueleto inicial de un proyecto a partir de un prompt, en vez de escribirlos
 a mano. El repo incluye [`.vscode/mcp.json`](.vscode/mcp.json) para habilitarlo si querés probarlo.
+Incluye un ejercicio práctico (no evaluado) para probarlo sobre un flujo nuevo de saucedemo.com.
 
 ## Proyecto final
 
