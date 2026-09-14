@@ -1,10 +1,10 @@
 // ============================================================
-// ENFOQUE SIN WORLD - Solo para comparar con checkout.steps.ts
+// ENFOQUE SIN WORLD - Solo para comparar con flujo-de-compra.steps.ts
 // ============================================================
 // Aquí se usan variables "let" a nivel de módulo en lugar del CustomWorld.
 // PROBLEMA: si Cucumber corriera escenarios en paralelo, estas variables
 // serían COMPARTIDAS y los escenarios se pisarían entre sí.
-// SOLUCIÓN correcta: usar CustomWorld (ver checkout.steps.ts)
+// SOLUCIÓN correcta: usar CustomWorld (ver flujo-de-compra.steps.ts)
 // ============================================================
 
 import { Given, When, Then, Before, After } from '@cucumber/cucumber';

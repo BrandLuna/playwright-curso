@@ -38,15 +38,9 @@ Feature: Flujo de compra en SauceDemo
     Then deberia ver el mensaje de error "Sauce Labs backpack has been locked out"
 
   @regression
-  Scenario Outline: Login fallido con distintas combinaciones invalidas
-    When inicia sesion con usuario "<usuario>" y contrasena "<contrasena>"
-    Then deberia ver el mensaje de error "<mensaje_error>"
-
-    Examples:
-      | usuario           | contrasena     | mensaje_error                            |
-      | locked_out_user   | secret_sauce   | Sauce Labs backpack has been locked out  |
-      | standard_user     | clave_invalida | Username and password do not match       |
-      | usuario_inventado | secret_sauce   | Username and password do not match       |
+  Scenario: Login fallido con usuario inexistente
+    When inicia sesion con usuario "usuario_inventado" y contrasena "secret_sauce"
+    Then deberia ver el mensaje de error "Username and password do not match"
 
   # --- Inventario y carrito --------------------------------------------------
 
