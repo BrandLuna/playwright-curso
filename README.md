@@ -56,6 +56,39 @@ npx playwright test
 
 Si ves un test pasando (`1 passed`), tu entorno está listo.
 
+> **¿Los navegadores no se instalaron durante el asistente?** Ejecutalos manualmente:
+> ```bash
+> npx playwright install
+> ```
+
+## Estructura del proyecto generado
+
+```
+playwright-curso/
+├── tests/               # Tests del curso (.spec.ts)
+├── node_modules/        # NO tocar, NO subir a GitHub
+├── playwright.config.ts # Configuración principal
+├── package.json         # Dependencias y scripts
+└── .gitignore           # Excluye node_modules y reports
+```
+
+| Archivo/Carpeta | Para qué sirve |
+|---|---|
+| `tests/` | Acá escribirás todos tus tests — extensión `.spec.ts` |
+| `playwright.config.ts` | Configuración principal: navegadores, timeout, reporte, baseURL |
+| `package.json` | Lista de dependencias y scripts del proyecto |
+| `node_modules/` | Dependencias instaladas — NO tocar, NO subir a GitHub |
+| `.gitignore` | Archivos que Git ignora — ya excluye `node_modules` automáticamente |
+
+## Comandos básicos para ejecutar tests
+
+```bash
+npx playwright test           # headless — sin abrir el navegador
+npx playwright test --headed  # con navegador visible
+npx playwright test --ui      # interfaz visual interactiva
+npx playwright show-report    # abrir el último reporte generado
+```
+
 ## Configurar tu propio repositorio en GitHub
 
 1. Creá un repositorio vacío en GitHub (sin README, sin `.gitignore` — ya los tenés localmente)
