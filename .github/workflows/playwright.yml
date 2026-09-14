@@ -9,20 +9,17 @@ on:
     branches: [main, clase-06-bdd, clase-07-cicd]
   # Permite ejecutar manualmente desde GitHub Actions
   # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
+  # El selector de RAMA ya lo pone GitHub automaticamente (arriba de estos inputs)
   workflow_dispatch:
     inputs:
-      alcance:
-        description: 'Que ejecutar al correrlo manualmente (push/PR normales siempre corren todo)'
-        type: choice
-        default: todas
-        options:
-          - todas       # Playwright completo (tests/clase-05) + Cucumber
-          - clase-01
-          - clase-02
-          - clase-03
-          - clase-04
-          - clase-05
-          - bdd         # solo Cucumber (.feature)
+      feature_path:
+        description: 'Ruta/carpeta de .feature a correr (Cucumber). Vacio = todos.'
+        type: string
+        default: 'tests/features/**/*.feature'
+      tag:
+        description: 'Tag de Cucumber para filtrar escenarios (opcional, ej: @smoke)'
+        type: string
+        default: ''
 
 # Si se hace push varias veces seguidas al mismo branch/PR, cancela la corrida anterior
 # que siga en curso (evita gastar minutos de Actions en corridas ya obsoletas)
@@ -34,8 +31,6 @@ jobs:
   # JOB 1: Tests con el runner de Playwright (.spec.ts) - corre EN PARALELO con cucumber
   playwright:
     name: Playwright Tests
-    # se salta solo si lo corriste manualmente eligiendo alcance "bdd"
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.alcance != 'bdd' }}
     timeout-minutes: 60      # cancela el job si supera 60 minutos
     runs-on: ubuntu-latest   # maquina virtual Linux en la nube de GitHub
     # Los secrets del Environment solo son accesibles si el job declara el environment
@@ -58,19 +53,10 @@ jobs:
       # --with-deps: el OS Linux no trae esas librerias por defecto
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # Elige que carpeta de tests correr: una clase puntual (dispatch manual) o tests/clase-05 (push/PR/todas)
-      - name: Determinar alcance de los tests
-        id: alcance
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.alcance }}" != "todas" ] && [ "${{ inputs.alcance }}" != "bdd" ]; then
-            echo "path=tests/${{ inputs.alcance }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "path=tests/clase-05" >> "$GITHUB_OUTPUT"
-          fi
-      # Ejecuta los .spec.ts del alcance elegido con el runner de Playwright
+      # Ejecuta todos los archivos .spec.ts con el runner de Playwright
       # Las credenciales/URL vienen de secrets; si no estan configurados, se usan los defaults del test
       - name: Run Playwright tests
-        run: npx playwright test ${{ steps.alcance.outputs.path }}
+        run: npx playwright test tests/clase-05
         env:
           CI: true
           BASE_URL: ${{ secrets.BASE_URL }}
@@ -162,8 +148,6 @@ jobs:
   # JOB 2: Tests BDD con Cucumber (.feature) - corre EN PARALELO con playwright
   cucumber:
     name: Cucumber Tests
-    # se salta si lo corriste manualmente eligiendo una clase puntual (clase-01..05, sin BDD)
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.alcance == 'todas' || inputs.alcance == 'bdd' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     # Los secrets del Environment solo son accesibles si el job declara el environment
@@ -180,9 +164,19 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # Ejecuta los escenarios Gherkin con el runner de Cucumber
+      # Ejecuta los escenarios Gherkin con el runner de Cucumber.
+      # En dispatch manual se puede elegir un feature/carpeta puntual y un tag opcional;
+      # en push/PR (sin inputs) corre todos los .feature, sin filtro de tag.
       - name: Run Cucumber tests
-        run: npm run cucumber
+        run: |
+          FEATURE_PATH="${{ inputs.feature_path }}"
+          TAG="${{ inputs.tag }}"
+          [ -z "$FEATURE_PATH" ] && FEATURE_PATH="tests/features/**/*.feature"
+          if [ -n "$TAG" ]; then
+            node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js "$FEATURE_PATH" --tags "$TAG"
+          else
+            node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js "$FEATURE_PATH"
+          fi
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
           SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
