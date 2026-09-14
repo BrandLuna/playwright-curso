@@ -434,24 +434,30 @@ el mismo estilo en cualquier sesión de trabajo.
 ## 🎯 Objetivos
 
 - Consolidar el framework completo: POM + BDD + CI/CD + reportes + IA, todo funcionando junto
-- Conocer Playwright MCP como extra opcional para generar tests o estructura inicial con IA
 - Dejar el README listo para mostrarse en una entrevista de trabajo
 - Entender los criterios de evaluación del proyecto final del curso
+- Practicar de forma general todo lo visto en las clases anteriores, de cara al proyecto final
 
-## Playwright MCP — extra opcional (no evaluado)
+> 🎁 Como regalo extra (fuera del temario oficial), esta clase incluye una introducción a
+> **Playwright MCP** — no es la práctica de la clase, es solo un ejemplo de una herramienta de
+> IA relacionada con Playwright que vale la pena que conozcas. Ver la sección más abajo.
+
+## Proyecto final
+
+Ver [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md) para los criterios de evaluación, los flujos mínimos
+requeridos sobre saucedemo.com, los entregables esperados y cómo crear tu rama
+`proyecto-final-TUNOMBRE` a partir de este framework. Esta es la práctica real de la Clase 8:
+un repaso integral de todo el curso (POM, BDD, CI/CD, reportes) aplicado de punta a punta.
+
+## 🎁 Extra: Playwright MCP (no evaluado, no es la práctica de la clase)
 
 Ver [`mcp/README-mcp.md`](mcp/README-mcp.md). Es contenido **aparte** del framework principal y
 de los criterios de [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md): solo busca que conozcas que
 Playwright tiene un MCP oficial (`@playwright/mcp`) y para qué sirve en la práctica — generar
 casos de test o el esqueleto inicial de un proyecto a partir de un prompt, en vez de escribirlos
 a mano. El repo incluye [`.vscode/mcp.json`](.vscode/mcp.json) para habilitarlo si querés probarlo.
-Incluye un ejercicio práctico (no evaluado) para probarlo sobre un flujo nuevo de saucedemo.com.
-
-## Proyecto final
-
-Ver [`PROYECTO-FINAL.md`](PROYECTO-FINAL.md) para los criterios de evaluación, los flujos mínimos
-requeridos sobre saucedemo.com, los entregables esperados y cómo crear tu rama
-`proyecto-final-TUNOMBRE` a partir de este framework.
+Incluye una tabla explicando qué es, cómo funciona y cómo interactúa con el navegador, más un
+ejercicio opcional para probarlo sobre un flujo nuevo de saucedemo.com.
 
 ## Checklist de integración final
 

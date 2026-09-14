@@ -1,20 +1,27 @@
-# Playwright MCP — Extra opcional (no forma parte de la evaluación)
+# 🎁 Playwright MCP — Regalo extra (no es la práctica de la Clase 8, no se evalúa)
 
-Esta carpeta es **material complementario**, aparte del framework principal del curso. No se
-ejecuta en el pipeline, no es un criterio de [`PROYECTO-FINAL.md`](../PROYECTO-FINAL.md), y no
-requiere que instales nada en `package.json`. La idea es simplemente que conozcas que Playwright
-tiene un MCP oficial y para qué se usa en la práctica.
+Esta carpeta **no es la práctica de la Clase 8** — la práctica real de esa clase es el repaso
+integral del curso descrito en [`PROYECTO-FINAL.md`](../PROYECTO-FINAL.md). Esto es un regalo
+aparte: no se ejecuta en el pipeline, no es un criterio de evaluación, y no requiere instalar
+nada en `package.json`. La idea es solo que conozcas que Playwright tiene un MCP oficial, cómo
+funciona y para qué sirve en la práctica.
 
-## ¿Qué es Playwright MCP?
+## ¿Qué es, cómo funciona y cómo interactúa con el navegador?
 
-[`@playwright/mcp`](https://github.com/microsoft/playwright-mcp) es un servidor MCP (Model
-Context Protocol) oficial de Microsoft. Expone las capacidades de Playwright (navegar, hacer
-click, llenar formularios, tomar snapshots de accesibilidad) como **herramientas** que un agente
-de IA (Copilot Chat, Claude, etc.) puede invocar directamente sobre un navegador real.
+| Pregunta | Respuesta |
+|---|---|
+| **¿Qué es?** | [`@playwright/mcp`](https://github.com/microsoft/playwright-mcp): un servidor MCP (Model Context Protocol) oficial de Microsoft que expone Playwright como herramientas para un agente de IA. |
+| **¿Qué es un MCP?** | Un protocolo estándar que permite que un agente de IA (Copilot Chat, Claude, etc.) descubra y llame "herramientas" externas (funciones) de forma uniforme, sin que cada integración sea distinta. |
+| **¿Cómo se conecta?** | El cliente de IA (VS Code, Claude Desktop) lanza el servidor como un proceso aparte (`npx @playwright/mcp@latest`) y se comunica con él por el protocolo MCP (stdio), no por HTTP normal ni por `import` en tu código. |
+| **¿Qué herramientas expone?** | `browser_navigate`, `browser_click`, `browser_type`, `browser_snapshot`, entre otras — cada una controla un navegador real (Chromium) por debajo, usando el mismo motor de Playwright. |
+| **¿Cómo "ve" la página?** | No usa capturas de pantalla. Pide un **snapshot de accesibilidad**: un árbol de texto con roles, nombres y referencias de cada elemento interactivo (botones, inputs, links). Es más liviano y preciso que analizar una imagen. |
+| **¿Cómo decide qué hacer?** | El agente de IA recibe ese snapshot, razona en lenguaje natural cuál es el siguiente paso, y llama a la herramienta correspondiente (ej. `browser_click` sobre el botón "Login"). Repite el ciclo hasta cumplir el objetivo. |
+| **¿Quién controla el navegador?** | El servidor MCP, usando Playwright real por debajo — el mismo navegador y las mismas APIs que ya usás en `tests/`, solo que las acciones las decide el agente y no un script fijo. |
 
 ## ¿Para qué sirve en este curso?
 
 En la práctica, lo más útil de Playwright MCP para un QA es pedirle al agente que:
+
 
 - **Genere casos de test automáticamente**: le describís un flujo en lenguaje natural
   ("agrega un producto al carrito y haz checkout") y el agente lo ejecuta en un navegador real
