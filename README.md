@@ -1,6 +1,6 @@
 # QA Automation Framework — Playwright + TypeScript + Cucumber (BDD) + CI/CD
 
-[![Playwright Tests](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml/badge.svg)](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml)
+[![Cucumber BDD Tests](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml/badge.svg)](https://github.com/BrandLuna/playwright-curso/actions/workflows/playwright.yml)
 
 Framework de QA Automation para **saucedemo.com**, construido a lo largo de un curso de
 **8 clases progresivas**. Esta rama (`main`) contiene el **estado final y completo** del
@@ -55,22 +55,21 @@ playwright-curso/
 └── package.json
 ```
 
-## CI/CD — pipeline configurable
+## CI/CD — pipeline configurable (Cucumber)
 
-El workflow principal ([`.github/workflows/playwright.yml`](.github/workflows/playwright.yml))
-corre automático en cada `push`/`pull_request` (Playwright + Cucumber completos). También se
-puede disparar **manualmente** desde la pestaña *Actions* → *Run workflow*, eligiendo un
-`alcance`:
+El workflow de `main` ([`.github/workflows/playwright.yml`](.github/workflows/playwright.yml))
+corre **solo el flujo BDD con Cucumber** (los tests `.spec.ts` no se ejecutan en este pipeline).
+Se dispara automático en cada `push`/`pull_request`, corriendo todos los `.feature`. También se
+puede disparar **manualmente** desde la pestaña *Actions* → *Run workflow*, con 2 inputs opcionales:
 
-| `alcance` | Qué corre |
+| Input | Qué hace |
 |---|---|
-| `todas` (default) | Playwright completo (`tests/clase-05`) + Cucumber |
-| `clase-01` … `clase-05` | Solo los specs Playwright de esa clase puntual |
-| `bdd` | Solo los escenarios Cucumber (`.feature`) |
+| `feature_path` | Ruta/carpeta de `.feature` a correr (default: todos) |
+| `tag` | Filtra escenarios por tag de Cucumber, ej. `@smoke` (opcional) |
 
-Así podés re-ejecutar el pipeline apuntado a una clase específica sin tener que cambiar el
-`.yml` a mano. Clase 6 en adelante (BDD, CI/CD, MCP) no tienen carpeta de tests propia — su
-"job" **es** el pipeline mismo (`bdd` para la 6, el workflow completo para la 7/8).
+Así podés re-ejecutar el pipeline apuntado a un feature o tag puntual sin tocar el `.yml` a mano.
+Los tests `.spec.ts` (`npm test`) siguen corriendo localmente igual que siempre, solo que ya no
+forman parte de este pipeline de CI en `main`.
 
 ## Sobre este proyecto — material de un curso
 
