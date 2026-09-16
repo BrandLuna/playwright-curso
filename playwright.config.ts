@@ -16,6 +16,13 @@ export default defineConfig({
   // Carpeta donde Playwright busca los archivos de tests (*.spec.ts)
   testDir: './tests',
 
+  // Timeout máximo de cada test
+  timeout: 60_000,
+  // Timeout máximo de las aserciones expect
+  expect: {
+    timeout: 5_000,
+  },
+
   // Ejecuta los tests dentro de cada archivo en paralelo
   // → más rápido, pero requiere que los tests sean independientes entre sí
   fullyParallel: true,
@@ -44,6 +51,10 @@ export default defineConfig({
     // 'on-first-retry' → solo graba cuando un test falla y se reintenta
     // Para ver el trace: npx playwright show-trace trace.zip
     trace: 'on-first-retry',
+
+    // Timeouts de acciones y navegación
+    actionTimeout: 5_000, // click, fill, etc.: 5 segundos
+    navigationTimeout: 10_000, // navegación: 10 segundos
   },
 
   /* Configure projects for major browsers */
