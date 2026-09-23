@@ -8,7 +8,6 @@ test('fill y clear en inputs de texto', async ({ page }) => {
   await page.goto('https://demoqa.com/text-box');
 
   // fill: limpia el campo y escribe de golpe — el más usado
-  // demoqa no asocia labels con for correctamente, usamos #id directamente
   await page.locator('#userName').fill('Juan Pérez');
   await expect(page.locator('#userName')).toHaveValue('Juan Pérez');
 

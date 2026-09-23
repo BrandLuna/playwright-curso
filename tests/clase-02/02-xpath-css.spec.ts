@@ -22,19 +22,23 @@ test.describe('CSS Selectors', () => {
   test('por atributo []', async ({ page }) => {
     await page.goto('https://demoqa.com/text-box');
     // [atributo="valor"] — útil cuando no hay ID ni clase estable
-    await expect(page.locator('input[placeholder="Full Name"]')).toBeVisible();
+    await expect(page.locator('[plainputceholder="Full Name"]')).toBeVisible();
   });
 
   test('por tipo de elemento', async ({ page }) => {
     await page.goto('https://demoqa.com/buttons');
     // filtramos visible:true porque el primer button del DOM es el navbar toggler (oculto)
-    await expect(page.locator('button').filter({ visible: true }).first()).toBeVisible();
+    await expect(page.locator('button').filter({ visible: true }).nth(2)).toBeVisible();
   });
 
   test('selector combinado', async ({ page }) => {
     await page.goto('https://demoqa.com/text-box');
     // div > input — hijo directo; div input — cualquier descendiente
     await expect(page.locator('form#userForm input#userName')).toBeVisible();
+    // form > div — selecciona los div que son hijos directos del formulario
+    await expect(page.locator('form#userForm > div > div > input').first()).toBeVisible();
+    // #userName-wrapper > div:nth-child(2) — segundo div hijo directo
+    await expect(page.locator('#userName-wrapper > div:nth-child(2)')).toBeVisible();
   });
 });
 

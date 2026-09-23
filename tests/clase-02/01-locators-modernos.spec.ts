@@ -12,7 +12,7 @@ test.describe('getByRole', () => {
     // exact: true exige que el texto sea exactamente ese
     await expect(page.getByRole('button', { name: 'Click Me', exact: true })).toBeVisible();
   });
-
+  //h1
   test('heading por rol', async ({ page }) => {
     await page.goto('https://demoqa.com/text-box');
     await expect(page.getByRole('heading', { name: 'Text Box' })).toBeVisible();
