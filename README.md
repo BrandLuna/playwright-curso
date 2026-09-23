@@ -120,6 +120,11 @@ await expect(page).not.toHaveURL(/cart/);
 
 > ⚠️ Evita `waitForTimeout()` — el auto-waiting cubre el 90% de los casos.
 
+```typescript
+await page.waitForTimeout(5_000); // pausa fija de 5 segundos
+await expect(locator).toBeVisible({ timeout: 10_000 }); // reemplaza el timeout global para esta assertion
+```
+
 ### Archivo de práctica → `tests/clase-03/01-assertions.spec.ts`
 
 ---
@@ -200,6 +205,9 @@ tests/
 
 ## B3 — Modos de Ejecución y CLI `30 min`
 
+Opciones como `workers`, `timeout`, `retries`, `headless`, `trace` y `reporter`
+pueden definirse de forma general en `playwright.config.ts` y sobrescribirse desde CLI o localmente cuando corresponda.
+
 ### Headless vs Headed
 
 | Headless (sin navegador) | Headed (con navegador) |
@@ -258,6 +266,8 @@ Analiza el código generado, verifica que los locators sean correctos y mejóral
 
 - Assertions en profundidad: `toHaveTitle`, `toBeHidden`, `toHaveValue`, `toBeEnabled`, `.not`
 - Auto-waiting y esperas explícitas (`waitForURL`)
+- Timeout global en `playwright.config.ts`, timeout local y espera fija
+- Configuración de ejecución: workers, reintentos, headless y evidencias
 - `describe()` para agrupar tests
 - `test.only()`, `test.skip()`, `test.fixme()`
 - Hooks: `beforeEach`, `afterEach`, `beforeAll`, `afterAll`

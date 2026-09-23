@@ -45,12 +45,16 @@ test.describe('Flujo de compra completo', () => {
     await expect(page).toHaveURL(/checkout-step-two/);
     await expect(page.getByText('Checkout: Overview')).toBeVisible();
 
+    // Espera fija de 5 segundos antes de continuar (solo como demostración)
+    await page.waitForTimeout(5_000);
+
     // — Finalizar compra —
     await page.getByRole('button', { name: 'Finish' }).click();
 
     // — Verificar confirmación —
     await expect(page).toHaveURL(/checkout-complete/);
-    await expect(page.getByText('Thank you for your order!')).toBeVisible();
+    // Este timeout local reemplaza los 5 segundos de expect definidos en playwright.config.ts
+    await expect(page.getByText('Thank you for your order!')).toBeVisible({ timeout: 10_000 });
   });
 
   // ─── Regression: verificar que el carrito persiste entre páginas ──────────
@@ -64,9 +68,11 @@ test.describe('Flujo de compra completo', () => {
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
   });
 
-  // ─── TAREA: test de ordenamiento (completar en clase) ────────────────────
+  // ─── TAREA: test de ordenamiento (completar en clase) ─────────────────────
   // test('ordenar productos por precio ascendente @regression', async ({ page }) => {
-  //   // 1. Cambiar el selector a 'Price (low to high)'
-  //   // 2. Verificar que el primer producto tiene el precio más bajo
+  //   // 1. En el dropdown .product_sort_container, seleccionar la opción
+  //   //    'Price (low to high)' usando selectOption('lohi').
+  //   // 2. Leer todos los textos de .inventory_item_price, convertirlos a números
+  //   //    y comprobar que el primer precio sea igual al menor de toda la lista.
   // });
 });
