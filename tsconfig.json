@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "CommonJS",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "esModuleInterop": true,
-    "types": ["node", "@playwright/test"]
+    "target": "ESNext", // JavaScript moderno
+    "module": "CommonJS", // Módulos de Node.js
+    "moduleResolution": "bundler", // Resolución de imports
+    "strict": true, // Comprobación estricta de tipos
+    "esModuleInterop": true, // Compatibilidad entre módulos
+    "types": ["node", "@playwright/test"] // Tipos de Node y Playwright
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts"], // Archivos TypeScript incluidos
+  "exclude": ["node_modules"] // Dependencias excluidas
 }

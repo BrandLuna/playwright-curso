@@ -35,6 +35,10 @@ test.describe('CSS Selectors', () => {
     await page.goto('https://demoqa.com/text-box');
     // div > input — hijo directo; div input — cualquier descendiente
     await expect(page.locator('form#userForm input#userName')).toBeVisible();
+    // form > div — selecciona los div que son hijos directos del formulario
+    await expect(page.locator('form#userForm > div > div > input').first()).toBeVisible();
+    // #userName-wrapper > div:nth-child(2) — segundo div hijo directo
+    await expect(page.locator('#userName-wrapper > div:nth-child(2)')).toBeVisible();
   });
 });
 
