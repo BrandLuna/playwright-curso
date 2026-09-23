@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const reportTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
 /**
  * CLASE 1 — Configuración principal del proyecto Playwright.
  * Documentación oficial: https://playwright.dev/docs/test-configuration
@@ -37,8 +39,9 @@ export default defineConfig({
   // Detiene la ejecución después de cierta cantidad de fallos
   // maxFailures: process.env.CI ? 1 : undefined,
 
-  // Reporte HTML: se abre con npx playwright show-report
-  reporter: 'html',
+  // Cada ejecución guarda el reporte en una carpeta distinta para conservar el historial
+  // Abrir uno: npx playwright show-report playwright-report/<fecha-hora>
+  reporter: [['html', { outputFolder: `playwright-report/${reportTimestamp}`, open: 'never' }]],
 
   // Configuración compartida para todos los navegadores
   use: {

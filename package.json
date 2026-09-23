@@ -8,6 +8,7 @@
     "test:smoke": "npx playwright test --grep @smoke",
     "test:regression": "npx playwright test --grep @regression",
     "test:headed": "npx playwright test --headed",
+    "test:report:history": "powershell -NoProfile -Command \"$env:PLAYWRIGHT_HTML_OUTPUT_DIR = 'playwright-report/' + (Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'); npx playwright test\"",
     "test:report": "npx playwright show-report"
   },
   "keywords": [],
