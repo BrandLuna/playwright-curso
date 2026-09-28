@@ -63,7 +63,6 @@ test.describe('Carrito de compras', () => {
   test('agregar y quitar producto del carrito', { tag: '@regression' }, async ({ page }) => {
     await page.locator('.btn_inventory').first().click();
     await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
-
     // quitar el producto
     await page.locator('.btn_inventory').first().click();
     // el badge desaparece cuando el carrito está vacío
