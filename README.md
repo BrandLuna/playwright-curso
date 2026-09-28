@@ -7,6 +7,7 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 - [Node.js LTS](https://nodejs.org) (v20 o superior)
 - [Git](https://git-scm.com)
 - [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
+- Java 8 o superior, necesario para abrir Allure desde la terminal
 
 ## Configuración para esta clase
 
@@ -22,6 +23,16 @@ npm install --save-dev allure-playwright
 # CLI de Allure — para generar y abrir el reporte desde la terminal
 npm install --save-dev allure-commandline
 ```
+
+Si descargaste o clonaste este proyecto con el `package.json` actualizado, puedes
+instalar todas las dependencias de una vez desde la raíz del proyecto:
+
+```bash
+npm install
+```
+
+En un entorno CI o cuando ya existe `package-lock.json`, usa `npm ci` para una
+instalación limpia y reproducible.
 
 **Crea el fixture de login** — es nativo de Playwright, sin instalación extra:
 
@@ -61,7 +72,15 @@ npm run test:smoke              # solo tests @smoke
 npm run test:regression         # solo tests @regression
 npm run test:headed             # con navegador visible
 npm run test:report             # abrir reporte HTML
-npx allure generate allure-results --clean -o allure-report && npx allure open allure-report
+npm run allure:report            # tests + generar y abrir reporte Allure
+```
+
+Para ejecutar cada paso de Allure por separado:
+
+```bash
+npm run test:allure              # ejecuta tests y genera allure-results/
+npm run allure:generate          # crea allure-report/ a partir de los resultados
+npm run allure:open              # abre el reporte en el navegador
 ```
 
 ## Estructura del proyecto
@@ -72,11 +91,12 @@ playwright-curso/
 │   └── workflows/
 │       └── ci.yml              ← Clase 4: primer pipeline CI/CD
 ├── tests/
-│   ├── fixtures/
-│   │   └── auth.fixture.ts     ← fixture de login reutilizable
-│   ├── data/
-│   │   ├── usuarios.json
-│   │   └── productos.csv
+│   ├── utils/
+│   │   ├── fixtures/
+│   │   │   └── auth.fixture.ts  ← fixture de login reutilizable
+│   │   └── data/
+│   │       ├── usuarios.json
+│   │       └── productos.csv
 │   ├── clase-01/ … clase-03/
 │   ├── clase-04/
 │   │   ├── 01-fixtures.spec.ts
@@ -116,7 +136,7 @@ Los fixtures son datos o funciones reutilizables inyectados en los tests. Evitan
 | **Scope: worker** | Se crea una vez y se comparte entre todos los tests del worker |
 | **Uso típico** | Login reutilizable, datos de usuario, configuración de contexto |
 
-### Fixture de login — `tests/fixtures/auth.fixture.ts`
+### Fixture de login — `tests/utils/fixtures/auth.fixture.ts`
 
 ```typescript
 import { test as base, Page } from '@playwright/test';
@@ -150,7 +170,7 @@ test('agregar producto', { tag: '@smoke' }, async ({ loggedInPage }) => {
 
 > Con el fixture de login ya no necesitas `beforeEach` en cada archivo.
 
-### Data-driven con JSON — `tests/data/usuarios.json`
+### Data-driven con JSON — `tests/utils/data/usuarios.json`
 
 ```typescript
 import usuarios from '../data/usuarios.json';
@@ -162,7 +182,7 @@ for (const { usuario, password, esperado } of usuarios) {
 }
 ```
 
-### Data-driven con CSV — `tests/data/productos.csv`
+### Data-driven con CSV — `tests/utils/data/productos.csv`
 
 ```bash
 npm install --save-dev csv-parse
@@ -172,7 +192,7 @@ npm install --save-dev csv-parse
 import { parse } from 'csv-parse/sync';
 import * as fs from 'fs';
 
-const productos = parse(fs.readFileSync('tests/data/productos.csv', 'utf-8'), {
+const productos = parse(fs.readFileSync('tests/utils/data/productos.csv', 'utf-8'), {
   columns: true, skip_empty_lines: true
 });
 
@@ -240,9 +260,18 @@ reporter: [
 Generar y abrir:
 
 ```bash
-npx playwright test
-npx allure generate allure-results --clean -o allure-report
-npx allure open allure-report
+npm run test:allure
+npm run allure:generate
+npm run allure:open
+```
+
+El reporter `allure-playwright` crea `allure-results/` automáticamente al
+ejecutar los tests. Después, `allure:generate` transforma esos resultados en
+`allure-report/`, y `allure:open` inicia el servidor local para visualizarlo.
+También puedes ejecutar todo el flujo con un solo comando:
+
+```bash
+npm run allure:report
 ```
 
 | | Reporte HTML nativo | Allure Report |

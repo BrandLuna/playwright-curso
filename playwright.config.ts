@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const reportTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
 /**
- * CLASE 4 — Se agregan: screenshot, video y Allure reporter.
+ * CLASE 3 + CLASE 4 — timeouts, evidencias y reportes HTML/Allure.
  * Documentación oficial: https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -10,6 +12,14 @@ export default defineConfig({
 
   // Ejecuta los tests del archivo en paralelo
   fullyParallel: true,
+
+  // Tiempo máximo permitido para cada test
+  timeout: 30_000,
+
+  // Tiempo máximo de espera para las assertions de expect
+  expect: {
+    timeout: 5_000,
+  },
 
   // En CI falla si alguien dejó un test.only()
   forbidOnly: !!process.env.CI,
@@ -20,14 +30,17 @@ export default defineConfig({
   // En CI usa un solo worker para mayor estabilidad
   workers: process.env.CI ? 1 : undefined,
 
-  // Reporte HTML nativo + Allure (Clase 4) — npx playwright show-report / npx allure open
+  // Cada ejecución conserva su reporte HTML en una carpeta fechada
   reporter: [
-    ['html', { open: 'never' }],
+    ['html', { outputFolder: `playwright-report/${reportTimestamp}`, open: 'never' }],
     ['allure-playwright'],
   ],
 
   // Configuración compartida para todos los navegadores
   use: {
+    // Ejecuta sin mostrar la ventana del navegador por defecto
+    headless: true,
+
     // baseURL permite usar page.goto('/') en vez de la URL completa
     // baseURL: 'https://www.saucedemo.com',
 

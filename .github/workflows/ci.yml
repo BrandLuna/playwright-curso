@@ -2,7 +2,7 @@ name: Playwright CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, clase-04-datos-reportes]
   pull_request:
     branches: [main]
   workflow_dispatch:
