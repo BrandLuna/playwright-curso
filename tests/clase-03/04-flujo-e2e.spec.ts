@@ -54,7 +54,7 @@ test.describe('Flujo de compra completo', () => {
     // — Verificar confirmación —
     await expect(page).toHaveURL(/checkout-complete/);
     // Este timeout local reemplaza los 5 segundos de expect definidos en playwright.config.ts
-    await expect(page.getByText('Thank you for your ordr!')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Thank you for your order!')).toBeVisible({ timeout: 10_000 });
   });
 
   // ─── Regression: verificar que el carrito persiste entre páginas ──────────

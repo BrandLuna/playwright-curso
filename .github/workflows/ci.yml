@@ -1,39 +1,52 @@
 name: Playwright CI
 
+# Este workflow se ejecuta automáticamente en GitHub Actions.
 on:
   push:
+    # Cada push a estas ramas inicia una ejecución del pipeline.
     branches: [main, clase-04-datos-reportes]
   pull_request:
+    # También se ejecuta cuando un Pull Request tiene como destino main.
     branches: [main]
+  # Permite iniciar el workflow manualmente desde la pestaña Actions.
   workflow_dispatch:
 
 jobs:
+  # Un job agrupa los pasos necesarios para validar el proyecto.
   playwright-tests:
     name: Playwright Tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     steps:
+      # Descarga el código de la rama o del Pull Request que disparó el workflow.
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Instala Node.js 20 y habilita la caché de dependencias de npm.
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
+      # Instala exactamente las dependencias definidas en package-lock.json.
       - name: Install dependencies
         run: npm ci
 
+      # Instala Chromium y sus dependencias del sistema en el runner de Ubuntu.
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # Ejecuta todos los tests usando playwright.config.ts.
+      # Como CI=true, se aplican los reintentos y el worker configurados para CI.
       - name: Run Playwright tests
         run: npx playwright test
         env:
           CI: true
 
+      # Conserva el reporte HTML aunque algún test falle.
+      # Se descarga desde la sección Artifacts de la ejecución en GitHub Actions.
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
         if: always()

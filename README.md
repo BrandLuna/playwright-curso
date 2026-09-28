@@ -288,18 +288,25 @@ npm run allure:report
 
 GitHub Actions ejecuta tus tests automáticamente en la nube cada vez que haces push.
 
-> Este es el primer workflow del curso. Se irá mejorando en la Clase 6 con notificaciones.
+> Este es un pipeline introductorio. Se irá mejorando en clases posteriores con
+> validaciones y notificaciones más avanzadas.
 
 ### `.github/workflows/ci.yml`
 
 ```yaml
 on:
   push:
-    branches: [main, develop]
+    branches: [main, clase-04-datos-reportes]
   pull_request:
     branches: [main]
   workflow_dispatch:
 ```
+
+Al hacer `git push` a `clase-04-datos-reportes`, GitHub Actions ejecuta este
+workflow automáticamente. En esta clase solo se valida que Playwright pueda
+instalarse y ejecutar los tests en Ubuntu, y se guarda el reporte HTML como
+artefacto. El reporte se descarga desde **Actions → Artifacts** al finalizar la
+ejecución.
 
 ### ¿Qué hace cada step?
 
