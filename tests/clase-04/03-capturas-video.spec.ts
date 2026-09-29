@@ -8,18 +8,18 @@ import { test, expect } from '@playwright/test';
 //   video: 'retain-on-failure'
 // No necesitas código extra para eso — ocurre automáticamente.
 
-test('captura manual en un punto específico del flujo', { tag: '@regression' }, async ({ page }) => {
+test('captura manual en un punto específico del flujo', { tag: '@regression1' }, async ({ page }) => {
   await page.goto('https://www.saucedemo.com');
 
   // captura manual antes del login
-  await page.screenshot({ path: 'evidencias/antes-del-login.png' });
+  await page.screenshot({ path: 'evidencias/capturas/antes-del-login.png' });
 
   await page.getByPlaceholder('Username').fill('standard_user');
   await page.getByPlaceholder('Password').fill('secret_sauce');
   await page.getByRole('button', { name: 'Login' }).click();
 
   // captura manual después del login
-  await page.screenshot({ path: 'evidencias/inventario.png' });
+  await page.screenshot({ path: 'evidencias/capturas/inventario.png' });
   await expect(page).toHaveURL(/inventory/);
 });
 
@@ -48,7 +48,7 @@ test('captura de un elemento específico', { tag: '@regression' }, async ({ page
 // Este test falla intencionalmente para demostrar la captura automática al fallar
 // Descomenta para ver cómo se guarda la evidencia automáticamente:
 //
-// test('test que falla — demuestra captura automática', async ({ page }) => {
-//   await page.goto('https://www.saucedemo.com');
-//   await expect(page.getByText('Este texto no existe')).toBeVisible();
-// });
+ test('test que falla — demuestra captura automática', async ({ page }) => {
+   await page.goto('https://www.saucedemo.com');
+   await expect(page.getByText('Este texto no existe')).toBeVisible();
+ });

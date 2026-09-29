@@ -27,24 +27,27 @@ for (const { usuario, password, esperado } of usuarios) {
   });
 }
 
-// ─── Data-driven con CSV ──────────────────────────────────────────────────────
-// csv-parse lee el archivo y lo convierte en un array de objetos
-const csvPath = path.join(__dirname, '../utils/data/productos.csv');
-const csvData = fs.readFileSync(csvPath, 'utf-8');
-const productos = parse(csvData, { columns: true, skip_empty_lines: true }) as Array<{
-  nombre: string;
-  precio_esperado: string;
-}>;
 
-for (const { nombre, precio_esperado } of productos) {
-  test(`precio de "${nombre}" es $${precio_esperado}`, { tag: '@regression' }, async ({ page }) => {
-    await page.goto('https://www.saucedemo.com');
-    await page.getByPlaceholder('Username').fill('standard_user');
-    await page.getByPlaceholder('Password').fill('secret_sauce');
-    await page.getByRole('button', { name: 'Login' }).click();
+test.describe('Data-driven con CSV', () => {
+  // ─── Data-driven con CSV ──────────────────────────────────────────────────────
+  // csv-parse lee el archivo y lo convierte en un array de objetos
+  const csvPath = path.join(__dirname, '../utils/data/productos.csv');
+  const csvData = fs.readFileSync(csvPath, 'utf-8');
+  const productos = parse(csvData, { columns: true, skip_empty_lines: true }) as Array<{
+    nombre: string;
+    precio_esperado: string;
+  }>;
 
-    // buscar el precio del producto por su nombre en el inventario
-    const item = page.locator('.inventory_item').filter({ hasText: nombre });
-    await expect(item.locator('.inventory_item_price')).toHaveText(`$${precio_esperado}`);
-  });
-}
+  for (const { nombre, precio_esperado } of productos) {
+    test(`precio de "${nombre}" es $${precio_esperado}`, { tag: '@regression' }, async ({ page }) => {
+      await page.goto('https://www.saucedemo.com');
+      await page.getByPlaceholder('Username').fill('standard_user');
+      await page.getByPlaceholder('Password').fill('secret_sauce');
+      await page.getByRole('button', { name: 'Login' }).click();
+
+      // buscar el precio del producto por su nombre en el inventario
+      const item = page.locator('.inventory_item').filter({ hasText: nombre });
+      await expect(item.locator('.inventory_item_price')).toHaveText(`$${precio_esperado}`);
+    });
+  }
+});

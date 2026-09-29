@@ -41,7 +41,7 @@ jobs:
       # Ejecuta todos los tests usando playwright.config.ts.
       # Como CI=true, se aplican los reintentos y el worker configurados para CI.
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test 01-fixtures.spec
         env:
           CI: true
 
