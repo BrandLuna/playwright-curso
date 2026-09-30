@@ -1,7 +1,7 @@
-// Clase 5 — B3: API Testing básico con Playwright
+// Clase 5 — B5: API Testing básico con Playwright
 // Playwright puede hacer peticiones HTTP sin abrir el navegador.
 // Útil para: crear datos de prueba, verificar APIs, acelerar el setup de tests.
-// Ejecutar: npx playwright test tests/clase-05/03-api-testing.spec.ts
+// Ejecutar: npx playwright test tests/clase-05/05-api-testing.spec.ts
 
 import { test, expect, request } from '@playwright/test';
 
@@ -11,28 +11,38 @@ const API_BASE = 'https://jsonplaceholder.typicode.com';
 
 test.describe('API Testing con Playwright request context', () => {
   test('GET — obtener lista de usuarios', { tag: '@smoke' }, async () => {
-    // request.newContext() crea un cliente HTTP independiente del navegador
+    // request.newContext() crea un cliente HTTP independiente del navegador — sin abrir ninguna página
     const apiContext = await request.newContext({ baseURL: API_BASE });
 
+    // GET /users — pide la lista completa de usuarios de la API
     const response = await apiContext.get('/users');
 
-    // assertions de API: status code y estructura de respuesta
+    // status() da el código HTTP de la respuesta — 200 significa "OK"
     expect(response.status()).toBe(200);
+
+    // json() parsea el body de la respuesta como JSON — sin esto sería solo texto plano
     const users = await response.json();
+
+    // valida la cantidad de elementos que devolvió la API
     expect(users).toHaveLength(10);
+    // valida que el primer usuario tenga estas propiedades, sin importar su valor
     expect(users[0]).toHaveProperty('name');
     expect(users[0]).toHaveProperty('email');
 
+    // libera la conexión HTTP del contexto — evita dejar sockets abiertos
     await apiContext.dispose();
   });
 
   test('GET — obtener un usuario por ID', { tag: '@regression' }, async () => {
     const apiContext = await request.newContext({ baseURL: API_BASE });
 
+    // GET /users/1 — pide un único recurso por su ID
     const response = await apiContext.get('/users/1');
 
     expect(response.status()).toBe(200);
     const user = await response.json();
+
+    // valida tanto el valor exacto de un campo como la existencia de otro
     expect(user.id).toBe(1);
     expect(user).toHaveProperty('username');
 
@@ -42,13 +52,16 @@ test.describe('API Testing con Playwright request context', () => {
   test('POST — crear un recurso', { tag: '@regression' }, async () => {
     const apiContext = await request.newContext({ baseURL: API_BASE });
 
+    // POST /posts — crea un recurso nuevo enviando el body en "data" (se serializa a JSON automáticamente)
     const response = await apiContext.post('/posts', {
       data: { title: 'Test QA', body: 'Playwright API test', userId: 1 },
     });
 
-    // jsonplaceholder devuelve 201 Created
+    // jsonplaceholder devuelve 201 Created cuando se crea un recurso
     expect(response.status()).toBe(201);
     const post = await response.json();
+
+    // la API simula la creación devolviendo un "id" nuevo y los datos que enviamos
     expect(post).toHaveProperty('id');
     expect(post.title).toBe('Test QA');
 
