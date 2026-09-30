@@ -1,9 +1,10 @@
 import { Page, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
 
-export class LoginPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  async goto(path: string) {
+    await this.page.goto(path);
   }
 
   // data-test es el locator más estable en saucedemo

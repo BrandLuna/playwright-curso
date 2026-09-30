@@ -1,10 +1,7 @@
 import { Page, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
 
-export class InventoryPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
-  }
+export class InventoryPage {
+  constructor(private page: Page) {}
 
   get items()             { return this.page.locator('.inventory_item'); }
   get cartBadge()         { return this.page.locator('.shopping_cart_badge'); }

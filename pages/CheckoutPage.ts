@@ -1,10 +1,7 @@
 import { Page, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
 
-export class CheckoutPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
-  }
+export class CheckoutPage {
+  constructor(private page: Page) {}
 
   get firstNameInput()  { return this.page.getByPlaceholder('First Name'); }
   get lastNameInput()   { return this.page.getByPlaceholder('Last Name'); }

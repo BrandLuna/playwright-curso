@@ -1,10 +1,7 @@
 import { Page, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
 
-export class CartPage extends BasePage {
-  constructor(page: Page) {
-    super(page);
-  }
+export class CartPage {
+  constructor(private page: Page) {}
 
   get cartItems()      { return this.page.locator('.cart_item'); }
   get checkoutButton() { return this.page.locator('[data-test="checkout"]'); }
