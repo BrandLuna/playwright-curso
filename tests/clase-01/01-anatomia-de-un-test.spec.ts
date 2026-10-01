@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 // { page } representa una pestaña del navegador
 test('la página de Playwright tiene el título correcto', async ({ page }) => {
   // navega a la URL y espera a que cargue
-  await page.goto('https://playwright.dev/');
+  await page.goto('/');
 
   // verifica que el título contenga "Playwright" (expresión regular)
   await expect(page).toHaveTitle(/Playwright/);

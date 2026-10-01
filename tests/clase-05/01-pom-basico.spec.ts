@@ -39,7 +39,7 @@ test.describe('Flujo de compra con POM', () => {
 
     // inventario
     await inventoryPage.expectItemCount(6);
-    await inventoryPage.addFirstItemToCart();
+    await inventoryPage.addItemByIndex(0);
     await inventoryPage.expectCartBadge('1');
 
     // carrito

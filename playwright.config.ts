@@ -47,7 +47,7 @@ export default defineConfig({
     headless: true,
 
     // baseURL desde .env — permite usar page.goto('/') en los tests
-    baseURL: process.env.BASE_URL ?? 'https://www.saucedemo.com',
+    baseURL: process.env.BASE_URL,
 
     // Guarda trace cuando un test falla y se reintenta
     trace: 'on-first-retry',
