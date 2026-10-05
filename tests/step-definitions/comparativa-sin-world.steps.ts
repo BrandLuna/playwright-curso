@@ -37,7 +37,7 @@ After({ tags: '@Simple' }, async () => {
 });
 
 Given('visito la pagina de SauceDemo', async () => {
-  await page.goto('https://www.saucedemo.com/');
+  await page.goto(process.env.BASE_URL ?? 'https://www.saucedemo.com/');
 });
 
 When('me logeo con {string} y contrasena {string}', async (username: string, password: string) => {

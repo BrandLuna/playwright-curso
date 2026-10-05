@@ -2,6 +2,11 @@
 // Cucumber crea una instancia nueva de esta clase por cada escenario que corre,
 // por eso el estado (browser, page, etc.) nunca se mezcla entre escenarios.
 import { World, setWorldConstructor } from '@cucumber/cucumber';
+import dotenv from 'dotenv';
+
+// Cucumber no lee playwright.config.ts — hay que cargar .env manualmente aqui,
+// en el primer support file que Cucumber importa (ver "import" en cucumber.json).
+dotenv.config();
 
 // Importamos solo lo que necesitamos de Playwright para lanzar el browser manualmente.
 // Con Cucumber no hay playwright.config.ts, nosotros controlamos todo.

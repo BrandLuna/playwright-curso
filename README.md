@@ -102,9 +102,11 @@ playwright-curso/
 │   │   └── 05-api-testing.spec.ts
 │   ├── features/
 │   │   ├── comparativa-sin-world.feature
+│   │   ├── environments.feature          ← credenciales/URL desde .env (reutiliza un step de flujo-de-compra)
 │   │   └── flujo-de-compra.feature
 │   ├── step-definitions/
 │   │   ├── flujo-de-compra.steps.ts       ← usa CustomWorld
+│   │   ├── environments.steps.ts          ← login con .env (su Given vive en flujo-de-compra.steps.ts)
 │   │   └── comparativa-sin-world.steps.ts ← enfoque sin World (comparación)
 │   ├── support/
 │   │   ├── world.ts                ← CustomWorld: estado por escenario
@@ -134,6 +136,7 @@ playwright-curso/
 - Escribir feature files en Gherkin en español
 - Implementar step definitions en TypeScript usando los Page Objects de clase-05
 - Gestionar el estado entre pasos con el World object
+- Usar variables de entorno (`.env`) en BDD y entender que un `.feature` no está atado a un `.steps.ts`
 - Comparar hooks, timeouts y ejecución en paralelo: Playwright Test vs Cucumber
 - Filtrar escenarios por tags y generar reportes Cucumber + Allure
 
@@ -288,6 +291,50 @@ Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 - `tests/step-definitions/flujo-de-compra.steps.ts`
 - `tests/support/world.ts` + `tests/support/hooks.ts`
 
+### Un `.feature` NO está atado a un `.steps.ts` del mismo nombre
+
+Cucumber no empareja archivos por nombre: carga **todos** los archivos que matchean el glob
+`"import"` de `cucumber.json`, junta todas las funciones `Given/When/Then` en un solo diccionario de
+patrones de texto, y busca qué función matchea cada línea del Gherkin sin importar en qué archivo
+viva. Por eso un mismo step se puede reutilizar entre features distintos, y un mismo feature puede
+combinar steps definidos en varios archivos `.steps.ts`.
+
+Ejemplo real en este proyecto: `tests/features/environments.feature` reutiliza el `Given('el usuario
+navega a la pagina de SauceDemo', ...)` que vive en `flujo-de-compra.steps.ts`, y solo define sus
+propios `When`/`Then` en `environments.steps.ts` (nombre de archivo distinto, cero problema).
+
+### Variables de entorno en BDD (equivalente a Clase 5 B4)
+
+Cucumber **no lee `playwright.config.ts`**, así que el `dotenv.config()` de Clase 5 no aplica aquí —
+hay que cargarlo a mano en el primer support file que Cucumber importa:
+
+```typescript
+// tests/support/world.ts
+import dotenv from 'dotenv';
+dotenv.config();
+```
+
+Con eso, cualquier step definition puede leer `process.env.BASE_URL`, `process.env.SAUCEDEMO_USERNAME`
+y `process.env.SAUCEDEMO_PASSWORD` igual que en los `.spec.ts` de `tests/clase-05/`:
+
+```typescript
+// tests/step-definitions/environments.steps.ts
+const USERNAME = process.env.SAUCEDEMO_USERNAME ?? 'standard_user';
+const PASSWORD = process.env.SAUCEDEMO_PASSWORD ?? 'secret_sauce';
+
+When('inicia sesion con las credenciales del entorno', async function (this: CustomWorld) {
+  await this.loginPage.login(USERNAME, PASSWORD);
+});
+```
+
+> Los escenarios que prueban credenciales **específicas** (usuario bloqueado, contraseña incorrecta,
+> etc.) siguen con el valor literal en el Gherkin a propósito — ahí el dato *es* el caso de prueba.
+> El `.env` aplica a la URL base y al "usuario por defecto", no a los negativos.
+
+### Archivo de práctica — environments
+
+- `tests/features/environments.feature` + `tests/step-definitions/environments.steps.ts`
+
 ### Playwright Test vs Cucumber — hooks, timeouts y paralelo nativo
 
 Ambos runners resuelven lo mismo con mecanismos distintos; esto es lo que cambia al migrar de
@@ -407,6 +454,7 @@ push → GitHub Actions
 - Sintaxis Gherkin: Feature, Scenario, Given/When/Then, tags
 - Step definitions en TypeScript usando los Page Objects de clase-05 (sin la capa `locators/`+`actions/` ni fixtures de pages — el World las reemplaza)
 - CustomWorld para aislar el estado por escenario
+- Variables de entorno (`.env`) en BDD — y que un `.feature` puede combinar steps de cualquier `.steps.ts`
 - Hooks: Before, AfterStep (screenshots), After — y su equivalente en Playwright Test (`beforeEach`/`afterEach`/`beforeAll`/`afterAll`)
 - Timeouts: `setDefaultTimeout` de Cucumber vs `timeout`/`expect.timeout` de `playwright.config.ts`
 - Paralelo: `--parallel <n>` de Cucumber vs `workers`/`fullyParallel` de Playwright
