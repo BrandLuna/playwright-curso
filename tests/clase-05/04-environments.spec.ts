@@ -1,6 +1,6 @@
-// Clase 5 — B2: Environments y variables de entorno
+// Clase 5 — B4: Environments y variables de entorno
 // Las credenciales y la URL vienen de .env, no hardcodeadas en el test.
-// Ejecutar: npx playwright test tests/clase-05/02-environments.spec.ts --headed
+// Ejecutar: npx playwright test tests/clase-05/04-environments.spec.ts --headed
 
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';

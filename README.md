@@ -14,11 +14,16 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 Continúas el proyecto de la Clase 5 (ya debe tener `dotenv`, `baseURL`, timeouts y el reporter
 `allure-playwright` configurados en `playwright.config.ts` — eso no cambia en esta clase).
 
-> **De la Clase 5 se reutiliza:** los Page Objects (`pages/*.ts`) y la config de `playwright.config.ts`.
-> **De la Clase 5 NO se trae:** la separación opcional en `locators/` + `actions/` (B6) ni la fixture
-> `pages.fixture.ts` para inyectar pages — ambas resuelven el mismo problema (evitar `new XPage(page)`
-> repetido) que en BDD ya resuelve el **World object** (`this.loginPage`, `this.cartPage`, ...). Esos
-> archivos se quedan únicamente en la rama `clase-05-pom` como referencia.
+> **De la Clase 5 se reutiliza:** los Page Objects (`pages/*.ts`), la config de `playwright.config.ts`
+> y toda la carpeta `tests/clase-05/` (B1 a B5: POM básico, `beforeEach`, fixtures, environments y API
+> testing) — incluida `tests/utils/fixtures/pages.fixture.ts`, que usa `03-pom-fixtures.spec.ts`.
+> **De la Clase 5 NO se trae:** la separación opcional en `locators/` + `actions/` (B6,
+> `06-pom-locators-actions.spec.ts`). Esos locators/actions resuelven el mismo problema (evitar
+> `new XPage(page)` repetido) que en BDD ya resuelve el **World object** (`this.loginPage`,
+> `this.cartPage`, ...), así que para los *step definitions* de esta clase solo se usan los Page
+> Objects en `pages/*.ts` — la fixture de pages sigue viva, pero únicamente para los `.spec.ts` de
+> `tests/clase-05/`, no para BDD. El archivo de locators/actions se queda únicamente en la rama
+> `clase-05-pom` como referencia.
 
 Instala las nuevas dependencias:
 
@@ -83,7 +88,13 @@ playwright-curso/
 │   ├── CartPage.ts
 │   └── CheckoutPage.ts
 ├── tests/
-│   ├── clase-01/ … clase-05/       ← tests Playwright acumulativos
+│   ├── clase-01/ … clase-04/         ← tests Playwright acumulativos
+│   ├── clase-05/                     ← B1 a B5 (sin B6 locators/actions, no aplica a BDD)
+│   │   ├── 01-pom-basico.spec.ts
+│   │   ├── 02-pom-beforeeach.spec.ts
+│   │   ├── 03-pom-fixtures.spec.ts
+│   │   ├── 04-environments.spec.ts
+│   │   └── 05-api-testing.spec.ts
 │   ├── features/
 │   │   ├── comparativa-sin-world.feature
 │   │   └── flujo-de-compra.feature
@@ -97,7 +108,9 @@ playwright-curso/
 │   │       └── multiple-html-report.ts ← genera el HTML alternativo de Cucumber
 │   └── utils/
 │       ├── data/                   ← JSON/CSV para data-driven testing
-│       ├── fixtures/                ← Playwright fixtures (API testing, Clase 5)
+│       ├── fixtures/
+│       │   ├── auth.fixture.ts       ← API testing (Clase 5)
+│       │   └── pages.fixture.ts      ← inyección de Page Objects (Clase 5, solo para tests/clase-05)
 │       └── helpers.ts
 ├── cucumber.json                   ← configuración de Cucumber (formatters + Allure)
 ├── playwright.config.ts
