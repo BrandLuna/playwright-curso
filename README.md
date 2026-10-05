@@ -333,6 +333,33 @@ npm run cucumber:regression  # solo @regression
 node --import tsx ... --tags "@smoke and not @wip"
 ```
 
+### Más formas de filtrar — por feature, por tag o combinados
+
+El binario oficial de Cucumber.js es `cucumber-js` (`npx cucumber-js`); como los steps están en
+TypeScript, siempre necesita el loader `tsx` (`--import tsx` de **Node**, no confundir con el
+`--import` propio del CLI de Cucumber, que sirve para importar support files):
+
+```bash
+# un solo archivo .feature
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js tests/features/flujo-de-compra.feature
+
+# por tag, con operadores lógicos
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags "@smoke and not @wip"
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags "@smoke or @regression"
+
+# feature + tag combinados
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js tests/features/flujo-de-compra.feature --tags @smoke
+
+# por nombre de escenario, sin usar tags
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --name "Usuario realiza checkout exitoso"
+
+# en paralelo (equivalente a los workers de Playwright)
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 4
+```
+
+Sin importar cuál de estos uses, **los 3 reportes se generan igual** — están declarados globalmente
+en `cucumber.json`, no dependen del filtro que apliques en el CLI.
+
 ### Reportes disponibles para Cucumber
 
 Una sola ejecución (`npm run cucumber`) ya genera **los tres** reportes en paralelo, porque los tres
