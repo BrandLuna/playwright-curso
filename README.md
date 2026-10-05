@@ -37,7 +37,7 @@ npm install --save-dev allure-cucumberjs multiple-cucumber-html-reporter
 
 Agrega a `.gitignore`:
 ```
-cucumber-report.html
+reports/
 cucumber-report-json/
 multiple-cucumber-html-report/
 ```
@@ -182,9 +182,9 @@ Feature: Checkout flow en SauceDemo
     "paths": ["tests/features/**/*.feature"],
     "format": [
       "progress",
-      "html:cucumber-report.html",
+      "html:reports/cucumber-report.html",
       "json:cucumber-report-json/cucumber-report.json",
-      "allure-cucumberjs/reporter"
+      "allure-cucumberjs/reporter:allure-results/formatter.log"
     ],
     "formatOptions": { "resultsDir": "allure-results" }
   }
@@ -195,6 +195,13 @@ Cada formatter escribe un reporte distinto a partir de **la misma ejecución**: 
 `html` (nativo de Cucumber), `json` (insumo para `multiple-cucumber-html-reporter`) y
 `allure-cucumberjs/reporter` (insumo para Allure, en la misma carpeta `allure-results/` que usa
 `allure-playwright` — por eso `npm run allure:report` combina ambas suites en un solo reporte).
+
+> **¿Por qué `allure-cucumberjs/reporter:allure-results/formatter.log`?** Un formatter sin `:ruta`
+> (como `progress`) escribe en la consola. Si dos formatters se quedan sin ruta a la vez (`progress`
+> y `allure-cucumberjs/reporter`), el segundo se queda con la consola y los puntos/resumen de
+> `progress` desaparecen del log. Dándole una ruta de archivo explícita a Allure, `progress` vuelve
+> a imprimir en consola con normalidad; el archivo `formatter.log` no se usa para nada (Allure ya
+> escribe sus resultados reales en `allure-results/` via `formatOptions.resultsDir`).
 
 ---
 
@@ -329,7 +336,7 @@ formatters están declarados en `cucumber.json`:
 
 | Reporte | Comando para verlo | ¿Cuándo usarlo? |
 |---|---|---|
-| HTML nativo de Cucumber | abrir `cucumber-report.html` en el navegador | Rápido, sin instalar nada más — ideal en local |
+| HTML nativo de Cucumber | abrir `reports/cucumber-report.html` en el navegador | Rápido, sin instalar nada más — ideal en local |
 | **Allure Report** (`allure-cucumberjs`) | `npm run allure:generate && npm run allure:open` | El mismo look & feel que Allure de Playwright (clase-04) — gráficas, historial, tendencias |
 | **multiple-cucumber-html-reporter** | `npm run cucumber:html-report` → abre `multiple-cucumber-html-report/index.html` | Alternativa muy popular en proyectos solo-Cucumber: resumen por feature, tags y metadata de entorno en un único dashboard |
 

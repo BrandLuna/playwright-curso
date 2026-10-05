@@ -19,6 +19,6 @@ node_modules/
 .env.production
 
 # Reportes generados por Cucumber
-cucumber-report.html
+reports/
 cucumber-report-json/
 multiple-cucumber-html-report/
