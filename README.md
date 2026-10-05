@@ -47,7 +47,7 @@ multiple-cucumber-html-report/
 "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
 "cucumber:smoke": "... --tags @smoke",
 "cucumber:regression": "... --tags @regression",
-"cucumber:html-report": "node --import tsx tests/support/reports/multiple-html-report.ts",
+"cucumber:html-report": "node --import tsx scripts/generate-cucumber-html-report.ts",
 "allure:generate": "npx allure generate allure-results --clean -o allure-report",
 "allure:open": "npx allure open allure-report",
 "allure:report": "npm run test:allure && npm run cucumber && npm run allure:generate && npm run allure:open"
@@ -57,7 +57,9 @@ multiple-cucumber-html-report/
 `tests/support/`, con el formatter de Allure además del HTML nativo.
 
 **Crea la carpeta `tests/support/`** con `world.ts` (CustomWorld), `hooks.ts` (Before/AfterStep/After)
-y `reports/multiple-html-report.ts` (genera el reporte alternativo a partir del JSON de Cucumber).
+y **`scripts/generate-cucumber-html-report.ts`** en la raíz (genera el reporte alternativo a partir
+del JSON de Cucumber — fuera de `tests/support/` a propósito, para que Cucumber no lo importe
+como si fuera un step/support file).
 
 ## Ejecutar los tests
 
@@ -103,9 +105,7 @@ playwright-curso/
 │   │   └── comparativa-sin-world.steps.ts ← enfoque sin World (comparación)
 │   ├── support/
 │   │   ├── world.ts                ← CustomWorld: estado por escenario
-│   │   ├── hooks.ts                ← Before/AfterStep/After
-│   │   └── reports/
-│   │       └── multiple-html-report.ts ← genera el HTML alternativo de Cucumber
+│   │   └── hooks.ts                ← Before/AfterStep/After
 │   └── utils/
 │       ├── data/                   ← JSON/CSV para data-driven testing
 │       ├── fixtures/
@@ -113,6 +113,8 @@ playwright-curso/
 │       │   └── pages.fixture.ts      ← inyección de Page Objects (Clase 5, solo para tests/clase-05)
 │       └── helpers.ts
 ├── cucumber.json                   ← configuración de Cucumber (formatters + Allure)
+├── scripts/
+│   └── generate-cucumber-html-report.ts ← genera el HTML alternativo de Cucumber (fuera de tests/support)
 ├── playwright.config.ts
 └── package.json
 ```
