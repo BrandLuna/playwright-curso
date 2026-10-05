@@ -3,7 +3,7 @@
     "import": ["tests/step-definitions/**/*.ts", "tests/support/**/*.ts"],
     "paths": ["tests/features/**/*.feature"],
     "format": [
-      "progress",
+      "@cucumber/pretty-formatter",
       "html:reports/cucumber-report.html",
       "json:cucumber-report-json/cucumber-report.json",
       "allure-cucumberjs/reporter:allure-results/formatter.log"

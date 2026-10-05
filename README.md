@@ -31,6 +31,9 @@ Instala las nuevas dependencias:
 # Framework BDD + runner TypeScript
 npm install --save-dev @cucumber/cucumber tsx
 
+# Formatter con detalle de Feature/Scenario/Step en consola (progress solo muestra puntos)
+npm install --save-dev @cucumber/pretty-formatter
+
 # Reportes: Allure para Cucumber + alternativa HTML muy usada con Cucumber
 npm install --save-dev allure-cucumberjs multiple-cucumber-html-reporter
 ```
@@ -181,7 +184,7 @@ Feature: Checkout flow en SauceDemo
     "import": ["tests/step-definitions/**/*.ts", "tests/support/**/*.ts"],
     "paths": ["tests/features/**/*.feature"],
     "format": [
-      "progress",
+      "@cucumber/pretty-formatter",
       "html:reports/cucumber-report.html",
       "json:cucumber-report-json/cucumber-report.json",
       "allure-cucumberjs/reporter:allure-results/formatter.log"
@@ -191,17 +194,18 @@ Feature: Checkout flow en SauceDemo
 }
 ```
 
-Cada formatter escribe un reporte distinto a partir de **la misma ejecución**: `progress` (consola),
-`html` (nativo de Cucumber), `json` (insumo para `multiple-cucumber-html-reporter`) y
+Cada formatter escribe un reporte distinto a partir de **la misma ejecución**: `@cucumber/pretty-formatter`
+(consola, con Feature/Scenario/Step detallado y colores — reemplaza al `progress` básico que solo
+muestra puntos), `html` (nativo de Cucumber), `json` (insumo para `multiple-cucumber-html-reporter`) y
 `allure-cucumberjs/reporter` (insumo para Allure, en la misma carpeta `allure-results/` que usa
 `allure-playwright` — por eso `npm run allure:report` combina ambas suites en un solo reporte).
 
 > **¿Por qué `allure-cucumberjs/reporter:allure-results/formatter.log`?** Un formatter sin `:ruta`
-> (como `progress`) escribe en la consola. Si dos formatters se quedan sin ruta a la vez (`progress`
-> y `allure-cucumberjs/reporter`), el segundo se queda con la consola y los puntos/resumen de
-> `progress` desaparecen del log. Dándole una ruta de archivo explícita a Allure, `progress` vuelve
-> a imprimir en consola con normalidad; el archivo `formatter.log` no se usa para nada (Allure ya
-> escribe sus resultados reales en `allure-results/` via `formatOptions.resultsDir`).
+> (como `@cucumber/pretty-formatter`) escribe en la consola. Si dos formatters se quedan sin ruta a
+> la vez, el segundo se queda con la consola y el detalle del primero desaparece del log. Dándole
+> una ruta de archivo explícita a Allure, el formatter de consola vuelve a imprimir con normalidad;
+> el archivo `formatter.log` no se usa para nada (Allure ya escribe sus resultados reales en
+> `allure-results/` vía `formatOptions.resultsDir`).
 
 ---
 
