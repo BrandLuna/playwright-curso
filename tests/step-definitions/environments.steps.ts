@@ -1,7 +1,7 @@
 // Clase 6 — equivalente BDD de tests/clase-05/04-environments.spec.ts
 // El Given "el usuario navega a la pagina de SauceDemo" de este feature vive en
-// flujo-de-compra.steps.ts — prueba de que un .feature puede combinar steps de
-// cualquier archivo .steps.ts, no solo el que comparte su nombre.
+// common.steps.ts — prueba de que un .feature puede combinar steps de cualquier
+// archivo .steps.ts agrupado por dominio, no solo el que comparte su nombre.
 import { When, Then } from '@cucumber/cucumber';
 import { CustomWorld } from '../support/world';
 

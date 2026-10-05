@@ -104,9 +104,11 @@ playwright-curso/
 │   │   ├── comparativa-sin-world.feature
 │   │   ├── environments.feature          ← credenciales/URL desde .env (reutiliza un step de flujo-de-compra)
 │   │   └── flujo-de-compra.feature
-│   ├── step-definitions/
-│   │   ├── flujo-de-compra.steps.ts       ← usa CustomWorld
-│   │   ├── environments.steps.ts          ← login con .env (su Given vive en flujo-de-compra.steps.ts)
+│   ├── step-definitions/               ← agrupados por dominio, NO por nombre de feature
+│   │   ├── common.steps.ts             ← navegacion + login + error (usado por 2 features distintos)
+│   │   ├── inventory-cart.steps.ts     ← agregar/quitar productos, contador, orden por precio
+│   │   ├── checkout.steps.ts           ← datos del cliente, finalizar compra, confirmacion
+│   │   ├── environments.steps.ts       ← login con .env (su Given vive en common.steps.ts)
 │   │   └── comparativa-sin-world.steps.ts ← enfoque sin World (comparación)
 │   ├── support/
 │   │   ├── world.ts                ← CustomWorld: estado por escenario
@@ -179,7 +181,15 @@ Feature: Checkout flow en SauceDemo
 | `Background` | Steps que se repiten en todos los escenarios |
 | `Scenario Outline` | Escenario parametrizable con `Examples` |
 
-### Configuración: `cucumber.json`
+### Configuración: `cucumber.json` — el equivalente a `playwright.config.ts`
+
+`cucumber.json` es el archivo de configuración de Cucumber, el mismo rol que cumple
+`playwright.config.ts` para los `.spec.ts`. Sus dos claves más importantes son **globs** (patrones de
+carpeta), no listas manuales de archivos — por eso cualquier `.feature` o `.steps.ts` nuevo que
+guardes en esas rutas se "registra" solo, sin tocar este archivo:
+
+- `"paths"` → dónde buscar los `.feature`
+- `"import"` → dónde buscar los `.steps.ts` (y los support files como `world.ts`/`hooks.ts`)
 
 ```json
 {
@@ -217,12 +227,12 @@ muestra puntos), `html` (nativo de Cucumber), `json` (insumo para `multiple-cucu
 ### Step Definitions — el puente entre Gherkin y código
 
 ```typescript
-// tests/step-definitions/flujo-de-compra.steps.ts
+// tests/step-definitions/common.steps.ts — agrupado por dominio, no por nombre de feature
 import { Given, When, Then } from '@cucumber/cucumber';
 import { CustomWorld } from '../support/world';
 
 Given('el usuario navega a la pagina de SauceDemo', async function(this: CustomWorld) {
-  await this.page.goto('https://www.saucedemo.com/');
+  await this.page.goto(process.env.BASE_URL ?? 'https://www.saucedemo.com/');
 });
 
 When('inicia sesion con usuario {string} y contrasena {string}',
@@ -233,6 +243,8 @@ When('inicia sesion con usuario {string} y contrasena {string}',
 ```
 
 Los step definitions **llaman a los mismos Page Objects** que usaste en clase-05 — no hay duplicación.
+Y como ves, viven en `common.steps.ts`, no en un archivo con el nombre del feature — varios `.feature`
+(`flujo-de-compra.feature`, `environments.feature`) usan estos mismos steps.
 
 ### World Object — estado compartido entre pasos
 
@@ -278,7 +290,7 @@ After(async function(this: CustomWorld) {
 
 Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 
-| | `flujo-de-compra.steps.ts` | `comparativa-sin-world.steps.ts` |
+| | `common.steps.ts` / `inventory-cart.steps.ts` / `checkout.steps.ts` | `comparativa-sin-world.steps.ts` |
 |---|---|---|
 | Patrón | CustomWorld | Variables `let` de módulo |
 | Aislamiento | ✅ Por escenario | ❌ Estado compartido |
@@ -288,7 +300,7 @@ Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 ### Archivos de práctica
 
 - `tests/features/flujo-de-compra.feature`
-- `tests/step-definitions/flujo-de-compra.steps.ts`
+- `tests/step-definitions/common.steps.ts`, `inventory-cart.steps.ts`, `checkout.steps.ts`
 - `tests/support/world.ts` + `tests/support/hooks.ts`
 
 ### Un `.feature` NO está atado a un `.steps.ts` del mismo nombre
@@ -296,12 +308,12 @@ Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 Cucumber no empareja archivos por nombre: carga **todos** los archivos que matchean el glob
 `"import"` de `cucumber.json`, junta todas las funciones `Given/When/Then` en un solo diccionario de
 patrones de texto, y busca qué función matchea cada línea del Gherkin sin importar en qué archivo
-viva. Por eso un mismo step se puede reutilizar entre features distintos, y un mismo feature puede
-combinar steps definidos en varios archivos `.steps.ts`.
+viva. Por eso en este proyecto los steps están agrupados **por dominio** (`common`, `inventory-cart`,
+`checkout`), como en un proyecto real, y no uno por cada `.feature`.
 
 Ejemplo real en este proyecto: `tests/features/environments.feature` reutiliza el `Given('el usuario
-navega a la pagina de SauceDemo', ...)` que vive en `flujo-de-compra.steps.ts`, y solo define sus
-propios `When`/`Then` en `environments.steps.ts` (nombre de archivo distinto, cero problema).
+navega a la pagina de SauceDemo', ...)` que vive en `common.steps.ts`, y solo define sus propios
+`When`/`Then` en `environments.steps.ts`.
 
 ### Variables de entorno en BDD (equivalente a Clase 5 B4)
 
