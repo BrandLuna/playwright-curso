@@ -9,9 +9,14 @@
     "test:regression": "npx playwright test --grep @regression",
     "test:headed": "npx playwright test --headed",
     "test:report": "npx playwright show-report",
+    "test:allure": "npx playwright test",
     "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "cucumber:smoke": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @smoke",
-    "cucumber:regression": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @regression"
+    "cucumber:regression": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --tags @regression",
+    "cucumber:html-report": "node --import tsx tests/support/reports/multiple-html-report.ts",
+    "allure:generate": "npx allure generate allure-results --clean -o allure-report",
+    "allure:open": "npx allure open allure-report",
+    "allure:report": "npm run test:allure && npm run cucumber && npm run allure:generate && npm run allure:open"
   },
   "keywords": [],
   "author": "",
@@ -21,9 +26,11 @@
     "@playwright/test": "^1.59.0",
     "@types/node": "^25.5.0",
     "allure-commandline": "^2.43.0",
+    "allure-cucumberjs": "^3.13.0",
     "allure-playwright": "^3.10.2",
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
+    "multiple-cucumber-html-reporter": "^3.10.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0"
   }

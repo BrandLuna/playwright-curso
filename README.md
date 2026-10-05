@@ -11,30 +11,48 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 
 ## Configuración para esta clase
 
-Continúas el proyecto de la Clase 5 (ya debe tener `dotenv` y `baseURL` configurados en
-`playwright.config.ts` — eso no cambia en esta clase). Instala las nuevas dependencias:
+Continúas el proyecto de la Clase 5 (ya debe tener `dotenv`, `baseURL`, timeouts y el reporter
+`allure-playwright` configurados en `playwright.config.ts` — eso no cambia en esta clase).
+
+> **De la Clase 5 se reutiliza:** los Page Objects (`pages/*.ts`) y la config de `playwright.config.ts`.
+> **De la Clase 5 NO se trae:** la separación opcional en `locators/` + `actions/` (B6) ni la fixture
+> `pages.fixture.ts` para inyectar pages — ambas resuelven el mismo problema (evitar `new XPage(page)`
+> repetido) que en BDD ya resuelve el **World object** (`this.loginPage`, `this.cartPage`, ...). Esos
+> archivos se quedan únicamente en la rama `clase-05-pom` como referencia.
+
+Instala las nuevas dependencias:
 
 ```bash
 # Framework BDD + runner TypeScript
 npm install --save-dev @cucumber/cucumber tsx
+
+# Reportes: Allure para Cucumber + alternativa HTML muy usada con Cucumber
+npm install --save-dev allure-cucumberjs multiple-cucumber-html-reporter
 ```
 
 Agrega a `.gitignore`:
 ```
 cucumber-report.html
+cucumber-report-json/
+multiple-cucumber-html-report/
 ```
 
 **Agrega scripts** a tu `package.json`:
 ```json
 "cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
 "cucumber:smoke": "... --tags @smoke",
-"cucumber:regression": "... --tags @regression"
+"cucumber:regression": "... --tags @regression",
+"cucumber:html-report": "node --import tsx tests/support/reports/multiple-html-report.ts",
+"allure:generate": "npx allure generate allure-results --clean -o allure-report",
+"allure:open": "npx allure open allure-report",
+"allure:report": "npm run test:allure && npm run cucumber && npm run allure:generate && npm run allure:open"
 ```
 
 **Crea `cucumber.json`** en la raíz apuntando a `tests/features/`, `tests/step-definitions/` y
-`tests/support/`.
+`tests/support/`, con el formatter de Allure además del HTML nativo.
 
-**Crea la carpeta `tests/support/`** con `world.ts` (CustomWorld) y `hooks.ts` (Before/AfterStep/After).
+**Crea la carpeta `tests/support/`** con `world.ts` (CustomWorld), `hooks.ts` (Before/AfterStep/After)
+y `reports/multiple-html-report.ts` (genera el reporte alternativo a partir del JSON de Cucumber).
 
 ## Ejecutar los tests
 
@@ -47,6 +65,11 @@ npm run test:smoke
 npm run cucumber                    # todos los escenarios
 npm run cucumber:smoke              # solo escenarios @smoke
 npm run cucumber:regression         # solo escenarios @regression
+
+# Reportes
+npm run test:report                 # HTML nativo de Playwright
+npm run cucumber:html-report        # HTML alternativo (multiple-cucumber-html-reporter)
+npm run allure:report               # Playwright + Cucumber, un solo Allure Report combinado
 ```
 
 ## Estructura del proyecto
@@ -69,12 +92,14 @@ playwright-curso/
 │   │   └── comparativa-sin-world.steps.ts ← enfoque sin World (comparación)
 │   ├── support/
 │   │   ├── world.ts                ← CustomWorld: estado por escenario
-│   │   └── hooks.ts                ← Before/AfterStep/After
+│   │   ├── hooks.ts                ← Before/AfterStep/After
+│   │   └── reports/
+│   │       └── multiple-html-report.ts ← genera el HTML alternativo de Cucumber
 │   └── utils/
 │       ├── data/                   ← JSON/CSV para data-driven testing
-│       ├── fixtures/                ← Playwright fixtures
+│       ├── fixtures/                ← Playwright fixtures (API testing, Clase 5)
 │       └── helpers.ts
-├── cucumber.json                   ← configuración de Cucumber
+├── cucumber.json                   ← configuración de Cucumber (formatters + Allure)
 ├── playwright.config.ts
 └── package.json
 ```
@@ -91,7 +116,8 @@ playwright-curso/
 - Escribir feature files en Gherkin en español
 - Implementar step definitions en TypeScript usando los Page Objects de clase-05
 - Gestionar el estado entre pasos con el World object
-- Filtrar escenarios por tags y generar reportes Cucumber
+- Comparar hooks, timeouts y ejecución en paralelo: Playwright Test vs Cucumber
+- Filtrar escenarios por tags y generar reportes Cucumber + Allure
 
 ---
 
@@ -139,10 +165,21 @@ Feature: Checkout flow en SauceDemo
   "default": {
     "import": ["tests/step-definitions/**/*.ts", "tests/support/**/*.ts"],
     "paths": ["tests/features/**/*.feature"],
-    "format": ["progress", "html:cucumber-report.html"]
+    "format": [
+      "progress",
+      "html:cucumber-report.html",
+      "json:cucumber-report-json/cucumber-report.json",
+      "allure-cucumberjs/reporter"
+    ],
+    "formatOptions": { "resultsDir": "allure-results" }
   }
 }
 ```
+
+Cada formatter escribe un reporte distinto a partir de **la misma ejecución**: `progress` (consola),
+`html` (nativo de Cucumber), `json` (insumo para `multiple-cucumber-html-reporter`) y
+`allure-cucumberjs/reporter` (insumo para Allure, en la misma carpeta `allure-results/` que usa
+`allure-playwright` — por eso `npm run allure:report` combina ambas suites en un solo reporte).
 
 ---
 
@@ -225,9 +262,37 @@ Este proyecto incluye **dos enfoques** para enseñar la diferencia:
 - `tests/step-definitions/flujo-de-compra.steps.ts`
 - `tests/support/world.ts` + `tests/support/hooks.ts`
 
+### Playwright Test vs Cucumber — hooks, timeouts y paralelo nativo
+
+Ambos runners resuelven lo mismo con mecanismos distintos; esto es lo que cambia al migrar de
+`.spec.ts` (clase-05) a `.feature` + step definitions (clase-06):
+
+| | Playwright Test (`.spec.ts`) | Cucumber (`.feature`) |
+|---|---|---|
+| Hook "antes de cada caso" | `test.beforeEach(({ page }) => ...)` | `Before(async function(this: CustomWorld) { await this.init(); })` |
+| Hook "después de cada caso" | `test.afterEach(...)` | `After(async function(this: CustomWorld) { await this.destroy(); })` |
+| Hook por paso individual | No existe (no hay "pasos", solo el test completo) | `AfterStep(...)` — corre tras cada `Given/When/Then`, usado aquí para las capturas |
+| Hook "una vez por archivo/suite" | `test.beforeAll` / `test.afterAll` | `BeforeAll` / `AfterAll` (fuera de cualquier `World`, no instancia) |
+| Quién crea el browser | Playwright lo crea por ti (fixture `page`) | Lo creamos a mano en `world.ts` (`chromium.launch()`) — Cucumber no sabe de browsers |
+| Timeout por test/step | `timeout: 30_000` en `playwright.config.ts` | `setDefaultTimeout(10000)` en `hooks.ts` — `cucumber.json` **no** tiene una clave `timeout` real, se ignora en silencio |
+| Timeout de assertions | `expect: { timeout: 5_000 }` | No existe un equivalente global; cada `expect` de Playwright usado dentro de un step sigue su propio timeout por defecto (5s) |
+
+### Ejecución en paralelo
+
+| | Playwright Test | Cucumber |
+|---|---|---|
+| Config | `fullyParallel: true` + `workers` en `playwright.config.ts` | Flag `--parallel <n>` en el CLI (o `parallel` en `cucumber.json`) |
+| Unidad de paralelismo | Archivos de test, repartidos entre workers | Escenarios (`Scenario`), repartidos entre procesos hijos |
+| Requisito para que sea seguro | N/A — cada test ya corre aislado | Un `World` por escenario (como `CustomWorld`) — con variables `let` de módulo (`comparativa-sin-world.steps.ts`) el estado se mezcla y paralelizar rompe los tests |
+
+```bash
+# Cucumber en paralelo con 4 procesos (equivalente a los workers de Playwright)
+node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 4
+```
+
 ---
 
-## B3 — Tags, Reportes y CI/CD `50 min`
+## B3 — Tags, Reportes (Allure + Cucumber) y CI/CD `50 min`
 
 ### Tags para filtrar escenarios
 
@@ -242,12 +307,31 @@ npm run cucumber:regression  # solo @regression
 node --import tsx ... --tags "@smoke and not @wip"
 ```
 
-### Reporte HTML de Cucumber
+### Reportes disponibles para Cucumber
+
+Una sola ejecución (`npm run cucumber`) ya genera **los tres** reportes en paralelo, porque los tres
+formatters están declarados en `cucumber.json`:
+
+| Reporte | Comando para verlo | ¿Cuándo usarlo? |
+|---|---|---|
+| HTML nativo de Cucumber | abrir `cucumber-report.html` en el navegador | Rápido, sin instalar nada más — ideal en local |
+| **Allure Report** (`allure-cucumberjs`) | `npm run allure:generate && npm run allure:open` | El mismo look & feel que Allure de Playwright (clase-04) — gráficas, historial, tendencias |
+| **multiple-cucumber-html-reporter** | `npm run cucumber:html-report` → abre `multiple-cucumber-html-report/index.html` | Alternativa muy popular en proyectos solo-Cucumber: resumen por feature, tags y metadata de entorno en un único dashboard |
 
 ```bash
-npm run cucumber
-# genera cucumber-report.html — ábrelo en el navegador
+npm run cucumber                # corre los escenarios y escribe los 3 reportes
+npm run cucumber:html-report    # genera el dashboard de multiple-cucumber-html-reporter
+npm run allure:generate         # genera allure-report/ a partir de allure-results/
+npm run allure:open             # abre el reporte Allure en el navegador
 ```
+
+> **¿Playwright Test tiene un "reporter de Cucumber"?** No — los reporters de `@playwright/test`
+> (`html`, `allure-playwright`, `json`, etc.) solo entienden tests escritos con `test()`. Como los
+> `.feature` corren con el runner de **Cucumber.js**, no con el de Playwright, el reporte tiene que
+> venir de un formatter de Cucumber (`allure-cucumberjs`, `multiple-cucumber-html-reporter`, o el
+> `html`/`json` nativos). Lo que sí comparten ambos mundos es la carpeta `allure-results/`: al correr
+> `npm run allure:report`, Playwright y Cucumber escriben ahí sus resultados y Allure los combina en
+> **un solo reporte**.
 
 ### GitHub Actions con 2 jobs paralelos
 
@@ -268,11 +352,13 @@ push → GitHub Actions
 
 - BDD vs automation clásico
 - Sintaxis Gherkin: Feature, Scenario, Given/When/Then, tags
-- Step definitions en TypeScript usando los Page Objects de clase-05
+- Step definitions en TypeScript usando los Page Objects de clase-05 (sin la capa `locators/`+`actions/` ni fixtures de pages — el World las reemplaza)
 - CustomWorld para aislar el estado por escenario
-- Hooks: Before, AfterStep (screenshots), After
+- Hooks: Before, AfterStep (screenshots), After — y su equivalente en Playwright Test (`beforeEach`/`afterEach`/`beforeAll`/`afterAll`)
+- Timeouts: `setDefaultTimeout` de Cucumber vs `timeout`/`expect.timeout` de `playwright.config.ts`
+- Paralelo: `--parallel <n>` de Cucumber vs `workers`/`fullyParallel` de Playwright
 - Tags para filtrar escenarios
-- Reporte HTML de Cucumber
+- Reportes: HTML nativo de Cucumber, Allure (`allure-cucumberjs`) y `multiple-cucumber-html-reporter`
 - Pipeline CI/CD con Playwright + Cucumber en paralelo + Slack
 
 ### 🔜 Clase 7 — Consolidación & Jenkins
@@ -290,9 +376,13 @@ push → GitHub Actions
 | `npm run cucumber` | Ejecutar todos los escenarios BDD |
 | `npm run cucumber:smoke` | Solo escenarios `@smoke` |
 | `npm run cucumber:regression` | Solo escenarios `@regression` |
+| `--parallel 4` | Correr escenarios en paralelo (equivalente a `workers` en Playwright) |
 | `cucumber.json` | Configuración de paths y formato |
 | `CustomWorld` | Estado aislado por escenario |
+| `setDefaultTimeout(ms)` | Timeout por step/escenario (equivalente a `timeout` en Playwright) |
 | `this.attach(screenshot, ...)` | Adjuntar evidencia al reporte |
+| `npm run cucumber:html-report` | Generar el dashboard de `multiple-cucumber-html-reporter` |
+| `npm run allure:generate` / `allure:open` | Generar/abrir el Allure Report combinado (Playwright + Cucumber) |
 
 ---
 

@@ -20,3 +20,5 @@ node_modules/
 
 # Reportes generados por Cucumber
 cucumber-report.html
+cucumber-report-json/
+multiple-cucumber-html-report/

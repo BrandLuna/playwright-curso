@@ -2,34 +2,65 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
+// carga .env antes de leer process.env — necesario para environments (Clase 5)
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+// timestamp para que cada ejecución conserve su propio reporte HTML (Clase 4)
+const reportTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
 /**
- * See https://playwright.dev/docs/test-configuration.
+ * CLASE 3 + CLASE 4 + CLASE 5 — timeouts, evidencias, reportes y variables de entorno.
+ * Esta config solo aplica a los tests `.spec.ts` que corren con el runner de Playwright;
+ * los `.feature` de Cucumber (Clase 6) no la leen — ver tests/support/hooks.ts y el
+ * cuadro comparativo de la Clase 6 en el README.
+ * Documentación oficial: https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+  // Carpeta donde Playwright busca los archivos .spec.ts
   testDir: './tests',
-  /* Run tests in files in parallel */
+
+  // Ejecuta los tests del archivo en paralelo
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+
+  // Tiempo máximo permitido para cada test
+  timeout: 30_000,
+
+  // Tiempo máximo de espera para las assertions de expect
+  expect: {
+    timeout: 5_000,
+  },
+
+  // En CI falla si alguien dejó un test.only()
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
+
+  // Reintentos automáticos: 2 en CI, 0 en local
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 4 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+
+  // En CI usa un solo worker para mayor estabilidad
+  workers: process.env.CI ? 1 : undefined,
+
+  // Cada ejecución conserva su reporte HTML en una carpeta fechada + Allure
+  reporter: [
+    ['html', { outputFolder: `playwright-report/${reportTimestamp}`, open: 'never' }],
+    ['allure-playwright'],
+  ],
+
+  // Configuración compartida para todos los navegadores
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
+    // Ejecuta sin mostrar la ventana del navegador por defecto
+    headless: true,
+
+    // baseURL desde .env — permite usar page.goto('/') en los tests
     baseURL: process.env.BASE_URL ?? 'https://www.saucedemo.com',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    // Guarda trace cuando un test falla y se reintenta
     trace: 'on-first-retry',
+
+    // Captura automática solo cuando el test falla
+    screenshot: 'only-on-failure',
+
+    // Video: graba siempre pero solo guarda si el test falla
+    video: 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
