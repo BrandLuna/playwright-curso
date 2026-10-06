@@ -377,7 +377,7 @@ node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --parallel 4
 
 ---
 
-## B3 — Tags, Reportes (Allure + Cucumber) y CI/CD `50 min`
+## B3 — Tags y Reportes (Allure + Cucumber) `50 min`
 
 ### Tags para filtrar escenarios
 
@@ -445,17 +445,6 @@ npm run allure:open             # abre el reporte Allure en el navegador
 > `npm run allure:report`, Playwright y Cucumber escriben ahí sus resultados y Allure los combina en
 > **un solo reporte**.
 
-### GitHub Actions con 2 jobs paralelos
-
-El pipeline de esta clase ejecuta Playwright y Cucumber **en paralelo**:
-
-```
-push → GitHub Actions
-         ├── Job 1: Playwright Tests (.spec.ts)  → sube playwright-report/
-         └── Job 2: Cucumber Tests (.feature)    → sube cucumber-report/
-              └── Notificación Slack al finalizar
-```
-
 ---
 
 ## Resumen de la Clase 6
@@ -472,12 +461,10 @@ push → GitHub Actions
 - Paralelo: `--parallel <n>` de Cucumber vs `workers`/`fullyParallel` de Playwright
 - Tags para filtrar escenarios
 - Reportes: HTML nativo de Cucumber, Allure (`allure-cucumberjs`) y `multiple-cucumber-html-reporter`
-- Pipeline CI/CD con Playwright + Cucumber en paralelo + Slack
 
-### 🔜 Clase 7 — Consolidación & Jenkins
+### 🔜 Clase 7 — Consolidación
 
 - Revisión del framework completo
-- Demo Jenkins vs GitHub Actions
 - Inicio del proyecto final evaluado
 
 ---
@@ -503,4 +490,4 @@ push → GitHub Actions
 
 1. Agrega un nuevo `Scenario` en `flujo-de-compra.feature` para el caso de login fallido
 2. Implementa los steps correspondientes
-3. Verifica que el pipeline de GitHub Actions ejecuta ambos jobs correctamente
+3. Verifica que los 3 reportes se generan correctamente
