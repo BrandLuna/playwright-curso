@@ -43,7 +43,7 @@ jobs:
       # --with-deps: el OS Linux no trae esas librerias por defecto
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # Clase 7: scope fijo y rapido (solo POM en Chromium)
+      # Scope fijo y rapido: ejecuta solo el spec POM en Chromium.
       - name: Run Playwright tests
         run: npx playwright test tests/clase-05/01-pom-basico.spec.ts --project=chromium
         env:
@@ -115,7 +115,7 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # Clase 7: scope fijo y rapido (ultimo feature usado en clase)
+      # Scope fijo y rapido: ejecuta solo el feature principal del flujo de compra.
       - name: Run Cucumber tests
         run: node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js tests/features/flujo-de-compra.feature
         env:
