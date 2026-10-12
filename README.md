@@ -153,7 +153,7 @@ flowchart LR
 ## B2 — Pipeline de GitHub Actions `55 min`
 
 Definido en [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml). Se dispara con
-`push`/`pull_request` hacia `main`/`clase-06-bdd`/`clase-07-cicd`, o manualmente (`workflow_dispatch`).
+`push`/`pull_request` hacia `main`/`clase-07-cicd`, o manualmente (`workflow_dispatch`).
 
 ```
 push / pull_request → GitHub Actions
@@ -168,6 +168,23 @@ push / pull_request → GitHub Actions
 Los dos jobs corren en paralelo y son independientes **a propósito**: sirven para comparar, lado a
 lado, cómo se ve el pipeline con el enfoque clásico de Playwright y cómo se ve con BDD. Cada uno
 notifica su propio resultado — no hay un job de notificación consolidado.
+
+### Ejecución manual flexible (Run workflow)
+
+En `workflow_dispatch`, el YAML de Clase 7 permite:
+
+- Elegir qué correr con `test_suite`: `all`, `playwright` o `cucumber`.
+- Playwright por ruta(s) con `playwright_paths` (acepta lista separada por coma).
+- Playwright por tag/texto con `playwright_grep` (se aplica como `--grep`).
+- Cucumber por ruta(s) con `cucumber_paths` (acepta lista separada por coma).
+- Cucumber por tag con `cucumber_tag` (se aplica como `--tags`).
+
+Ejemplos rápidos:
+
+- Solo Playwright smoke en carpeta puntual:
+   `test_suite=playwright`, `playwright_paths=tests/clase-05`, `playwright_grep=@smoke`
+- Solo Cucumber regression en dos features:
+   `test_suite=cucumber`, `cucumber_paths=tests/features/flujo-de-compra.feature,tests/features/environments.feature`, `cucumber_tag=@regression`
 
 ### Variables y secrets necesarios
 
