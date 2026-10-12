@@ -8,7 +8,7 @@ Given('el usuario navega a la pagina de SauceDemo', async function (this: Custom
   await this.page.goto(process.env.BASE_URL ?? 'https://www.saucedemo.com/');
 });
 
-When('inicia sesion con usuario {string} y contrasena {string}', async function (this: CustomWorld, username: string, password: string) {
+When('inicia sesion con usuario {string} y contraseña {string}', async function (this: CustomWorld, username: string, password: string) {
   await this.loginPage.login(username, password);
 });
 
