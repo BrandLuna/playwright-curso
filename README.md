@@ -15,7 +15,12 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 Continúas el proyecto de la Clase 6. Esta clase no agrega dependencias npm nuevas — el trabajo es
 de configuración de CI/CD (GitHub Actions + Jenkins) y notificaciones.
 
-**Configura los secrets del repositorio** (Settings → Secrets and variables → Actions):
+**Configura en el environment `development`** (Settings → Environments → `development`):
+
+- **Environment variables**: `BASE_URL`, `SAUCEDEMO_USERNAME`, `SAUCEDEMO_PASSWORD`
+- **Environment secret**: `SLACK_WEBHOOK_URL`
+
+Ejemplo de valores:
 
 ```
 BASE_URL=https://www.saucedemo.com
@@ -164,13 +169,13 @@ Los dos jobs corren en paralelo y son independientes **a propósito**: sirven pa
 lado, cómo se ve el pipeline con el enfoque clásico de Playwright y cómo se ve con BDD. Cada uno
 notifica su propio resultado — no hay un job de notificación consolidado.
 
-### Secrets necesarios
+### Variables y secrets necesarios
 
-| Secret | Uso |
+| Tipo | Nombre | Uso |
 |---|---|
-| `BASE_URL` | URL base de la app |
-| `SAUCEDEMO_USERNAME` / `SAUCEDEMO_PASSWORD` | Credenciales usadas en los tests |
-| `SLACK_WEBHOOK_URL` | Incoming Webhook de Slack (opcional) |
+| Variable | `BASE_URL` | URL base de la app |
+| Variable | `SAUCEDEMO_USERNAME` / `SAUCEDEMO_PASSWORD` | Credenciales usadas en los tests |
+| Secret | `SLACK_WEBHOOK_URL` | Incoming Webhook de Slack (opcional) |
 
 ### Archivo de práctica → [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml)
 

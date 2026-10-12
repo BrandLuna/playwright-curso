@@ -44,13 +44,13 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       # Ejecuta todos los archivos .spec.ts con el runner de Playwright
-      # Las credenciales/URL vienen de secrets; si no estan configurados, se usan los defaults del test
+      # URL/credenciales vienen de Environment variables (vars.*) del environment "development"
       - name: Run Playwright tests
         run: npx playwright test tests/clase-05
         env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
-          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
+          SAUCEDEMO_USERNAME: ${{ vars.SAUCEDEMO_USERNAME || secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ vars.SAUCEDEMO_PASSWORD || secrets.SAUCEDEMO_PASSWORD }}
       # Sube el reporte como artefacto descargable desde la pestana Actions
       # !cancelled() -> sube aunque los tests fallen (para ver que paso)
       # retention-days: 30 -> se elimina automaticamente despues de 30 dias
@@ -120,9 +120,9 @@ jobs:
       - name: Run Cucumber tests
         run: npm run cucumber
         env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          SAUCEDEMO_USERNAME: ${{ secrets.SAUCEDEMO_USERNAME }}
-          SAUCEDEMO_PASSWORD: ${{ secrets.SAUCEDEMO_PASSWORD }}
+          BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
+          SAUCEDEMO_USERNAME: ${{ vars.SAUCEDEMO_USERNAME || secrets.SAUCEDEMO_USERNAME }}
+          SAUCEDEMO_PASSWORD: ${{ vars.SAUCEDEMO_PASSWORD || secrets.SAUCEDEMO_PASSWORD }}
       # Sube el reporte HTML de Cucumber como artefacto descargable
       - name: Upload Cucumber report
         uses: actions/upload-artifact@v4
