@@ -169,20 +169,11 @@ Los dos jobs corren en paralelo y son independientes **a propósito**: sirven pa
 lado, cómo se ve el pipeline con el enfoque clásico de Playwright y cómo se ve con BDD. Cada uno
 notifica su propio resultado — no hay un job de notificación consolidado.
 
-### Ejecución manual flexible (Run workflow)
+### Scope fijo en Clase 7 (rápido para demo)
 
-En `workflow_dispatch`, el YAML de Clase 7 permite:
-
-- Elegir qué correr con `test_suite`: `all`, `playwright` o `cucumber`.
-- Playwright por ruta(s) con `playwright_paths` (acepta lista separada por coma).
-- Playwright por tag/texto con `playwright_grep` (se aplica como `--grep`).
-- Cucumber por ruta(s) con `cucumber_paths` (acepta lista separada por coma).
-- Cucumber por tag con `cucumber_tag` (se aplica como `--tags`).
-
-Defaults de Clase 7 (rápidos para demo):
-
-- Playwright: `tests/clase-05/01-pom-basico.spec.ts` y solo proyecto `chromium`.
-- Cucumber: `tests/features/flujo-de-compra.feature`.
+- Playwright corre `tests/clase-05/01-pom-basico.spec.ts` con `--project=chromium`.
+- Cucumber corre `tests/features/flujo-de-compra.feature`.
+- Mantener este alcance acotado reduce tiempos y hace más predecible la demo en vivo.
 
 Ejemplos rápidos:
 

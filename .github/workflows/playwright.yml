@@ -10,32 +10,6 @@ on:
   # Permite ejecutar manualmente desde GitHub Actions
   # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
   workflow_dispatch:
-    inputs:
-      test_suite:
-        description: "Que flujo ejecutar"
-        type: choice
-        required: true
-        default: all
-        options:
-          - all
-          - playwright
-          - cucumber
-      playwright_paths:
-        description: "Playwright: archivo/carpeta(s). Acepta lista separada por coma"
-        type: string
-        default: tests/clase-05/01-pom-basico.spec.ts
-      playwright_grep:
-        description: "Playwright: filtro --grep opcional (ej: @smoke)"
-        type: string
-        default: ""
-      cucumber_paths:
-        description: "Cucumber: .feature o carpeta(s). Acepta lista separada por coma"
-        type: string
-        default: tests/features/flujo-de-compra.feature
-      cucumber_tag:
-        description: "Cucumber: filtro --tags opcional (ej: @smoke)"
-        type: string
-        default: ""
 
 # Si se hace push varias veces seguidas al mismo branch/PR, cancela la corrida anterior
 # que siga en curso (evita gastar minutos de Actions en corridas ya obsoletas)
@@ -47,7 +21,6 @@ jobs:
   # JOB 1: Tests con el runner de Playwright (.spec.ts) - corre EN PARALELO con cucumber
   playwright:
     name: Playwright Tests
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'playwright' }}
     timeout-minutes: 60      # cancela el job si supera 60 minutos
     runs-on: ubuntu-latest   # maquina virtual Linux en la nube de GitHub
     # Los secrets del Environment solo son accesibles si el job declara el environment
@@ -70,21 +43,9 @@ jobs:
       # --with-deps: el OS Linux no trae esas librerias por defecto
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # En push/PR corre el spec POM de clase; en dispatch manual permite ruta(s) y grep opcional
-      # Para clase 7 se fija Chromium para reducir tiempo de ejecucion.
+      # Clase 7: scope fijo y rapido (solo POM en Chromium)
       - name: Run Playwright tests
-        run: |
-          PW_PATHS="${{ inputs.playwright_paths }}"
-          PW_GREP="${{ inputs.playwright_grep }}"
-
-          [ -z "$PW_PATHS" ] && PW_PATHS="tests/clase-05/01-pom-basico.spec.ts"
-          PW_PATHS=$(echo "$PW_PATHS" | tr ',' ' ')
-
-          if [ -n "$PW_GREP" ]; then
-            npx playwright test $PW_PATHS --project=chromium --grep "$PW_GREP"
-          else
-            npx playwright test $PW_PATHS --project=chromium
-          fi
+        run: npx playwright test tests/clase-05/01-pom-basico.spec.ts --project=chromium
         env:
           BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
           SAUCEDEMO_USERNAME: ${{ vars.SAUCEDEMO_USERNAME || secrets.SAUCEDEMO_USERNAME }}
@@ -138,7 +99,6 @@ jobs:
   # JOB 2: Tests BDD con Cucumber (.feature) - corre EN PARALELO con playwright
   cucumber:
     name: Cucumber Tests
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'cucumber' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     # Los secrets del Environment solo son accesibles si el job declara el environment
@@ -155,20 +115,9 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # En push/PR corre el ultimo feature usado en clase; en dispatch manual permite ruta(s) y tag opcional
+      # Clase 7: scope fijo y rapido (ultimo feature usado en clase)
       - name: Run Cucumber tests
-        run: |
-          CU_PATHS="${{ inputs.cucumber_paths }}"
-          CU_TAG="${{ inputs.cucumber_tag }}"
-
-          [ -z "$CU_PATHS" ] && CU_PATHS="tests/features/flujo-de-compra.feature"
-          CU_PATHS=$(echo "$CU_PATHS" | tr ',' ' ')
-
-          if [ -n "$CU_TAG" ]; then
-            node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js $CU_PATHS --tags "$CU_TAG"
-          else
-            node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js $CU_PATHS
-          fi
+        run: node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js tests/features/flujo-de-compra.feature
         env:
           BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
           SAUCEDEMO_USERNAME: ${{ vars.SAUCEDEMO_USERNAME || secrets.SAUCEDEMO_USERNAME }}
