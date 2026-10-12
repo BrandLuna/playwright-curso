@@ -8,8 +8,8 @@ import { InventoryPage } from '../../pages/InventoryPage';
 
 // process.env lee las variables del archivo .env cargado en playwright.config.ts
 // NOTA: no uses USERNAME — es variable reservada de Windows
-const USERNAME = process.env.SAUCEDEMO_USERNAME ?? 'standard_user';
-const PASSWORD = process.env.SAUCEDEMO_PASSWORD ?? 'secret_sauce';
+const USERNAME = process.env.SAUCEDEMO_USERNAME?.trim() || 'standard_user';
+const PASSWORD = process.env.SAUCEDEMO_PASSWORD?.trim() || 'secret_sauce';
 
 test.describe('Tests con variables de entorno', () => {
   test('login con credenciales desde .env', { tag: '@smoke' }, async ({ page }) => {

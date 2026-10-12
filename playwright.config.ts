@@ -25,8 +25,9 @@ export default defineConfig({
   reporter: [['html']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    // En CI un secret puede existir pero venir vacio; trim()+|| asegura fallback valido.
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: process.env.BASE_URL ?? 'https://www.saucedemo.com',
+    baseURL: process.env.BASE_URL?.trim() || 'https://www.saucedemo.com',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
