@@ -3,10 +3,10 @@ name: Playwright Tests
 on:
   # Se ejecuta al hacer push en estas ramas
   push:
-    branches: [main, clase-06-bdd, clase-07-cicd]
+    branches: [main, clase-07-cicd]
   # Se ejecuta al abrir un Pull Request hacia estas ramas
   pull_request:
-    branches: [main, clase-06-bdd, clase-07-cicd]
+    branches: [main, clase-07-cicd]
   # Permite ejecutar manualmente desde GitHub Actions
   # Solo aparece el boton "Run workflow" si este archivo esta en la rama main
   workflow_dispatch:
@@ -61,15 +61,6 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      # allure-playwright (configurado en playwright.config.ts) genera esta carpeta en cada corrida
-      - name: Upload Allure results - Playwright
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: allure-results-playwright
-          path: allure-results/
-          retention-days: 30
-          if-no-files-found: ignore
 
       # Notificacion a Slack al finalizar (pase o falle)
       # Requisito: agregar SLACK_WEBHOOK_URL como secret en Settings > Secrets del repo
@@ -105,34 +96,6 @@ jobs:
                 }
               ]
             }
-
-      # Notificacion a Microsoft Teams al finalizar (pase o falle)
-      # Requisito: agregar TEAMS_WEBHOOK_URL como secret en Settings > Secrets del repo
-      # Se omite sola si el secret no esta configurado (env.TEAMS_WEBHOOK_URL queda vacio)
-      - name: Notify Teams - Playwright
-        if: ${{ !cancelled() && env.TEAMS_WEBHOOK_URL != '' }}
-        env:
-          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
-        # curl directo a un Incoming Webhook de Teams (MessageCard), sin depender de una Action de terceros
-        run: |
-          curl -sS -H "Content-Type: application/json" -d '{
-            "@type": "MessageCard",
-            "@context": "http://schema.org/extensions",
-            "summary": "Playwright Tests",
-            "themeColor": "${{ job.status == 'success' && '00B294' || 'C4314B' }}",
-            "title": "Playwright Tests - ${{ job.status }}",
-            "sections": [{
-              "facts": [
-                { "name": "Branch", "value": "${{ github.ref_name }}" },
-                { "name": "Commit", "value": "${{ github.sha }}" }
-              ]
-            }],
-            "potentialAction": [{
-              "@type": "OpenUri",
-              "name": "Ver resultado en Actions",
-              "targets": [{ "os": "default", "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
-            }]
-          }' "$TEAMS_WEBHOOK_URL"
 
   # JOB 2: Tests BDD con Cucumber (.feature) - corre EN PARALELO con playwright
   cucumber:
@@ -203,29 +166,3 @@ jobs:
                 }
               ]
             }
-
-      # Notificacion a Microsoft Teams al finalizar (pase o falle)
-      # Se omite sola si el secret TEAMS_WEBHOOK_URL no esta configurado
-      - name: Notify Teams - Cucumber
-        if: ${{ !cancelled() && env.TEAMS_WEBHOOK_URL != '' }}
-        env:
-          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
-        run: |
-          curl -sS -H "Content-Type: application/json" -d '{
-            "@type": "MessageCard",
-            "@context": "http://schema.org/extensions",
-            "summary": "Cucumber Tests",
-            "themeColor": "${{ job.status == 'success' && '00B294' || 'C4314B' }}",
-            "title": "Cucumber Tests - ${{ job.status }}",
-            "sections": [{
-              "facts": [
-                { "name": "Branch", "value": "${{ github.ref_name }}" },
-                { "name": "Commit", "value": "${{ github.sha }}" }
-              ]
-            }],
-            "potentialAction": [{
-              "@type": "OpenUri",
-              "name": "Ver resultado en Actions",
-              "targets": [{ "os": "default", "uri": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }]
-            }]
-          }' "$TEAMS_WEBHOOK_URL"

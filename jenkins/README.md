@@ -44,7 +44,6 @@ En **Jenkins > Manage Jenkins > Plugins**, instala:
 - **Pipeline** — para interpretar el `Jenkinsfile` declarativo
 - **HTML Publisher** — para publicar los reportes HTML dentro de Jenkins
 - **Slack Notification** — para notificaciones a Slack
-- **Office 365 Connector** — para notificaciones a Microsoft Teams
 
 ### 4. Configurar NodeJS
 
@@ -59,7 +58,7 @@ En **Jenkins > Manage Jenkins > Plugins**, instala:
 3. SCM: `Git` → URL del repositorio
 4. Script Path: `jenkins/Jenkinsfile`
 
-### 6. Secrets / credenciales
+### 6. Credenciales
 
 **Jenkins > Manage Jenkins > Credentials**, agrega (tipo *Secret text*):
 
@@ -68,11 +67,23 @@ En **Jenkins > Manage Jenkins > Plugins**, instala:
 | `SAUCEDEMO_BASE_URL` | `https://www.saucedemo.com` |
 | `SAUCEDEMO_USER` | `standard_user` |
 | `SAUCEDEMO_PASS` | `secret_sauce` |
-| `SLACK_WEBHOOK` | URL del Incoming Webhook de Slack |
-| `TEAMS_WEBHOOK_URL` | URL del conector Incoming Webhook de Teams |
+| `SLACK_WEBHOOK` | Token/credential del workspace de Slack |
 
 > Nunca escribas estos valores directamente en el `Jenkinsfile`: siempre referenciados
 > con `credentials('ID')` como ya está hecho en este archivo.
+
+### 7. Configurar la integración de Slack (paso extra)
+
+El plugin **Slack Notification** necesita su configuración global antes de que `slackSend()`
+funcione en el pipeline:
+
+**Jenkins > Manage Jenkins > System > Slack**:
+- Workspace: tu workspace de Slack (ej. `QA MOON`)
+- Credential: selecciona la credencial `SLACK_WEBHOOK` creada en el paso anterior
+- Default channel: `#qa-automation` (o el canal que uses, debe coincidir con el `channel` del stage)
+
+Sin este paso, `slackSend()` falla aunque la credencial `SLACK_WEBHOOK` ya exista — el Jenkinsfile
+no la referencia directamente en el código, solo indica *qué* credencial usar en esta pantalla.
 
 ---
 
@@ -87,10 +98,10 @@ pipeline
 │   ├── Checkout             ← descarga el código (checkout scm)
 │   ├── Install               ← npm ci + playwright install --with-deps
 │   ├── Playwright Tests      ← npx playwright test tests/clase-05 + publishHTML
-│   │    └── post: always     ← notifica Slack y Teams con el resultado de ESTE stage
+│   │    └── post: always     ← notifica Slack con el resultado de ESTE stage
 │   └── Cucumber BDD Tests    ← npm run cucumber + publishHTML
-│        └── post: always     ← notifica Slack y Teams con el resultado de ESTE stage
-└── post: always              ← archiva los resultados crudos de Allure
+│        └── post: always     ← notifica Slack con el resultado de ESTE stage
+└── post: always              ← punto global para tareas finales del pipeline
 ```
 
 Cada stage notifica su propio resultado (igual que los jobs `playwright` y `cucumber` en

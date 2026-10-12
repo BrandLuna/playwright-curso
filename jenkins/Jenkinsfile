@@ -3,10 +3,10 @@
 // SOLO para demostracion del instructor -- el flujo principal del curso usa GitHub Actions.
 //
 // Para usarlo en Jenkins:
-//   1. Instalar plugins: NodeJS, Pipeline, HTML Publisher, Slack Notification, Office 365 Connector
+//   1. Instalar plugins: NodeJS, Pipeline, HTML Publisher, Slack Notification
 //   2. Configurar NodeJS 20 en Jenkins > Global Tool Configuration
 //   3. Agregar credenciales (Manage Jenkins > Credentials): SAUCEDEMO_BASE_URL, SAUCEDEMO_USER,
-//      SAUCEDEMO_PASS, SLACK_WEBHOOK, TEAMS_WEBHOOK_URL
+//      SAUCEDEMO_PASS, SLACK_WEBHOOK
 //   4. Crear un Pipeline job apuntando a este Jenkinsfile (Script Path: jenkins/Jenkinsfile)
 
 pipeline {
@@ -57,17 +57,11 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName : 'Playwright Report'
                     ])
-                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack/Teams - Playwright" de GitHub Actions
+                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack - Playwright" de GitHub Actions
                     slackSend(
                         channel: '#qa-automation',
                         color  : currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
                         message: "Playwright Tests: ${currentBuild.currentResult} -- `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
-                    )
-                    office365ConnectorSend(
-                        webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
-                        status    : currentBuild.currentResult,
-                        color     : currentBuild.currentResult == 'SUCCESS' ? '00B294' : 'C4314B',
-                        message   : "Playwright Tests | Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
                     )
                 }
             }
@@ -84,27 +78,15 @@ pipeline {
                         reportFiles: 'cucumber-report.html',
                         reportName : 'Cucumber Report'
                     ])
-                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack/Teams - Cucumber" de GitHub Actions
+                    // notifica el resultado de ESTE stage -- homologado con "Notify Slack - Cucumber" de GitHub Actions
                     slackSend(
                         channel: '#qa-automation',
                         color  : currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
                         message: "Cucumber Tests: ${currentBuild.currentResult} -- `${env.JOB_NAME}` #${env.BUILD_NUMBER}\nBranch: ${env.GIT_BRANCH}\n${env.BUILD_URL}"
-                    )
-                    office365ConnectorSend(
-                        webhookUrl: credentials('TEAMS_WEBHOOK_URL'),
-                        status    : currentBuild.currentResult,
-                        color     : currentBuild.currentResult == 'SUCCESS' ? '00B294' : 'C4314B',
-                        message   : "Cucumber Tests | Branch: ${env.GIT_BRANCH} | Build: #${env.BUILD_NUMBER}"
                     )
                 }
             }
         }
     }
 
-    post {
-        // se ejecuta siempre, pase o falle -- solo archiva Allure, las notificaciones ya van por stage
-        always {
-            archiveArtifacts artifacts: 'allure-results/**', allowEmptyArchive: true
-        }
-    }
 }

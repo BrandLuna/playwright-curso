@@ -5,8 +5,8 @@ Este proyecto es un **framework de QA Automation** construido con:
 - Cucumber + Gherkin (BDD)
 - Page Object Model (POM) con `BasePage`
 - GitHub Actions como CI/CD principal + Jenkins como material de aprendizaje
-- Reportes HTML (Playwright/Cucumber) y Allure
-- Notificaciones a Slack / Microsoft Teams al finalizar el pipeline
+- Reportes HTML nativos (Playwright/Cucumber)
+- Notificaciones a Slack al finalizar el pipeline
 
 El objetivo de este archivo es **estandarizar el uso de Copilot/IA** en el proyecto:
 mismos patrones, mismos nombres, mismas convenciones en cualquier sesión de trabajo.
@@ -79,7 +79,7 @@ class LoginPage {
   `npx playwright test`, `npm run cucumber`) para no generar dos comportamientos distintos
 - Nunca hardcodear webhooks, tokens o credenciales en los YAML/Jenkinsfile — siempre usar
   `secrets.*` (GitHub) o `credentials()` (Jenkins)
-- Cualquier notificación nueva (Slack, Teams, email, etc.) debe ser condicional: si el secret
+- Cualquier notificación nueva (Slack, email, etc.) debe ser condicional: si el secret
   no está configurado, el paso debe omitirse en vez de fallar el pipeline
 
 ---
