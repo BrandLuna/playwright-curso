@@ -201,11 +201,17 @@ flowchart LR
 
 #### Paso a paso — lo mínimo para correrlo una vez
 
-1. **Levantar Jenkins con Docker** y abrir `http://localhost:8080`:
+1. **Levantar Jenkins con Java 21 (sin Docker)** y abrir `http://localhost:8080`:
 
-   ```bash
-   docker run -d --name jenkins -p 8080:8080 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+   ```powershell
+   New-Item -ItemType Directory -Path C:\jenkins -Force | Out-Null
+   Set-Location C:\jenkins
+   Invoke-WebRequest -Uri "https://get.jenkins.io/war-stable/latest/jenkins.war" -OutFile "jenkins.war"
+   & "C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe" -jar "C:\jenkins\jenkins.war" --httpPort=8080
    ```
+
+   Jenkins actual requiere **Java 21+**. Si en consola ves error por Java 17, instala Java 21 y
+   vuelve a lanzar el mismo comando.
 
 2. **Crear un Pipeline job** → **New Item → Pipeline** → Pipeline script from SCM → Script Path
    `jenkins/Jenkinsfile` (mismo rol que el `.yml` en GitHub Actions).

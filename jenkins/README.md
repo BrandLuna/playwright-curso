@@ -23,21 +23,35 @@ practiques cómo se vería este mismo pipeline en un servidor Jenkins.
 
 ### 1. Requisitos
 
-- Docker instalado, o Java 17+ para instalación nativa
+- Java 21+ (obligatorio en Jenkins LTS actuales)
+- PowerShell con permisos para descargar archivos (Windows)
+- (Opcional) Docker, si prefieres levantar Jenkins en contenedor
 
-### 2. Levantar Jenkins con Docker
+### 2. Levantar Jenkins con Java 21 (recomendado y más simple en esta clase)
 
-```bash
-docker run -d \
-  --name jenkins \
-  -p 8080:8080 \
-  -v jenkins_home:/var/jenkins_home \
-  jenkins/jenkins:lts
+```powershell
+New-Item -ItemType Directory -Path C:\jenkins -Force | Out-Null
+Set-Location C:\jenkins
+Invoke-WebRequest -Uri "https://get.jenkins.io/war-stable/latest/jenkins.war" -OutFile "jenkins.war"
+& "C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe" -jar "C:\jenkins\jenkins.war" --httpPort=8080
 ```
 
 Abre `http://localhost:8080` y sigue el asistente de instalación inicial.
 
-### 3. Plugins necesarios
+Si no tienes Java 21 instalado, puedes hacerlo con `winget`:
+
+```powershell
+winget install --id EclipseAdoptium.Temurin.21.JDK -e --accept-package-agreements --accept-source-agreements
+```
+
+### 3. Desbloquear Jenkins (primera vez)
+
+- Copia la contraseña inicial desde la consola de Jenkins o desde:
+  `C:\Users\<tu-usuario>\.jenkins\secrets\initialAdminPassword`
+- En la UI, elige **Install suggested plugins**
+- Crea el usuario administrador
+
+### 4. Plugins necesarios
 
 En **Jenkins > Manage Jenkins > Plugins**, instala:
 - **NodeJS** — para configurar Node.js 20 como herramienta
@@ -45,20 +59,20 @@ En **Jenkins > Manage Jenkins > Plugins**, instala:
 - **HTML Publisher** — para publicar los reportes HTML dentro de Jenkins
 - **Slack Notification** — para notificaciones a Slack
 
-### 4. Configurar NodeJS
+### 5. Configurar NodeJS
 
 **Jenkins > Manage Jenkins > Global Tool Configuration > NodeJS**:
 - Name: `NodeJS-20`
 - Version: `20.x`
 
-### 5. Crear el Pipeline job
+### 6. Crear el Pipeline job
 
 1. **New Item → Pipeline**
 2. Pipeline Definition: `Pipeline script from SCM`
 3. SCM: `Git` → URL del repositorio
 4. Script Path: `jenkins/Jenkinsfile`
 
-### 6. Credenciales
+### 7. Credenciales
 
 **Jenkins > Manage Jenkins > Credentials**, agrega (tipo *Secret text*):
 
@@ -72,7 +86,7 @@ En **Jenkins > Manage Jenkins > Plugins**, instala:
 > Nunca escribas estos valores directamente en el `Jenkinsfile`: siempre referenciados
 > con `credentials('ID')` como ya está hecho en este archivo.
 
-### 7. Configurar la integración de Slack (paso extra)
+### 8. Configurar la integración de Slack (paso extra)
 
 El plugin **Slack Notification** necesita su configuración global antes de que `slackSend()`
 funcione en el pipeline:
