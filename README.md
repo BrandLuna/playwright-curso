@@ -157,10 +157,10 @@ Definido en [`.github/workflows/playwright.yml`](.github/workflows/playwright.ym
 
 ```
 push / pull_request → GitHub Actions
-         ├── Job "playwright"  → npx playwright test tests/clase-05 (flujo clásico, sin BDD)
+         ├── Job "playwright"  → npx playwright test tests/clase-05/01-pom-basico.spec.ts --project=chromium
          │                       sube playwright-report/
          │                       notifica Slack con el resultado de ESTE job
-         └── Job "cucumber"    → npm run cucumber (flujo BDD)
+         └── Job "cucumber"    → cucumber sobre tests/features/flujo-de-compra.feature
                                   sube cucumber-report.html
                                   notifica Slack con el resultado de ESTE job
 ```
@@ -178,6 +178,11 @@ En `workflow_dispatch`, el YAML de Clase 7 permite:
 - Playwright por tag/texto con `playwright_grep` (se aplica como `--grep`).
 - Cucumber por ruta(s) con `cucumber_paths` (acepta lista separada por coma).
 - Cucumber por tag con `cucumber_tag` (se aplica como `--tags`).
+
+Defaults de Clase 7 (rápidos para demo):
+
+- Playwright: `tests/clase-05/01-pom-basico.spec.ts` y solo proyecto `chromium`.
+- Cucumber: `tests/features/flujo-de-compra.feature`.
 
 Ejemplos rápidos:
 

@@ -23,7 +23,7 @@ on:
       playwright_paths:
         description: "Playwright: archivo/carpeta(s). Acepta lista separada por coma"
         type: string
-        default: tests/clase-05
+        default: tests/clase-05/01-pom-basico.spec.ts
       playwright_grep:
         description: "Playwright: filtro --grep opcional (ej: @smoke)"
         type: string
@@ -31,7 +31,7 @@ on:
       cucumber_paths:
         description: "Cucumber: .feature o carpeta(s). Acepta lista separada por coma"
         type: string
-        default: tests/features/**/*.feature
+        default: tests/features/flujo-de-compra.feature
       cucumber_tag:
         description: "Cucumber: filtro --tags opcional (ej: @smoke)"
         type: string
@@ -70,19 +70,20 @@ jobs:
       # --with-deps: el OS Linux no trae esas librerias por defecto
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # En push/PR corre tests/clase-05; en dispatch manual permite ruta(s) y grep opcional
+      # En push/PR corre el spec POM de clase; en dispatch manual permite ruta(s) y grep opcional
+      # Para clase 7 se fija Chromium para reducir tiempo de ejecucion.
       - name: Run Playwright tests
         run: |
           PW_PATHS="${{ inputs.playwright_paths }}"
           PW_GREP="${{ inputs.playwright_grep }}"
 
-          [ -z "$PW_PATHS" ] && PW_PATHS="tests/clase-05"
+          [ -z "$PW_PATHS" ] && PW_PATHS="tests/clase-05/01-pom-basico.spec.ts"
           PW_PATHS=$(echo "$PW_PATHS" | tr ',' ' ')
 
           if [ -n "$PW_GREP" ]; then
-            npx playwright test $PW_PATHS --grep "$PW_GREP"
+            npx playwright test $PW_PATHS --project=chromium --grep "$PW_GREP"
           else
-            npx playwright test $PW_PATHS
+            npx playwright test $PW_PATHS --project=chromium
           fi
         env:
           BASE_URL: ${{ vars.BASE_URL || secrets.BASE_URL }}
@@ -154,13 +155,13 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      # En push/PR corre todos los .feature; en dispatch manual permite ruta(s) y tag opcional
+      # En push/PR corre el ultimo feature usado en clase; en dispatch manual permite ruta(s) y tag opcional
       - name: Run Cucumber tests
         run: |
           CU_PATHS="${{ inputs.cucumber_paths }}"
           CU_TAG="${{ inputs.cucumber_tag }}"
 
-          [ -z "$CU_PATHS" ] && CU_PATHS="tests/features/**/*.feature"
+          [ -z "$CU_PATHS" ] && CU_PATHS="tests/features/flujo-de-compra.feature"
           CU_PATHS=$(echo "$CU_PATHS" | tr ',' ' ')
 
           if [ -n "$CU_TAG" ]; then
