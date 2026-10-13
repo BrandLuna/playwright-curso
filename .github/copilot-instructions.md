@@ -132,6 +132,97 @@ no dupliques la lógica de notificación existente en el job "notify".
 
 ---
 
+## Ejemplo real: de locators a feature funcionando
+
+Así se ve el flujo completo de IA aplicado en este proyecto, usando `LoginPage` (ya existente en
+[`pages/LoginPage.ts`](../pages/LoginPage.ts)) como caso real de referencia.
+
+**1. Input que le das a Copilot** — solo los locators y las acciones de negocio:
+
+```
+Página: Login de saucedemo.com
+Locators:
+  - input usuario -> [data-test="username"]
+  - input password -> [data-test="password"]
+  - botón login -> [data-test="login-button"]
+  - mensaje de error -> [data-test="error"]
+Acciones: login(username, password), expectLoginError(texto)
+```
+
+**2. Page Object que genera/debe generar** (extiende `BasePage`, locators como getters):
+
+```typescript
+import { Page, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class LoginPage extends BasePage {
+  constructor(page: Page) {
+    super(page);
+  }
+
+  get usernameInput() { return this.page.locator('[data-test="username"]'); }
+  get passwordInput() { return this.page.locator('[data-test="password"]'); }
+  get loginButton()   { return this.page.locator('[data-test="login-button"]'); }
+  get errorMessage()  { return this.page.locator('[data-test="error"]'); }
+
+  async login(username: string, password: string) {
+    await this.usernameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+  }
+
+  async expectLoginError(text: string) {
+    await expect(this.errorMessage).toContainText(text);
+  }
+}
+```
+
+**3. Spec `.spec.ts` que consume ese Page Object** (sin lógica de UI, solo llamadas a métodos):
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../../pages/LoginPage';
+
+test.describe('Login', () => {
+  test('login fallido', { tag: '@smoke' }, async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto('/');
+    await loginPage.login('usuario_invalido', 'pass_incorrecta');
+    await loginPage.expectLoginError('Username and password do not match');
+  });
+});
+```
+
+**4. Feature Gherkin equivalente**, mismo Page Object reutilizado desde los step-definitions:
+
+```gherkin
+Feature: Login en SauceDemo
+
+  @smoke
+  Scenario: Login fallido con credenciales incorrectas
+    Given el usuario navega a la pagina de SauceDemo
+    When inicia sesion con usuario "usuario_invalido" y contrasena "pass_incorrecta"
+    Then deberia ver el mensaje de error "Username and password do not match"
+```
+
+Este es el patrón que debe repetirse para cualquier página nueva: **locators → Page Object →
+spec y/o feature**, siempre sobre `BasePage` y sin saltarse ningún paso intermedio.
+
+### Prompt reusable: generar un Page Object desde locators
+
+Para no repetir este prompt a mano cada vez, existe un **prompt file** reusable en
+[`.github/prompts/generar-page-object.prompt.md`](prompts/generar-page-object.prompt.md). Tú le
+pegas los locators de una página nueva y la IA genera el Page Object + spec + feature siguiendo
+exactamente el estándar de este archivo.
+
+**Cómo usarlo en VS Code:**
+1. Abre el Chat de Copilot.
+2. Escribe `/generar-page-object` (autocompleta desde la carpeta `.github/prompts/`).
+3. Pega el nombre de la página y la lista de locators/acciones cuando te lo pida.
+4. Revisa el resultado antes de aceptarlo — la IA genera el código, tú apruebas los cambios.
+
+---
+
 ## Lo que Copilot NO debe hacer en este proyecto
 
 - ❌ Usar `page.click(selector)` o `page.fill(selector, value)` — API obsoleta

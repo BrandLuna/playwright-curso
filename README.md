@@ -2,6 +2,26 @@
 
 Curso completo de automatización de pruebas — **8 clases · 3 horas cada una**
 
+## 🤖 Uso de IA (GitHub Copilot) en este proyecto
+
+Este proyecto estandariza cómo se usa GitHub Copilot/IA para generar código de automatización,
+para que cualquier persona del curso obtenga los mismos patrones sin importar quién pregunte.
+
+- **Estándares y prompts de referencia:** [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+  — convenciones de Page Objects, specs, features, CI/CD, y un ejemplo real completo
+  (locators → Page Object → spec → feature) usando `LoginPage` de este mismo repo.
+- **Prompt reusable para páginas nuevas:** [`.github/prompts/generar-page-object.prompt.md`](.github/prompts/generar-page-object.prompt.md)
+  — le pegas los locators `data-test` de una página nueva y la IA genera el Page Object + spec
+  (y feature si lo pides) siguiendo el estándar del proyecto.
+
+**Cómo usarlo:**
+1. Abre el Chat de Copilot en VS Code.
+2. Escribe `/generar-page-object` y pega el nombre de la página + locators + acciones que necesitas.
+3. Revisa el código generado antes de aceptarlo — la IA propone, tú apruebas.
+
+> Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo (getters, imports,
+> estructura), pero la validación de que el flujo de negocio es correcto sigue siendo tuya.
+
 ## Requisitos previos
 
 - [Node.js LTS](https://nodejs.org) (v20 o superior)
