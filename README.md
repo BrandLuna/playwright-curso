@@ -378,3 +378,5 @@ mensaje debe llegar al canal elegido.
 1. Configura el webhook de Slack y confirma que te llega la notificación
 2. Revisa `jenkins/README.md` y entiende las diferencias frente a GitHub Actions
 3. Verifica que el pipeline sigue en verde con ambos jobs (Playwright y Cucumber)
+
+Prueba-cicd
