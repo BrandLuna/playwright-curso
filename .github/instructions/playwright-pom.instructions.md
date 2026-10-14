@@ -1,6 +1,6 @@
 ---
-description: "Reglas de Page Objects y specs de Playwright en este proyecto. Usar al crear o editar paginas en pages/ o specs que usan POM."
-applyTo: "pages/**/*.ts,tests/**/*.spec.ts"
+description: "Reglas de Page Objects, specs de Playwright y utilidades de tests en este proyecto. Usar al crear o editar paginas en pages/, specs, fixtures o helpers."
+applyTo: "pages/**/*.ts,tests/**/*.spec.ts,tests/utils/**/*.ts"
 ---
 
 # Playwright + Page Object Model
@@ -18,3 +18,9 @@ applyTo: "pages/**/*.ts,tests/**/*.spec.ts"
 - El spec solo llama metodos del Page Object, sin locators ni logica de UI.
 - Nada de `page.click(selector)` / `page.fill(selector, value)` ni `waitForTimeout()`.
 - URL y credenciales salen de `process.env`; con un fallback (`|| 'valor'`) para que un valor vacio en CI no rompa la ejecucion.
+
+## Utilidades (`tests/utils/`)
+
+- Antes de crear un fixture, helper o dato de prueba, revisa lo que ya existe: `fixtures/auth.fixture.ts`, `helpers.ts` y `data/` (`usuarios.json`, `productos.csv`).
+- Los datos de prueba van en `data/`, no escritos dentro del spec.
+- Los helpers son funciones genericas que no dependen de una pagina; si dependen de una pagina, van en su Page Object.
