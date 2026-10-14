@@ -30,7 +30,7 @@ npm run cucumber
 npm run cucumber:smoke
 npm run cucumber:regression
 
-# Un feature puntual (el comando que propone el agente)
+# Un feature puntual (el comando que usa el agente)
 npm run cucumber -- tests/features/<archivo>.feature
 ```
 
@@ -54,7 +54,7 @@ playwright-curso/
 │   ├── copilot-instructions.md      ← reglas generales para IA/Copilot
 │   ├── instructions/                ← reglas por zona: Cucumber y POM/Playwright
 │   ├── prompts/                     ← /generar-casos-cucumber y /generar-page-object
-│   ├── agents/                      ← qa-cucumber.agent.md (el agente de esta clase)
+│   ├── agents/                      ← 🆕 qa-cucumber.agent.md (el agente de esta clase)
 │   └── GUIA-IA.md                   ← cómo funciona cada pieza de IA
 ├── cucumber.json
 ├── playwright.config.ts             ← reporter nativo html
@@ -66,6 +66,15 @@ playwright-curso/
 # Clase 8 — Agente de IA y MCP de Playwright
 
 > **Duración:** 45 min de clase + 2 h 15 min de tarea &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
+
+```mermaid
+pie showData
+    title Las 3 horas de la clase 8 en minutos
+    "Clase - piezas de IA y agente" : 20
+    "Clase - MCP de Playwright (bonus)" : 20
+    "Clase - presentación de la tarea" : 5
+    "Tarea en tu repositorio" : 135
+```
 
 ## 🎯 Objetivos
 
@@ -101,13 +110,26 @@ flowchart LR
     A --> R["Feature + steps + Page Objects<br/>reutilizando lo existente"]
 ```
 
+**¿Qué pieza uso?** Sigue las preguntas de arriba abajo:
+
+```mermaid
+flowchart TD
+    Q["¿Qué necesito?"] --> A1{"¿Vale para todo<br/>el repositorio?"}
+    A1 -->|Sí| R1["Instrucciones generales<br/>copilot-instructions.md"]
+    A1 -->|No| A2{"¿Solo para un tipo<br/>de archivo?"}
+    A2 -->|Sí| R2["Instrucciones por archivo<br/>instructions/"]
+    A2 -->|No| A3{"¿Es una tarea corta<br/>con datos fijos?"}
+    A3 -->|Sí| R3["Prompt<br/>prompts/"]
+    A3 -->|No| R4["Agente<br/>agents/"]
+```
+
 ### Del prompt al agente
 
 | | Prompt | Agente |
 |---|---|---|
 | Qué es | Una tarea con datos de entrada fijos | Un rol con un flujo de trabajo |
 | Cómo se usa | Escribes `/` y lo eliges; se ejecuta de una vez | Lo eliges en el selector y conversas con él |
-| Herramientas | Las que tenga el chat | Las limitas tú (por ejemplo, sin terminal) |
+| Herramientas | Las que tenga el chat | Las limitas tú (por ejemplo, solo lo que el rol necesita) |
 | Puede preguntar y seguir | Poco | Sí, es parte de su flujo |
 | Cuándo conviene | Tarea corta y repetible | Trabajo de varios pasos que debe planificar |
 
@@ -124,7 +146,7 @@ define qué es y qué puede hacer:
 name: "QA Cucumber"
 description: "Use when: crear o ampliar casos de prueba Cucumber ..."
 argument-hint: "Describe el flujo o los casos que quieres automatizar"
-tools: [read, search, edit]
+tools: [read, search, edit, execute]
 ---
 ```
 
@@ -133,31 +155,156 @@ tools: [read, search, edit]
 | `name` | Nombre que aparece en el selector de agentes |
 | `description` | Cuándo usarlo; así lo encuentra Copilot y tú |
 | `argument-hint` | Texto de ayuda en la caja del chat |
-| `tools` | Herramientas permitidas: leer, buscar y editar archivos |
+| `tools` | Herramientas permitidas: leer, buscar y editar archivos, y usar la terminal (`execute`) |
 
-**Sin terminal, a propósito.** El agente propone el código y el comando; tú lo ejecutas. Así no
-lanza pruebas por su cuenta y se mantiene enfocado en un solo rol.
+> [!IMPORTANT]
+> **Terminal con límite.** El agente solo la usa para ejecutar el feature que acaba de crear; no
+> instala paquetes ni usa git. Esa restricción está escrita en su archivo, y `tools` define qué
+> herramientas existen para él: sin `execute`, no tendría terminal.
 
-Su flujo tiene cuatro pasos:
+Su flujo tiene cinco pasos, y cada uno usa unas herramientas concretas:
 
-1. **Inventario:** lee los steps, features y Page Objects que ya existen.
-2. **Plan:** muestra una tabla con cada caso, los steps que reutiliza y los que haría falta crear.
-3. **Implementación:** crea el feature, los steps nuevos y, solo si hace falta, el Page Object.
-4. **Revisión:** comprueba que no haya steps duplicados y que cada escenario tenga tags.
+```mermaid
+flowchart LR
+    S1["1 Inventario<br/>read, search"] --> S2["2 Plan<br/>tabla de casos"]
+    S2 --> S3["3 Implementación<br/>edit"]
+    S3 --> S4["4 Revisión<br/>read"]
+    S4 --> S5["5 Ejecución<br/>execute"]
+    S5 -->|Pasa| S6["Resumen final"]
+    S5 -->|Falla| S7["Explica la causa<br/>y propone la corrección"]
+```
+
+| Paso | Qué hace | Herramienta |
+|---|---|---|
+| 1. Inventario | Lee los steps, features y Page Objects que ya existen | 📖 `read`, 🔎 `search` |
+| 2. Plan | Muestra una tabla con cada caso, los steps que reutiliza y los que haría falta crear | Solo conversa |
+| 3. Implementación | Crea el feature, los steps nuevos y, solo si hace falta, el Page Object | ✏️ `edit` |
+| 4. Revisión | Comprueba que no haya steps duplicados y que cada escenario tenga tags | 📖 `read` |
+| 5. Ejecución | Corre solo el feature creado y te muestra el resultado | ⌨️ `execute` |
 
 No inventa reglas de negocio ni selectores: si falta un dato, lo pregunta.
 
 #### Paso a paso — usarlo
+
+Así se ve la conversación completa:
+
+```mermaid
+sequenceDiagram
+    actor QA as Tú
+    participant AG as Agente QA Cucumber
+    participant PR as Proyecto
+    participant TE as Terminal
+    QA->>AG: Describes el caso
+    AG->>PR: Lee steps, features y pages
+    AG-->>QA: Plan con steps reutilizados y nuevos
+    QA->>AG: Apruebas el plan
+    AG->>PR: Crea feature, steps y Page Object
+    AG->>TE: Ejecuta el feature con npm run cucumber
+    TE-->>AG: Resultado de la ejecución
+    AG-->>QA: Resumen y supuestos
+```
 
 1. Abre el chat de Copilot en VS Code.
 2. En el selector de agentes elige **QA Cucumber**.
 3. Describe un caso, por ejemplo: *"Agrega un escenario que ordene los productos por Name (Z to A) y
    valide el primero"*.
 4. Revisa el plan antes de que genere los archivos. Si no conoce el valor esperado, te lo pedirá.
-5. Ejecuta el feature con el comando que te indica y revisa el código antes de aceptarlo.
+5. Revisa el resultado de la ejecución y el código antes de aceptarlo.
 
+> [!NOTE]
 > Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo, pero validar que el
 > flujo de negocio es correcto sigue siendo tuyo.
+
+### Cómo se crea un agente
+
+1. Crea un archivo en `.github/agents/` con extensión `.agent.md`, por ejemplo `qa-cucumber.agent.md`.
+   Ahí lo comparte todo el repositorio; en la carpeta de tu perfil de VS Code sería solo para ti.
+2. Escribe el **encabezado** entre `---` con su configuración.
+3. Escribe el **cuerpo** en Markdown: quién es, qué no debe hacer y cómo trabaja.
+4. Elígelo en el selector de agentes del chat y pruébalo con un caso real.
+
+Plantilla mínima:
+
+```markdown
+---
+description: "Use when: <cuándo usarlo y palabras clave>"
+tools: [read, search]
+---
+Eres un <rol>. Tu trabajo es <objetivo>.
+
+## Límites
+- NO <lo que no debe hacer>
+
+## Cómo trabajas
+1. <paso>
+
+## Formato de la respuesta
+<qué devuelve>
+```
+
+#### Anatomía de `qa-cucumber.agent.md`
+
+```mermaid
+flowchart TB
+    F["qa-cucumber.agent.md"] --> H["Encabezado entre ---"]
+    F --> B["Cuerpo en Markdown"]
+    H --> H1["name"]
+    H --> H2["description"]
+    H --> H3["argument-hint"]
+    H --> H4["tools"]
+    B --> B1["Rol"]
+    B --> B2["Enlaces a instrucciones"]
+    B --> B3["Límites"]
+    B --> B4["Cómo trabaja"]
+    B --> B5["Formato de la respuesta"]
+```
+
+| Parte | Qué contiene | En este agente |
+|---|---|---|
+| Encabezado | Configuración: `name`, `description`, `argument-hint`, `tools` | Las cuatro primeras líneas |
+| Rol | Quién es y qué hace, en una o dos frases | "Eres un QA de automatización…" |
+| Enlaces a instrucciones | Las reglas que reutiliza, sin copiarlas | `cucumber.instructions.md` y `playwright-pom.instructions.md` |
+| Límites | Lo que no debe hacer ni tocar | Sección "Límites" |
+| Cómo trabaja | Los pasos, en orden | Inventario, plan, implementación, revisión y ejecución |
+| Formato de la respuesta | Qué entrega al terminar | Archivos, steps, supuestos y resultado |
+
+#### Cómo funciona `tools`
+
+`tools` es la lista de herramientas que el agente puede usar. Lo que no está en la lista **no existe
+para él**: no puede usarlo aunque se lo pidas.
+
+| Herramienta | Qué permite |
+|---|---|
+| 📖 `read` | Leer archivos |
+| 🔎 `search` | Buscar archivos o texto en el proyecto |
+| ✏️ `edit` | Crear y modificar archivos |
+| ⌨️ `execute` | Ejecutar comandos en la terminal |
+| 🌐 `web` | Consultar URLs y buscar en la web |
+| 📋 `todo` | Llevar una lista de tareas |
+| 🤝 `agent` | Invocar a otros agentes |
+
+Qué puede hacer cada combinación:
+
+| `tools` | Leer | Buscar | Editar | Terminal | Resultado |
+|---|:---:|:---:|:---:|:---:|---|
+| `[read, search]` | ✅ | ✅ | ❌ | ❌ | Investiga y revisa, sin modificar nada |
+| `[read, search, edit]` | ✅ | ✅ | ✅ | ❌ | Crea y edita código, pero no ejecuta nada |
+| `[read, search, edit, execute]` | ✅ | ✅ | ✅ | ✅ | Como `qa-cucumber`: además corre comandos |
+| `[]` | ❌ | ❌ | ❌ | ❌ | Solo conversa, sin tocar el proyecto |
+
+- Si omites `tools`, el agente usa las herramientas por defecto.
+- Dale solo lo que su rol necesita: más herramientas lo hacen más disperso y aumentan el riesgo.
+- Los servidores MCP también aparecen aquí, con la forma `servidor/*` (se ve en B2).
+- `tools` define qué existe; **cómo** usarlo se escribe en el cuerpo. Por eso `qa-cucumber` tiene
+  `execute`, pero sus límites le piden usar la terminal solo para correr su feature.
+
+#### Errores comunes
+
+| ❌ Error | ✅ Mejor |
+|---|---|
+| Descripción vaga, como "un agente útil" | Incluir "Use when:" y palabras clave del trabajo que hace; es lo que permite elegirlo |
+| Descripción con `:` sin comillas | Escribirla entre comillas; si no, el encabezado se rompe sin avisar |
+| Muchas herramientas "por si acaso" | Solo las que el rol necesita; un agente que lo hace todo termina sin un rol claro |
 
 ### Archivos de práctica
 
@@ -174,8 +321,22 @@ No inventa reglas de negocio ni selectores: si falta un dato, lo pregunta.
 Playwright le da al agente un **navegador real**: puede abrir una página, leer su estructura y hacer
 clic, en lugar de que le pegues los locators a mano.
 
+```mermaid
+flowchart LR
+    A["Agente de IA<br/>en VS Code"] <-->|MCP| S["Servidor MCP<br/>npx @playwright/mcp"]
+    S <--> N["Navegador real<br/>controlado por Playwright"]
+    N <--> W["Tu aplicación<br/>saucedemo.com"]
+```
+
 Sirve para explorar una aplicación nueva, arrancar un proyecto desde cero, obtener locators reales o
 depurar un flujo.
+
+| Con MCP en el repo | MCP en una carpeta aparte |
+|---|---|
+| Config extra (`.vscode/mcp.json`) en cada clon del curso | El repo del curso queda limpio |
+| Ejecuta código en tu máquina dentro del proyecto real | Se prueba en un entorno desechable |
+| Más tokens por cada página que lee | Solo se gasta cuando lo usas |
+| El proyecto ya tiene sus locators | Ideal para explorar o crear un proyecto desde cero |
 
 **Por qué no está en este repositorio:** el proyecto ya tiene sus Page Objects y sus locators, y MCP
 ejecuta código en tu máquina y gasta más tokens con cada página que lee. Por eso se muestra en una
@@ -201,6 +362,14 @@ Hay otras piezas de personalización que existen pero que este curso no usa:
 | Hooks | Comandos que se ejecutan siempre en ciertos momentos |
 
 #### Paso a paso — instalar el MCP de Playwright en un proyecto
+
+```mermaid
+flowchart LR
+    P1["1 Carpeta limpia"] --> P2["2 Crear<br/>.vscode/mcp.json"]
+    P2 --> P3["3 Start del servidor"]
+    P3 --> P4["4 Chat en modo Agent"]
+    P4 --> P5["5 Probar con SauceDemo"]
+```
 
 1. Crea una carpeta limpia y ábrela en VS Code:
 
@@ -229,7 +398,8 @@ Hay otras piezas de personalización que existen pero que este curso no usa:
 5. Pruébalo: *"Abre https://www.saucedemo.com, inicia sesión con standard_user y lista los productos"*.
 6. Si pide un navegador, instálalo con `npx playwright install chromium`.
 
-> **Seguridad:** un servidor MCP ejecuta código en tu máquina. Instala solo servidores de fuentes de
+> [!WARNING]
+> **Seguridad.** Un servidor MCP ejecuta código en tu máquina. Instala solo servidores de fuentes de
 > confianza y no uses credenciales reales en las pruebas.
 
 ### Archivo de práctica → `.vscode/mcp.json` (en la carpeta aparte)
@@ -249,8 +419,15 @@ criterios de entrega (ver más abajo) y quedan 2 h 15 min para trabajarla.
 
 - Las cuatro piezas de IA del proyecto y cuándo se carga cada una
 - Diferencia entre un prompt y un agente
-- El agente `QA Cucumber`: rol, herramientas limitadas y flujo de cuatro pasos
+- El agente `QA Cucumber`: rol, herramientas limitadas y flujo de cinco pasos
 - Qué es MCP y cómo instalar el MCP de Playwright en una carpeta aparte
+
+```mermaid
+flowchart LR
+    R1["Piezas de IA"] --> R2["Agente QA Cucumber"]
+    R2 --> R3["MCP de Playwright<br/>(bonus)"]
+    R3 --> R4["Tarea: replicar<br/>la clase 7"]
+```
 
 ---
 
@@ -270,6 +447,18 @@ criterios de entrega (ver más abajo) y quedan 2 h 15 min para trabajarla.
 **Implementa lo de la Clase 7 en tu propio repositorio.** Los pasos detallados de Slack, el
 environment y los secrets están en el
 [README de la rama `clase-07-cicd`](https://github.com/BrandLuna/playwright-curso/blob/clase-07-cicd/README.md).
+
+El resultado que debes lograr:
+
+```mermaid
+flowchart LR
+    T1["git push<br/>a tu repositorio"] --> T2["GitHub Actions<br/>environment development"]
+    T2 --> T3["Job playwright"]
+    T2 --> T4["Job cucumber"]
+    T3 --> T5["Mensaje en Slack"]
+    T4 --> T5
+    I1["Instrucciones, prompt<br/>y agente en .github/"] -.->|generan casos nuevos| T1
+```
 
 1. **Pipeline:** un workflow en `.github/workflows/` con un job de Playwright y uno de Cucumber, que
    use el environment `development`.
