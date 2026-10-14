@@ -1,5 +1,5 @@
 ---
-mode: 'agent'
+agent: 'agent'
 description: 'Genera un Page Object + spec + feature a partir de locators que tú proporcionas, siguiendo el estándar de este proyecto.'
 ---
 
