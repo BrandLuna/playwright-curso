@@ -2,27 +2,6 @@
 
 Curso completo de automatización de pruebas — **8 clases · 3 horas cada una**
 
-## 🤖 Uso de IA (GitHub Copilot) en este proyecto
-
-Este proyecto estandariza cómo se usa GitHub Copilot/IA para generar código de automatización,
-para que cualquier persona del curso obtenga los mismos patrones sin importar quién pregunte.
-
-- **Estándares generales:** [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
-  — alcance real del proyecto, nombres, reglas de CI/CD y lo que Copilot no debe hacer.
-- **Reglas por zona del código:** [`.github/instructions/`](.github/instructions) — Cucumber y
-  Page Objects/Playwright. Solo se cargan cuando trabajas con esos archivos.
-- **Prompts reutilizables:** [`.github/prompts/`](.github/prompts) — `/generar-casos-cucumber` y
-  `/generar-page-object`.
-- **Guía completa:** [`.github/GUIA-IA.md`](.github/GUIA-IA.md)
-
-**Cómo usarlo:**
-1. Abre el Chat de Copilot en VS Code.
-2. Escribe `/generar-casos-cucumber` (o `/generar-page-object`) y entrega los datos que pide.
-3. Revisa el código generado antes de aceptarlo — la IA propone, tú apruebas.
-
-> Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo (getters, imports,
-> estructura), pero la validación de que el flujo de negocio es correcto sigue siendo tuya.
-
 ## Requisitos previos
 
 - [Node.js LTS](https://nodejs.org) (v20 o superior)
@@ -34,7 +13,7 @@ para que cualquier persona del curso obtenga los mismos patrones sin importar qu
 ## Configuración para esta clase
 
 Continúas el proyecto de la Clase 6. Esta clase no agrega dependencias npm nuevas — el trabajo es
-de configuración de CI/CD (GitHub Actions + Jenkins) y notificaciones.
+de configuración de CI/CD (GitHub Actions) y notificaciones.
 
 **Configura en el environment `development`** (Settings → Environments → `development`):
 
@@ -53,8 +32,8 @@ SLACK_WEBHOOK_URL=<tu Incoming Webhook de Slack>       # opcional
 > Si no configuras `SLACK_WEBHOOK_URL`, ese paso del pipeline se omite automáticamente — no hace
 > falta tenerlo configurado para que el resto del pipeline funcione.
 
-**Revisa el pipeline ya armado** en `.github/workflows/playwright.yml` y la carpeta `jenkins/`
-(material de aprendizaje, no se ejecuta automáticamente).
+**Revisa el pipeline ya armado** en `.github/workflows/playwright.yml`. La carpeta `jenkins/` queda
+solo como referencia: contiene el pipeline equivalente para Jenkins y no se ejecuta.
 
 **Usa reportes nativos** para mantener la clase simple:
 - Playwright: reporte HTML nativo (`playwright-report/`)
@@ -90,7 +69,7 @@ playwright-curso/
 │       ├── data/                    ← JSON/CSV para data-driven testing
 │       ├── fixtures/                ← Playwright fixtures
 │       └── helpers.ts
-├── jenkins/                         ← Jenkinsfile + guía (demo del instructor)
+├── jenkins/                         ← Jenkinsfile + guía (solo referencia, no se ejecuta)
 │   ├── Jenkinsfile
 │   └── README.md
 ├── .github/
@@ -106,7 +85,7 @@ playwright-curso/
 
 ---
 
-# Clase 7 — CI/CD completo, Jenkins y estandarización de IA
+# Clase 7 — CI/CD con GitHub Actions y estandarización de IA
 
 > **Duración:** 3 horas &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
 
@@ -114,7 +93,7 @@ playwright-curso/
 
 - Entender los conceptos de CI/CD y mapear los términos entre GitHub Actions y Jenkins
 - Consolidar el pipeline de GitHub Actions como flujo principal de CI/CD
-- Configurar y correr Jenkins como alternativa (material de aprendizaje, carpeta separada)
+- Conocer el `Jenkinsfile` como referencia: es el equivalente del workflow de Actions, sin ejecutarlo
 - Configurar notificaciones a Slack al finalizar el pipeline
 - Trabajar con reportes nativos de Playwright y Cucumber en CI/CD
 - Adoptar un uso estandarizado de GitHub Copilot en el proyecto
@@ -162,15 +141,15 @@ flowchart LR
 | Costo | Gratis en repos públicos / minutos incluidos en privados | Servidor propio (EC2, VPS, on-premise...) |
 | Curva de aprendizaje | Baja | Media-alta |
 | Uso en la industria | Muy común en startups y proyectos cloud-native | Muy común en empresas grandes / legacy |
-| Rol en este curso | **Flujo principal** | Material de aprendizaje |
+| Rol en este curso | **Flujo principal** | Solo referencia (no se demuestra) |
 
 > Esta misma tabla vive también en [`jenkins/README.md`](jenkins/README.md) por si quieres
 > profundizar en Jenkins por tu cuenta, con los mismos datos para no tener dos versiones distintas.
 
-### Archivos de práctica
+### Archivos
 
-- `.github/workflows/playwright.yml`
-- `jenkins/Jenkinsfile`
+- `.github/workflows/playwright.yml` (práctica de la clase)
+- `jenkins/Jenkinsfile` (solo referencia)
 
 ---
 
@@ -218,63 +197,31 @@ Ejemplos rápidos:
 
 ---
 
-## B3 — Jenkins paso a paso + Estandarización de IA `25 min`
+## B3 — Jenkins como referencia `10 min`
 
-### Jenkins como material de aprendizaje
+Jenkins **no se demuestra en clase**. El archivo [`jenkins/Jenkinsfile`](jenkins/Jenkinsfile) queda en
+el repositorio como el equivalente del workflow de GitHub Actions: describe el mismo pipeline con
+la sintaxis de Jenkins, para que lo tengas de referencia si algún día lo encuentras en una empresa.
 
-Esta clase se centra en GitHub Actions — Jenkins solo se muestra de forma básica, para ver que
-**ejecutar el mismo pipeline en otra herramienta es un proceso análogo** (mismos comandos
-`npm ci` / `playwright test` / `cucumber`, solo cambia dónde y cómo se configuran). El detalle
-completo (plugins, credenciales, etc.) queda documentado en [`jenkins/README.md`](jenkins/README.md)
-para quien quiera profundizar por su cuenta.
+### El mismo pipeline, escrito en las dos herramientas
 
-```mermaid
-flowchart LR
-    A["Jenkinsfile"] --> B["Checkout"]
-    B --> C["Install<br/>(npm ci + playwright install)"]
-    C --> D["Tests<br/>(Playwright + Cucumber)"]
-    D --> E["post: always<br/>Notifica Slack"]
-```
+| Qué hace | `.github/workflows/playwright.yml` | `jenkins/Jenkinsfile` |
+|---|---|---|
+| Descargar el código | `actions/checkout@v4` | stage `Checkout` (`checkout scm`) |
+| Instalar dependencias y navegadores | `npm ci` + `npx playwright install` | stage `Install` |
+| Correr Playwright | job `playwright` | stage `Playwright Tests` |
+| Correr Cucumber | job `cucumber` | stage `Cucumber BDD Tests` |
+| Publicar el reporte | `actions/upload-artifact` | `publishHTML` |
+| Notificar a Slack | `slackapi/slack-github-action` | `slackSend` en `post { always }` |
+| Variables y secretos | `vars.*` / `secrets.*` del environment | `credentials('ID')` |
 
-#### Paso a paso — lo mínimo para correrlo una vez
+La estructura es la misma; cambia la sintaxis y dónde corre (nube de GitHub o servidor propio). Si
+quieres montarlo por tu cuenta, los pasos están en [`jenkins/README.md`](jenkins/README.md).
 
-1. **Levantar Jenkins con Java 21 (sin Docker)** y abrir `http://localhost:8080`:
-
-   ```powershell
-   New-Item -ItemType Directory -Path C:\jenkins -Force | Out-Null
-   Set-Location C:\jenkins
-   Invoke-WebRequest -Uri "https://get.jenkins.io/war-stable/latest/jenkins.war" -OutFile "jenkins.war"
-   & "C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe" -jar "C:\jenkins\jenkins.war" --httpPort=8080
-   ```
-
-   Jenkins actual requiere **Java 21+**. Si en consola ves error por Java 17, instala Java 21 y
-   vuelve a lanzar el mismo comando.
-
-2. **Crear un Pipeline job** → **New Item → Pipeline** → Pipeline script from SCM → Script Path
-   `jenkins/Jenkinsfile` (mismo rol que el `.yml` en GitHub Actions).
-
-3. **Build Now** y revisar la consola — corre los mismos comandos que ya conoces de Actions.
-
-> Plugins, credenciales y configuración de NodeJS necesarios para que el build pase en verde están
-> detallados paso a paso en [`jenkins/README.md`](jenkins/README.md).
-
-### Estandarización de IA / Copilot
-
-Las convenciones de código, nombrado y prompts reutilizables del proyecto están documentadas en
-[`.github/copilot-instructions.md`](.github/copilot-instructions.md). Úsalo como referencia antes
-de pedirle a Copilot que genere Page Objects, tests, features o cambios al pipeline.
-
-Cómo funcionan las instrucciones y los prompts (`/generar-casos-cucumber`, `/generar-page-object`)
-y qué otras piezas existen está explicado en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
-
-### Archivos de práctica
+### Archivos de referencia
 
 - `jenkins/Jenkinsfile`
 - `jenkins/README.md`
-- `.github/copilot-instructions.md`
-- `.github/instructions/`
-- `.github/prompts/`
-- `.github/GUIA-IA.md`
 
 ---
 
@@ -352,13 +299,68 @@ mensaje debe llegar al canal elegido.
 
 ---
 
+## B5 — Uso de IA en el proyecto (Copilot) `25 min`
+
+El proyecto estandariza cómo se usa Copilot para que cualquier persona del curso obtenga los mismos
+patrones sin importar quién haga la pregunta. Se logra con tres piezas dentro de `.github/`:
+
+| Pieza | Archivo | Cuándo se carga | Para qué |
+|---|---|---|---|
+| Instrucciones generales | `copilot-instructions.md` | Siempre | Reglas que valen para todo el repo |
+| Instrucciones por archivo | `instructions/*.instructions.md` | Al trabajar con ciertos archivos | Reglas de una zona concreta (Cucumber, POM) |
+| Prompts | `prompts/*.prompt.md` | Cuando los invocas con `/` | Tareas repetibles con datos de entrada |
+
+```mermaid
+flowchart LR
+    A["Pides algo en el chat"] --> B["copilot-instructions.md<br/>(siempre)"]
+    A --> C["instructions/<br/>(según el archivo)"]
+    A --> D["/prompt<br/>(si lo invocas)"]
+    B --> E["Código con los patrones del proyecto"]
+    C --> E
+    D --> E
+```
+
+Separar las reglas por zona mantiene corto el contexto fijo: las reglas de Cucumber no viajan cuando
+editas un Page Object, y al revés. Cada mensaje lleva menos texto irrelevante y la regla aparece
+justo donde se necesita.
+
+### Los dos prompts del proyecto
+
+| Prompt | Para qué sirve | Qué le das |
+|---|---|---|
+| `/generar-casos-cucumber` | Crear un feature y sus steps, reutilizando los que ya existen | Feature, página o módulo, casos y tags |
+| `/generar-page-object` | Crear un Page Object (y su spec) para una página nueva | Página, locators `data-test` y acciones |
+
+#### Paso a paso — probarlo
+
+1. Abre el Chat de Copilot en VS Code.
+2. Escribe `/generar-casos-cucumber` y entrega un caso nuevo (por ejemplo, un flujo del carrito).
+3. Revisa las referencias de la respuesta: debe aparecer `cucumber.instructions.md`.
+4. Comprueba que el feature reutiliza la redacción de los steps existentes y que solo crea los que faltan.
+5. Revisa el código antes de aceptarlo — la IA propone, tú apruebas.
+
+> Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo (getters, imports,
+> estructura), pero validar que el flujo de negocio es correcto sigue siendo tuyo.
+
+El detalle de cada pieza, cuándo se carga y qué otras existen (agentes, skills, hooks, MCP) está
+en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
+
+### Archivos de práctica
+
+- `.github/copilot-instructions.md`
+- `.github/instructions/`
+- `.github/prompts/`
+- `.github/GUIA-IA.md`
+
+---
+
 ## Resumen de la Clase 7
 
 ### ✅ Lo que vimos hoy
 
 - Conceptos de CI/CD y tabla de equivalencias entre GitHub Actions y Jenkins
 - Pipeline de GitHub Actions con dos jobs paralelos (Playwright y Cucumber)
-- Jenkins levantado y configurado localmente, corriendo el mismo pipeline
+- Jenkinsfile como referencia paralela al workflow de Actions
 - Notificaciones a Slack por job/stage
 - Reportes nativos (Playwright + Cucumber) generados en cada corrida
 - Estandarización del uso de IA/Copilot con instrucciones generales, instrucciones por archivo y prompts
@@ -378,7 +380,7 @@ mensaje debe llegar al canal elegido.
 |---|---|
 | `npm run test:report` | Abre el reporte HTML nativo de Playwright |
 | `.github/workflows/playwright.yml` | Pipeline principal (GitHub Actions) |
-| `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (demo) |
+| `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (solo referencia) |
 | `.github/copilot-instructions.md` | Reglas generales para Copilot (siempre activas) |
 | `.github/instructions/` | Reglas por zona de código (se cargan al trabajar con esos archivos) |
 | `.github/prompts/` | Tareas repetibles: `/generar-casos-cucumber`, `/generar-page-object` |
@@ -388,7 +390,7 @@ mensaje debe llegar al canal elegido.
 ## 🎯 Tarea para la próxima clase
 
 1. Configura el webhook de Slack y confirma que te llega la notificación
-2. Revisa `jenkins/README.md` y entiende las diferencias frente a GitHub Actions
+2. Compara `jenkins/Jenkinsfile` con el workflow de Actions y ubica qué stage corresponde a cada job
 3. Verifica que el pipeline sigue en verde con ambos jobs (Playwright y Cucumber)
 
 Prueba-cicd
