@@ -64,13 +64,13 @@ Un agente es un rol con herramientas limitadas y un flujo de trabajo definido. S
 
 | Agente | Para qué sirve | Herramientas |
 |---|---|---|
-| [`QA Cucumber`](agents/qa-cucumber.agent.md) | Crear o ampliar casos Cucumber reutilizando steps y Page Objects | `read`, `search`, `edit` (sin terminal) |
+| [`QA Cucumber`](agents/qa-cucumber.agent.md) | Crear o ampliar casos Cucumber reutilizando steps y Page Objects | `read`, `search`, `edit`, `execute` |
 
 Cómo se relaciona con lo anterior:
 
 - **No repite reglas.** Recibe `copilot-instructions.md` y las instrucciones por archivo, y las enlaza desde su archivo; si una regla cambia, se edita en un solo lugar.
-- **Prompt frente a agente.** El prompt es una tarea con datos de entrada fijos y se ejecuta de una vez. El agente tiene un rol y un flujo (inventario, plan, implementación, revisión), puede preguntar y continuar la conversación.
-- **Herramientas mínimas.** No tiene terminal a propósito: propone el código y el comando, y tú ejecutas.
+- **Prompt frente a agente.** El prompt es una tarea con datos de entrada fijos y se ejecuta de una vez. El agente tiene un rol y un flujo (inventario, plan, implementación, revisión, ejecución), puede preguntar y continuar la conversación.
+- **Herramientas mínimas.** Solo tiene las que su rol necesita. Usa la terminal únicamente para ejecutar el feature que creó, no para instalar paquetes ni usar git. Si una herramienta no está en `tools`, el agente no puede usarla.
 
 Cómo usarlo:
 
@@ -78,7 +78,7 @@ Cómo usarlo:
 2. En el selector de agentes elige **QA Cucumber**.
 3. Describe el flujo que quieres automatizar.
 4. Revisa el plan que propone antes de que genere los archivos.
-5. Ejecuta el feature con el comando que te indica.
+5. Revisa el resultado de la ejecución y el código antes de aceptarlo.
 
 ## Cuál usar en cada caso
 
