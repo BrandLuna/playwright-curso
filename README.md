@@ -73,7 +73,7 @@ playwright-curso/
 - Entender la diferencia entre un prompt y un agente
 - Usar el agente `QA Cucumber`, que se apoya en lo que ya existe en el proyecto
 - Conocer qué es MCP y cómo se instala el MCP de Playwright en un proyecto (bonus)
-- Desarrollar un flujo de compra completo con CI/CD en GitHub Actions y notificación a Slack, en tu propio repositorio (tarea)
+- Desarrollar con Cucumber un flujo de compra completo, con CI/CD en GitHub Actions y notificación a Slack, en tu propio repositorio (tarea)
 
 ---
 
@@ -366,7 +366,7 @@ captura larga y eso es lo que más tokens consume.
 
 ## B3 — Presentación de la tarea `5 min`
 
-Se explica la tarea final (ver más abajo): un flujo de compra completo con CI/CD y Slack en **tu
+Se explica la tarea final (ver más abajo): un flujo de compra completo con Cucumber, CI/CD y Slack en **tu
 propio repositorio**. Los 2 h 15 min restantes trabajas en clase, con el instructor y la IA para
 resolver dudas, y puedes entregarla hasta 5 días después.
 
@@ -396,7 +396,7 @@ resolver dudas, y puedes entregarla hasta 5 días después.
 
 ## 🎯 Tarea final
 
-**Desarrolla, en tu propio repositorio, un flujo de compra completo con CI/CD en GitHub Actions y
+**Desarrolla, en tu propio repositorio, un flujo de compra completo con Cucumber, CI/CD en GitHub Actions y
 notificación a Slack.** Partes del proyecto que construiste durante el curso y usas la misma
 página: [saucedemo.com](https://www.saucedemo.com).
 
@@ -405,12 +405,14 @@ página: [saucedemo.com](https://www.saucedemo.com).
 | Dónde trabajas | En tu propio repositorio de GitHub |
 | Tiempo en clase | 2 h 15 min, con el instructor disponible para resolver dudas |
 | Fecha límite | Hasta 5 días después de la clase |
-| Entrega | El enlace a tu repositorio |
+| Entrega | El enlace a tu repositorio, más una captura del pipeline en verde y una del mensaje en Slack |
+| Framework | Cucumber (Gherkin), reutilizando tus Page Objects desde los steps |
 | IA | Permitida: puedes usar Copilot, los prompts y el agente del curso |
 
 ### Qué debes construir
 
-**1. El flujo de compra completo.** Automátizalo con tus Page Objects, de punta a punta:
+**1. El flujo de compra completo, en Cucumber.** Escríbelo en un archivo `.feature` y reutiliza tus
+Page Objects desde los steps, de punta a punta:
 
 | Pantalla | Qué debe hacer tu flujo |
 |---|---|
@@ -427,7 +429,7 @@ página: [saucedemo.com](https://www.saucedemo.com).
 - Las variables de GitHub Actions, en el environment `development` de tu repositorio:
   `BASE_URL`, `SAUCEDEMO_USERNAME` y `SAUCEDEMO_PASSWORD`. El workflow las lee desde ahí, no desde
   el código.
-- Los jobs que tengas (en la Clase 7 son dos: Playwright y Cucumber).
+- Los dos jobs de la Clase 7: Playwright y Cucumber. El flujo de compra corre en el job de Cucumber.
 
 **3. La notificación a Slack:** un mensaje por job al terminar, con el webhook guardado como secret
 `SLACK_WEBHOOK_URL` en el mismo environment. Los pasos para crearlo están en el
@@ -435,11 +437,13 @@ página: [saucedemo.com](https://www.saucedemo.com).
 
 ### Criterios de entrega
 
-- [ ] El flujo de compra cubre todas las pantallas de la tabla, del login a la confirmación.
-- [ ] El pipeline corre en GitHub Actions y termina en verde.
+- [ ] El flujo de compra está escrito en Cucumber y cubre todas las pantallas de la tabla, del login a la confirmación.
+- [ ] El pipeline corre en GitHub Actions y termina en verde con ambos jobs (Playwright y Cucumber).
 - [ ] La URL y las credenciales se leen de las variables del environment, no están en el código.
 - [ ] Llega un mensaje a Slack por cada job.
 - [ ] El webhook de Slack está guardado como secret y no aparece en ningún archivo del repositorio.
 - [ ] El repositorio es accesible para quien lo revise.
+- [ ] Incluyes una captura del pipeline en verde y una captura del mensaje en Slack.
 
-**Entrega final:** el enlace a tu repositorio, hasta 5 días después de la clase.
+**Entrega final:** el enlace a tu repositorio, una captura del pipeline en verde y una captura del
+mensaje en Slack, hasta 5 días después de la clase.
