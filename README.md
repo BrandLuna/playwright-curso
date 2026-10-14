@@ -1,43 +1,22 @@
 # QA Automation con Playwright + TypeScript + Cucumber
 
-Curso completo de automatización de pruebas — **8 clases · 3 horas cada una**
+Curso completo de automatización de pruebas — **8 clases · 3 horas cada una** (en la clase 8: 45 min de clase + 2 h 15 min de tarea)
 
 ## Requisitos previos
 
 - [Node.js LTS](https://nodejs.org) (v20 o superior)
 - [Git](https://git-scm.com)
 - [VS Code](https://code.visualstudio.com) + extensión **Playwright Test for VSCode**
-- Cuenta de GitHub con Actions habilitado (viene por defecto en repos públicos/privados)
-- (Opcional) Un workspace de Slack si quieres probar las notificaciones
+- **GitHub Copilot** activo en VS Code, con el chat y el modo agente disponibles
+- Cuenta de GitHub con Actions habilitado (para la tarea)
 
 ## Configuración para esta clase
 
-Continúas el proyecto de la Clase 6. Esta clase no agrega dependencias npm nuevas — el trabajo es
-de configuración de CI/CD (GitHub Actions) y notificaciones.
+Continúas el proyecto de la Clase 7. Esta clase no agrega dependencias npm nuevas: el archivo nuevo es
+el agente `.github/agents/qa-cucumber.agent.md`.
 
-**Configura en el environment `development`** (Settings → Environments → `development`):
-
-- **Environment variables**: `BASE_URL`, `SAUCEDEMO_USERNAME`, `SAUCEDEMO_PASSWORD`
-- **Environment secret**: `SLACK_WEBHOOK_URL`
-
-Ejemplo de valores:
-
-```
-BASE_URL=https://www.saucedemo.com
-SAUCEDEMO_USERNAME=standard_user
-SAUCEDEMO_PASSWORD=secret_sauce
-SLACK_WEBHOOK_URL=<tu Incoming Webhook de Slack>       # opcional
-```
-
-> Si no configuras `SLACK_WEBHOOK_URL`, ese paso del pipeline se omite automáticamente — no hace
-> falta tenerlo configurado para que el resto del pipeline funcione.
-
-**Revisa el pipeline ya armado** en `.github/workflows/playwright.yml`. La carpeta `jenkins/` queda
-solo como referencia: contiene el pipeline equivalente para Jenkins y no se ejecuta.
-
-**Usa reportes nativos** para mantener la clase simple:
-- Playwright: reporte HTML nativo (`playwright-report/`)
-- Cucumber: formatter HTML nativo (`cucumber-report.html`)
+- El workflow de esta rama (`.github/workflows/playwright.yml`) solo se dispara en `main`.
+- **MCP no forma parte de este repositorio.** Se muestra en una carpeta aparte, limpia (ver B2).
 
 ## Ejecutar los tests
 
@@ -51,8 +30,8 @@ npm run cucumber
 npm run cucumber:smoke
 npm run cucumber:regression
 
-# Abrir reporte nativo de Playwright
-npm run test:report
+# Un feature puntual (el comando que propone el agente)
+npm run cucumber -- tests/features/<archivo>.feature
 ```
 
 ## Estructura del proyecto
@@ -70,14 +49,13 @@ playwright-curso/
 │       ├── fixtures/                ← Playwright fixtures
 │       └── helpers.ts
 ├── jenkins/                         ← Jenkinsfile + guía (solo referencia, no se ejecuta)
-│   ├── Jenkinsfile
-│   └── README.md
 ├── .github/
-│   ├── workflows/playwright.yml     ← pipeline principal de CI/CD (GitHub Actions)
+│   ├── workflows/playwright.yml     ← pipeline de CI/CD (GitHub Actions)
 │   ├── copilot-instructions.md      ← reglas generales para IA/Copilot
 │   ├── instructions/                ← reglas por zona: Cucumber y POM/Playwright
 │   ├── prompts/                     ← /generar-casos-cucumber y /generar-page-object
-│   └── GUIA-IA.md                   ← cómo funcionan instrucciones y prompts
+│   ├── agents/                      ← qa-cucumber.agent.md (el agente de esta clase)
+│   └── GUIA-IA.md                   ← cómo funciona cada pieza de IA
 ├── cucumber.json
 ├── playwright.config.ts             ← reporter nativo html
 └── package.json
@@ -85,312 +63,230 @@ playwright-curso/
 
 ---
 
-# Clase 7 — CI/CD con GitHub Actions y estandarización de IA
+# Clase 8 — Agente de IA y MCP de Playwright
 
-> **Duración:** 3 horas &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
+> **Duración:** 45 min de clase + 2 h 15 min de tarea &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
 
 ## 🎯 Objetivos
 
-- Entender los conceptos de CI/CD y mapear los términos entre GitHub Actions y Jenkins
-- Consolidar el pipeline de GitHub Actions como flujo principal de CI/CD
-- Conocer el `Jenkinsfile` como referencia: es el equivalente del workflow de Actions, sin ejecutarlo
-- Configurar notificaciones a Slack al finalizar el pipeline
-- Trabajar con reportes nativos de Playwright y Cucumber en CI/CD
-- Adoptar un uso estandarizado de GitHub Copilot en el proyecto
+- Repasar las piezas de IA del proyecto y entender cuándo usar cada una
+- Entender la diferencia entre un prompt y un agente
+- Usar el agente `QA Cucumber`, que se apoya en lo que ya existe en el proyecto
+- Conocer qué es MCP y cómo se instala el MCP de Playwright en un proyecto (bonus)
+- Replicar lo de la Clase 7 en tu propio repositorio (tarea)
 
 ---
 
-## B1 — Conceptos de CI/CD: Jenkins vs GitHub Actions `30 min`
+## B1 — Las piezas de IA y el agente `QA Cucumber` `20 min`
 
-Como esta clase no usa diapositivas, estos cuadros reemplazan al "ppt": sirven para fijar los
-términos antes de ver cada herramienta en la práctica.
-
-### ¿Qué hace un pipeline de CI/CD?
-
-En cada `push` o Pull Request, el pipeline repite siempre la misma secuencia, sin intervención
-manual:
-
-```mermaid
-flowchart LR
-    A["git push / Pull Request"] --> B["Pipeline se dispara"]
-    B --> C["Instalar dependencias<br/>(npm ci)"]
-    C --> D["Correr tests<br/>(Playwright / Cucumber)"]
-   D --> E["Generar reportes<br/>(HTML nativo)"]
-    E --> F["Subir artefactos"]
-    F --> G["Notificar<br/>(Slack)"]
-```
-
-### Mismo concepto, distinto nombre según la herramienta
-
-| Concepto | GitHub Actions | Jenkins |
-|---|---|---|
-| Archivo de definición | `.yml` en `.github/workflows/` | `Jenkinsfile` (Groovy) |
-| Unidad de trabajo que corre en paralelo | `job` | `stage` |
-| Paso individual dentro de la unidad | `step` | paso dentro de un `stage` |
-| Máquina que ejecuta el pipeline | `runner` (hospedado por GitHub) | `agent` (servidor propio) |
-| Valor secreto (webhook, password) | `secret` (Settings → Secrets/Environments) | `credential` (Manage Jenkins → Credentials) |
-| Archivo generado para descargar | `artifact` (`actions/upload-artifact`) | `archiveArtifacts` / `publishHTML` |
-| Qué dispara la ejecución | `on: push / pull_request / workflow_dispatch` | Webhook de SCM o *Build Now* manual |
-
-### Comparativa general
-
-| | GitHub Actions | Jenkins |
-|---|---|---|
-| Infraestructura | Nube de GitHub (sin instalar nada) | Servidor propio (self-hosted) |
-| Configuración | `.yml` versionado en el repo | `Jenkinsfile` + configuración en el panel |
-| Costo | Gratis en repos públicos / minutos incluidos en privados | Servidor propio (EC2, VPS, on-premise...) |
-| Curva de aprendizaje | Baja | Media-alta |
-| Uso en la industria | Muy común en startups y proyectos cloud-native | Muy común en empresas grandes / legacy |
-| Rol en este curso | **Flujo principal** | Solo referencia (no se demuestra) |
-
-> Esta misma tabla vive también en [`jenkins/README.md`](jenkins/README.md) por si quieres
-> profundizar en Jenkins por tu cuenta, con los mismos datos para no tener dos versiones distintas.
-
-### Archivos
-
-- `.github/workflows/playwright.yml` (práctica de la clase)
-- `jenkins/Jenkinsfile` (solo referencia)
-
----
-
-## B2 — Pipeline de GitHub Actions `55 min`
-
-Definido en [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml). Se dispara con
-`push`/`pull_request` hacia `main`/`clase-07-cicd`, o manualmente (`workflow_dispatch`).
-
-```
-push / pull_request → GitHub Actions
-         ├── Job "playwright"  → npx playwright test tests/clase-05/01-pom-basico.spec.ts --project=chromium
-         │                       sube playwright-report/
-         │                       notifica Slack con el resultado de ESTE job
-         └── Job "cucumber"    → cucumber sobre tests/features/flujo-de-compra.feature
-                                  sube cucumber-report.html
-                                  notifica Slack con el resultado de ESTE job
-```
-
-Los dos jobs corren en paralelo y son independientes **a propósito**: sirven para comparar, lado a
-lado, cómo se ve el pipeline con el enfoque clásico de Playwright y cómo se ve con BDD. Cada uno
-notifica su propio resultado — no hay un job de notificación consolidado.
-
-### Scope fijo en Clase 7 (rápido para demo)
-
-- Playwright corre `tests/clase-05/01-pom-basico.spec.ts` con `--project=chromium`.
-- Cucumber corre `tests/features/flujo-de-compra.feature`.
-- Mantener este alcance acotado reduce tiempos y hace más predecible la demo en vivo.
-
-Ejemplos rápidos:
-
-- Solo Playwright smoke en carpeta puntual:
-   `test_suite=playwright`, `playwright_paths=tests/clase-05`, `playwright_grep=@smoke`
-- Solo Cucumber regression en dos features:
-   `test_suite=cucumber`, `cucumber_paths=tests/features/flujo-de-compra.feature,tests/features/environments.feature`, `cucumber_tag=@regression`
-
-### Variables y secrets necesarios
-
-| Tipo | Nombre | Uso |
-|---|---|
-| Variable | `BASE_URL` | URL base de la app |
-| Variable | `SAUCEDEMO_USERNAME` / `SAUCEDEMO_PASSWORD` | Credenciales usadas en los tests |
-| Secret | `SLACK_WEBHOOK_URL` | Incoming Webhook de Slack (opcional) |
-
-### Archivo de práctica → [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml)
-
----
-
-## B3 — Jenkins como referencia `10 min`
-
-Jenkins **no se demuestra en clase**. El archivo [`jenkins/Jenkinsfile`](jenkins/Jenkinsfile) queda en
-el repositorio como el equivalente del workflow de GitHub Actions: describe el mismo pipeline con
-la sintaxis de Jenkins, para que lo tengas de referencia si algún día lo encuentras en una empresa.
-
-### El mismo pipeline, escrito en las dos herramientas
-
-| Qué hace | `.github/workflows/playwright.yml` | `jenkins/Jenkinsfile` |
-|---|---|---|
-| Descargar el código | `actions/checkout@v4` | stage `Checkout` (`checkout scm`) |
-| Instalar dependencias y navegadores | `npm ci` + `npx playwright install` | stage `Install` |
-| Correr Playwright | job `playwright` | stage `Playwright Tests` |
-| Correr Cucumber | job `cucumber` | stage `Cucumber BDD Tests` |
-| Publicar el reporte | `actions/upload-artifact` | `publishHTML` |
-| Notificar a Slack | `slackapi/slack-github-action` | `slackSend` en `post { always }` |
-| Variables y secretos | `vars.*` / `secrets.*` del environment | `credentials('ID')` |
-
-La estructura es la misma; cambia la sintaxis y dónde corre (nube de GitHub o servidor propio). Si
-quieres montarlo por tu cuenta, los pasos están en [`jenkins/README.md`](jenkins/README.md).
-
-### Archivos de referencia
-
-- `jenkins/Jenkinsfile`
-- `jenkins/README.md`
-
----
-
-## B4 — Notificaciones a Slack + Reportes nativos `40 min`
-
-### Slack (por job)
-
-Usa la Action oficial `slackapi/slack-github-action@v2.1.0` con un Incoming Webhook, mandando un
-payload en formato Block Kit con el resultado del job, la rama, el commit y el link al run.
-
-#### Paso a paso — Crear el Incoming Webhook y conectarlo al pipeline
-
-1. **Crear la app de Slack.** Entra a [api.slack.com/apps](https://api.slack.com/apps) → **Your Apps**
-   → **Create New App**.
-
-   ![Crear nueva app en Slack API](evidencias/capturas/slack-01-create-new-app.png)
-
-2. **Elegir "From scratch".** En el modal **Create an app**, selecciona **From scratch** (en vez de
-   usar un manifest).
-
-   ![Elegir From scratch](evidencias/capturas/slack-02-from-scratch.png)
-
-3. **Nombrar la app y elegir el workspace.** Ponle un **App Name** (ej. `prueba-ci`) y selecciona el
-   workspace donde quieres recibir las notificaciones (ej. `QA MOON`) → **Create App**.
-
-   ![Nombrar app y elegir workspace](evidencias/capturas/slack-03-name-app-workspace.png)
-
-4. **Activar Incoming Webhooks.** En el menú lateral entra a **Incoming Webhooks**, activa el
-   toggle **Activate Incoming Webhooks** y baja hasta **Add New Webhook**.
-
-   ![Activar Incoming Webhooks](evidencias/capturas/slack-04-activate-webhooks.png)
-
-5. **Copiar la Webhook URL.** Slack genera una URL única (`https://hooks.slack.com/services/...`)
-   asociada a un canal (ej. `playwright-ci`). Cópiala con el botón **Copy** — nunca debe quedar
-   escrita en el código.
-
-   ![Copiar Webhook URL](evidencias/capturas/slack-05-copy-webhook-url.png)
-
-6. **Autorizar la app en el workspace y canal.** Confirma el **Workspace** y el **Canal para
-   webhook**, y pulsa **Permitir** para que la app quede autorizada a publicar ahí.
-
-   ![Permitir que la app publique en el canal](evidencias/capturas/slack-06-permitir-canal.png)
-
-7. **Crear/usar el Environment en GitHub.** El workflow declara `environment: development` en cada
-   job, así que el secret se agrega ahí (no en los secrets generales del repo): **Settings →
-   Environments → New environment** (o entra al que ya exista, `development`).
-
-   ![Crear Environment en GitHub](evidencias/capturas/slack-07-github-environment.png)
-
-8. **Agregar el secret al Environment.** Dentro del environment `development`, ve a **Environment
-   secrets → Add environment secret**.
-
-   ![Add environment secret](evidencias/capturas/slack-08-add-environment-secret.png)
-
-9. **Guardar `SLACK_WEBHOOK_URL`.** Nombre `SLACK_WEBHOOK_URL`, valor la Webhook URL copiada en el
-   paso 5 → **Add secret**.
-
-   ![Secret SLACK_WEBHOOK_URL guardado](evidencias/capturas/slack-09-secret-guardado.png)
-
-El paso `Notify Slack` de [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) ya
-lee `secrets.SLACK_WEBHOOK_URL` dentro del `environment: development` — no hace falta tocar el YAML,
-solo configurar el secret como arriba. Al correr el pipeline (push o `workflow_dispatch`), el
-mensaje debe llegar al canal elegido.
-
-> Si el secret `SLACK_WEBHOOK_URL` no está configurado, la Action de Slack falla ese paso puntual,
-> pero no afecta el resto del job — los tests y la subida de reportes siguen corriendo igual.
-
-### Reportes nativos
-
-- Playwright genera `playwright-report/` automáticamente en cada corrida.
-- Cucumber genera `cucumber-report.html` automáticamente en cada corrida.
-- En GitHub Actions ambos se suben como artefactos (`playwright-report` y `cucumber-report`).
-
-### Archivo de práctica → `.github/workflows/playwright.yml` (paso `Notify Slack`)
-
----
-
-## B5 — Uso de IA en el proyecto (Copilot) `25 min`
-
-El proyecto estandariza cómo se usa Copilot para que cualquier persona del curso obtenga los mismos
-patrones sin importar quién haga la pregunta. Se logra con tres piezas dentro de `.github/`:
+### Repaso: las piezas de IA del proyecto
 
 | Pieza | Archivo | Cuándo se carga | Para qué |
 |---|---|---|---|
 | Instrucciones generales | `copilot-instructions.md` | Siempre | Reglas que valen para todo el repo |
 | Instrucciones por archivo | `instructions/*.instructions.md` | Al trabajar con ciertos archivos | Reglas de una zona concreta (Cucumber, POM) |
 | Prompts | `prompts/*.prompt.md` | Cuando los invocas con `/` | Tareas repetibles con datos de entrada |
-
-```mermaid
-flowchart LR
-    A["Pides algo en el chat"] --> B["copilot-instructions.md<br/>(siempre)"]
-    A --> C["instructions/<br/>(según el archivo)"]
-    A --> D["/prompt<br/>(si lo invocas)"]
-    B --> E["Código con los patrones del proyecto"]
-    C --> E
-    D --> E
-```
+| **Agentes** | `agents/*.agent.md` | Cuando lo eliges en el selector del chat | Un rol con herramientas y un flujo propios |
 
 Separar las reglas por zona mantiene corto el contexto fijo: las reglas de Cucumber no viajan cuando
 editas un Page Object, y al revés. Cada mensaje lleva menos texto irrelevante y la regla aparece
 justo donde se necesita.
 
-### Los dos prompts del proyecto
+```mermaid
+flowchart LR
+    U["Tu mensaje en el chat"] --> A["Agente QA Cucumber<br/>rol + herramientas + flujo"]
+    G["copilot-instructions.md<br/>(siempre)"] --> A
+    I["instructions/<br/>(según el archivo)"] --> A
+    P["/prompt<br/>(tarea puntual)"] --> R
+    A --> R["Feature + steps + Page Objects<br/>reutilizando lo existente"]
+```
 
-| Prompt | Para qué sirve | Qué le das |
+### Del prompt al agente
+
+| | Prompt | Agente |
 |---|---|---|
-| `/generar-casos-cucumber` | Crear un feature y sus steps, reutilizando los que ya existen | Feature, página o módulo, casos y tags |
-| `/generar-page-object` | Crear un Page Object (y su spec) para una página nueva | Página, locators `data-test` y acciones |
+| Qué es | Una tarea con datos de entrada fijos | Un rol con un flujo de trabajo |
+| Cómo se usa | Escribes `/` y lo eliges; se ejecuta de una vez | Lo eliges en el selector y conversas con él |
+| Herramientas | Las que tenga el chat | Las limitas tú (por ejemplo, sin terminal) |
+| Puede preguntar y seguir | Poco | Sí, es parte de su flujo |
+| Cuándo conviene | Tarea corta y repetible | Trabajo de varios pasos que debe planificar |
 
-#### Paso a paso — probarlo
+El agente **no repite las reglas**: recibe las instrucciones generales y las de cada archivo, y su
+propio archivo solo las enlaza. Si una regla cambia, se edita en un solo lugar.
 
-1. Abre el Chat de Copilot en VS Code.
-2. Escribe `/generar-casos-cucumber` y entrega un caso nuevo (por ejemplo, un flujo del carrito).
-3. Revisa las referencias de la respuesta: debe aparecer `cucumber.instructions.md`.
-4. Comprueba que el feature reutiliza la redacción de los steps existentes y que solo crea los que faltan.
-5. Revisa el código antes de aceptarlo — la IA propone, tú apruebas.
+### El agente `QA Cucumber`
 
-> Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo (getters, imports,
-> estructura), pero validar que el flujo de negocio es correcto sigue siendo tuyo.
+Vive en [`.github/agents/qa-cucumber.agent.md`](.github/agents/qa-cucumber.agent.md). Su encabezado
+define qué es y qué puede hacer:
 
-El detalle de cada pieza, cuándo se carga y qué otras existen (agentes, skills, hooks, MCP) está
-en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
+```yaml
+---
+name: "QA Cucumber"
+description: "Use when: crear o ampliar casos de prueba Cucumber ..."
+argument-hint: "Describe el flujo o los casos que quieres automatizar"
+tools: [read, search, edit]
+---
+```
+
+| Campo | Para qué sirve |
+|---|---|
+| `name` | Nombre que aparece en el selector de agentes |
+| `description` | Cuándo usarlo; así lo encuentra Copilot y tú |
+| `argument-hint` | Texto de ayuda en la caja del chat |
+| `tools` | Herramientas permitidas: leer, buscar y editar archivos |
+
+**Sin terminal, a propósito.** El agente propone el código y el comando; tú lo ejecutas. Así no
+lanza pruebas por su cuenta y se mantiene enfocado en un solo rol.
+
+Su flujo tiene cuatro pasos:
+
+1. **Inventario:** lee los steps, features y Page Objects que ya existen.
+2. **Plan:** muestra una tabla con cada caso, los steps que reutiliza y los que haría falta crear.
+3. **Implementación:** crea el feature, los steps nuevos y, solo si hace falta, el Page Object.
+4. **Revisión:** comprueba que no haya steps duplicados y que cada escenario tenga tags.
+
+No inventa reglas de negocio ni selectores: si falta un dato, lo pregunta.
+
+#### Paso a paso — usarlo
+
+1. Abre el chat de Copilot en VS Code.
+2. En el selector de agentes elige **QA Cucumber**.
+3. Describe un caso, por ejemplo: *"Agrega un escenario que ordene los productos por Name (Z to A) y
+   valide el primero"*.
+4. Revisa el plan antes de que genere los archivos. Si no conoce el valor esperado, te lo pedirá.
+5. Ejecuta el feature con el comando que te indica y revisa el código antes de aceptarlo.
+
+> Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo, pero validar que el
+> flujo de negocio es correcto sigue siendo tuyo.
 
 ### Archivos de práctica
 
-- `.github/copilot-instructions.md`
-- `.github/instructions/`
-- `.github/prompts/`
+- `.github/agents/qa-cucumber.agent.md`
 - `.github/GUIA-IA.md`
 
 ---
 
-## Resumen de la Clase 7
+## B2 — MCP de Playwright (bonus) `20 min`
+
+### Qué es MCP
+
+**MCP** (Model Context Protocol) es un protocolo para que la IA use herramientas externas. El MCP de
+Playwright le da al agente un **navegador real**: puede abrir una página, leer su estructura y hacer
+clic, en lugar de que le pegues los locators a mano.
+
+Sirve para explorar una aplicación nueva, arrancar un proyecto desde cero, obtener locators reales o
+depurar un flujo.
+
+**Por qué no está en este repositorio:** el proyecto ya tiene sus Page Objects y sus locators, y MCP
+ejecuta código en tu máquina y gasta más tokens con cada página que lee. Por eso se muestra en una
+carpeta aparte y limpia.
+
+### ¿Existe un "node_modules" para la IA?
+
+No hay un gestor de paquetes único para agentes. `yarn`, por ejemplo, es otro gestor de paquetes de
+Node (como `npm` o `pnpm`) y no tiene que ver con IA. Lo más parecido es MCP:
+
+| En Node | En IA con MCP |
+|---|---|
+| `package.json` | `.vscode/mcp.json` |
+| Paquete de npm | Servidor MCP (por ejemplo, `@playwright/mcp`) |
+| `npx` ejecuta el paquete | El mismo `npx` arranca el servidor |
+
+Hay otras piezas de personalización que existen pero que este curso no usa:
+
+| Pieza | Para qué |
+|---|---|
+| `AGENTS.md` | Instrucciones en un formato que leen varias herramientas de IA |
+| Skills (`SKILL.md`) | Flujos con plantillas o scripts incluidos |
+| Hooks | Comandos que se ejecutan siempre en ciertos momentos |
+
+#### Paso a paso — instalar el MCP de Playwright en un proyecto
+
+1. Crea una carpeta limpia y ábrela en VS Code:
+
+   ```bash
+   mkdir demo-mcp
+   cd demo-mcp
+   code .
+   ```
+
+2. Crea el archivo `.vscode/mcp.json`:
+
+   ```json
+   {
+     "servers": {
+       "playwright": {
+         "command": "npx",
+         "args": ["@playwright/mcp@latest"]
+       }
+     }
+   }
+   ```
+
+3. Inicia el servidor: en `mcp.json` aparece **Start** sobre `playwright` (o usa la paleta de
+   comandos con `MCP: List Servers`). VS Code te pedirá confirmar que confías en él.
+4. Abre el chat en modo **Agent** y revisa el icono de herramientas: deben aparecer las de Playwright.
+5. Pruébalo: *"Abre https://www.saucedemo.com, inicia sesión con standard_user y lista los productos"*.
+6. Si pide un navegador, instálalo con `npx playwright install chromium`.
+
+> **Seguridad:** un servidor MCP ejecuta código en tu máquina. Instala solo servidores de fuentes de
+> confianza y no uses credenciales reales en las pruebas.
+
+### Archivo de práctica → `.vscode/mcp.json` (en la carpeta aparte)
+
+---
+
+## B3 — Presentación de la tarea `5 min`
+
+La tarea es replicar lo de la Clase 7 en **tu propio repositorio**. Se explica el alcance y los
+criterios de entrega (ver más abajo) y quedan 2 h 15 min para trabajarla.
+
+---
+
+## Resumen de la Clase 8
 
 ### ✅ Lo que vimos hoy
 
-- Conceptos de CI/CD y tabla de equivalencias entre GitHub Actions y Jenkins
-- Pipeline de GitHub Actions con dos jobs paralelos (Playwright y Cucumber)
-- Jenkinsfile como referencia paralela al workflow de Actions
-- Notificaciones a Slack por job/stage
-- Reportes nativos (Playwright + Cucumber) generados en cada corrida
-- Estandarización del uso de IA/Copilot con instrucciones generales, instrucciones por archivo y prompts
-
-### 🔜 Clase 8 — Proyecto Final, MCP & Cierre
-
-- Repaso integral del framework completo (POM + BDD + CI/CD)
-- README profesional listo para portfolio
-- Criterios de evaluación del proyecto final
-- Extra: introducción a Playwright MCP
+- Las cuatro piezas de IA del proyecto y cuándo se carga cada una
+- Diferencia entre un prompt y un agente
+- El agente `QA Cucumber`: rol, herramientas limitadas y flujo de cuatro pasos
+- Qué es MCP y cómo instalar el MCP de Playwright en una carpeta aparte
 
 ---
 
-## Referencia rápida — Clase 7
+## Referencia rápida — Clase 8
 
-| Comando / Archivo | ¿Qué hace? |
+| Archivo / Comando | ¿Qué hace? |
 |---|---|
-| `npm run test:report` | Abre el reporte HTML nativo de Playwright |
-| `.github/workflows/playwright.yml` | Pipeline principal (GitHub Actions) |
-| `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (solo referencia) |
-| `.github/copilot-instructions.md` | Reglas generales para Copilot (siempre activas) |
-| `.github/instructions/` | Reglas por zona de código (se cargan al trabajar con esos archivos) |
-| `.github/prompts/` | Tareas repetibles: `/generar-casos-cucumber`, `/generar-page-object` |
+| `.github/agents/qa-cucumber.agent.md` | Agente que crea casos Cucumber reutilizando lo existente |
+| `.github/GUIA-IA.md` | Cómo funciona cada pieza de IA |
+| `npm run cucumber -- tests/features/<archivo>.feature` | Ejecuta un feature puntual |
+| `.vscode/mcp.json` | Configuración del servidor MCP (en la carpeta aparte) |
 
 ---
 
-## 🎯 Tarea para la próxima clase
+## 🎯 Tarea (2 h 15 min)
 
-1. Configura el webhook de Slack y confirma que te llega la notificación
-2. Compara `jenkins/Jenkinsfile` con el workflow de Actions y ubica qué stage corresponde a cada job
-3. Verifica que el pipeline sigue en verde con ambos jobs (Playwright y Cucumber)
+**Implementa lo de la Clase 7 en tu propio repositorio.** Los pasos detallados de Slack, el
+environment y los secrets están en el
+[README de la rama `clase-07-cicd`](https://github.com/BrandLuna/playwright-curso/blob/clase-07-cicd/README.md).
 
-Prueba-cicd
+1. **Pipeline:** un workflow en `.github/workflows/` con un job de Playwright y uno de Cucumber, que
+   use el environment `development`.
+2. **Variables y secret:** `BASE_URL`, `SAUCEDEMO_USERNAME` y `SAUCEDEMO_PASSWORD` como variables del
+   environment, y `SLACK_WEBHOOK_URL` como secret.
+3. **Slack:** una notificación por job al terminar el pipeline.
+4. **IA:** `.github/copilot-instructions.md`, al menos una instrucción por archivo y al menos un
+   prompt. El agente es opcional.
+5. **Prueba de la IA:** genera un caso nuevo con un prompt o con el agente y comprueba que reutiliza
+   los steps existentes.
+
+### Criterios de entrega
+
+- [ ] El pipeline termina en verde con ambos jobs.
+- [ ] Llega un mensaje a Slack por cada job.
+- [ ] Los secretos no están escritos en ningún archivo del repositorio.
+- [ ] El repositorio incluye las instrucciones y al menos un prompt.
+- [ ] Hay un feature generado con IA que reutiliza steps existentes.
+
+Entrega: enlace a tu repositorio, una captura del pipeline en verde y una captura del mensaje en Slack.
