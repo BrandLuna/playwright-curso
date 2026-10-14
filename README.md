@@ -260,11 +260,15 @@ Las convenciones de código, nombrado y prompts reutilizables del proyecto está
 [`.github/copilot-instructions.md`](.github/copilot-instructions.md). Úsalo como referencia antes
 de pedirle a Copilot que genere Page Objects, tests, features o cambios al pipeline.
 
+Cómo funcionan las instrucciones y los prompts (`/generar-page-object`, `/generar-casos-cucumber`,
+`/revisar-bdd`) y qué otras piezas existen está explicado en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
+
 ### Archivos de práctica
 
 - `jenkins/Jenkinsfile`
 - `jenkins/README.md`
 - `.github/copilot-instructions.md`
+- `.github/GUIA-IA.md`
 
 ---
 
