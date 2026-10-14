@@ -19,25 +19,11 @@ del proyecto, sin inventar estructuras ni herramientas que no existen aqui.
 
 ## Convenciones de codigo
 
-### Page Objects (`pages/`)
+El detalle de Page Objects, specs y Cucumber vive en `.github/instructions/` y solo se carga
+cuando se trabaja con esos archivos:
 
-- Toda Page Object debe extender `BasePage`.
-- Definir locators como getters.
-- Priorizar selectores `data-test` cuando existan.
-- Metodos de negocio en espanol cuando representan pasos funcionales.
-
-### Specs de Playwright (`tests/clase-*/`)
-
-- Agrupar con `test.describe()`.
-- Usar tags con sintaxis `{ tag: '@smoke' }` o `{ tag: '@regression' }`.
-- Evitar logica de UI directa en el spec: usar metodos del Page Object.
-
-### BDD con Cucumber (`tests/features/`, `tests/step-definitions/`)
-
-- Features en kebab-case y en espanol.
-- Reusar steps existentes antes de crear nuevos.
-- Si se crea step nuevo, debe usar `CustomWorld` del proyecto.
-- Preferir `Background` y `Scenario Outline` cuando aplique.
+- `playwright-pom.instructions.md`: `pages/` y specs con POM.
+- `cucumber.instructions.md`: features, steps y soporte de Cucumber.
 
 ### Nombres y estilo
 
@@ -45,6 +31,7 @@ del proyecto, sin inventar estructuras ni herramientas que no existen aqui.
 - Clases: PascalCase.
 - Funciones y metodos: camelCase.
 - Variables de entorno: SCREAMING_SNAKE_CASE.
+- Reutilizar lo que ya existe en el proyecto antes de crear algo nuevo.
 
 ---
 
@@ -67,8 +54,7 @@ del proyecto, sin inventar estructuras ni herramientas que no existen aqui.
 
 ---
 
-## Uso recomendado de prompts del repo
+## Prompts del repo
 
-- Para generar POM desde locators: `.github/prompts/generar-page-object.prompt.md`
-- Para generar nuevos escenarios BDD: `.github/prompts/generar-casos-cucumber.prompt.md`
-- Para revisar calidad BDD antes de commit: `.github/prompts/revisar-bdd.prompt.md`
+- Nuevos escenarios Cucumber reutilizando steps y pages: `.github/prompts/generar-casos-cucumber.prompt.md`
+- Page Object nuevo a partir de locators: `.github/prompts/generar-page-object.prompt.md`

@@ -1,51 +1,38 @@
 ---
 agent: 'agent'
-description: 'Genera escenarios Cucumber y steps necesarios con enfoque de proyecto real, reutilizando al maximo los steps existentes.'
+description: 'Crea escenarios Cucumber nuevos reutilizando los steps y Page Objects que ya existen en el proyecto.'
 ---
 
-Genera casos nuevos en Cucumber para este proyecto con enfoque realista.
-Antes de escribir codigo, revisa y reutiliza lo que ya existe en `tests/features/` y `tests/step-definitions/`.
+Crea casos nuevos de Cucumber para este proyecto, siguiendo las reglas de
+[cucumber.instructions.md](../instructions/cucumber.instructions.md).
 
-Si falta contexto, pregunta primero.
-No inventes reglas de negocio ni selectores.
+Antes de escribir nada:
 
-## Entrada esperada
+1. Lee `tests/step-definitions/` y haz una lista de los steps que ya existen.
+2. Escribe los escenarios usando esa misma redaccion cuando el paso ya exista.
+3. Solo crea un step nuevo si no hay uno equivalente.
+
+Si falta contexto, pregunta primero. No inventes reglas de negocio ni selectores.
+
+## Datos que te voy a dar
 
 ```text
 Feature: <objetivo funcional>
-Modulo/pagina: <nombre>
+Pagina o modulo: <nombre>
 Casos: <lista de casos de prueba>
-Tags esperados: <@smoke/@regression/...>
-``` 
+Tags: <@smoke / @regression>
+```
 
-## Salida esperada
+## Que debes generar
 
-1. Feature en `tests/features/<nombre>.feature`
-- En espanol, archivo kebab-case.
-- `Background` si hay pasos comunes.
-- `Scenario Outline` cuando haya variaciones de datos.
-- Tags en la linea anterior a cada Scenario.
+1. El `.feature` en `tests/features/`.
+2. Los steps nuevos que hagan falta en `tests/step-definitions/`, agrupados por dominio.
+3. Un Page Object o metodo nuevo en `pages/` solo si un step lo necesita.
 
-2. Steps en `tests/step-definitions/`
-- Reusar steps existentes primero.
-- Solo crear steps nuevos si no hay equivalentes.
-- Steps tipados con `CustomWorld`.
+## Al terminar
 
-3. Si aplica, Page Object o metodo faltante
-- Solo si el paso realmente lo requiere.
-- Extender `BasePage` y usar locators como getters.
+Resume en pocas lineas:
 
-## Reglas
-
-- No meter logica de UI en features.
-- No hardcodear secretos o credenciales.
-- No usar esperas artificiales tipo `waitForTimeout()`.
-- Mantener consistencia de nombres con el proyecto.
-
-## Al final
-
-Devuelve un resumen corto con:
-- Archivos creados/modificados.
-- Steps reutilizados.
-- Steps nuevos agregados.
+- Archivos creados o modificados.
+- Steps reutilizados y steps nuevos.
 - Supuestos que tuviste que tomar.

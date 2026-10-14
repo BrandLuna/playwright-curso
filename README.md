@@ -7,16 +7,17 @@ Curso completo de automatización de pruebas — **8 clases · 3 horas cada una*
 Este proyecto estandariza cómo se usa GitHub Copilot/IA para generar código de automatización,
 para que cualquier persona del curso obtenga los mismos patrones sin importar quién pregunte.
 
-- **Estándares y prompts de referencia:** [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
-  — convenciones de Page Objects, specs, features, CI/CD, y un ejemplo real completo
-  (locators → Page Object → spec → feature) usando `LoginPage` de este mismo repo.
-- **Prompt reusable para páginas nuevas:** [`.github/prompts/generar-page-object.prompt.md`](.github/prompts/generar-page-object.prompt.md)
-  — le pegas los locators `data-test` de una página nueva y la IA genera el Page Object + spec
-  (y feature si lo pides) siguiendo el estándar del proyecto.
+- **Estándares generales:** [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+  — alcance real del proyecto, nombres, reglas de CI/CD y lo que Copilot no debe hacer.
+- **Reglas por zona del código:** [`.github/instructions/`](.github/instructions) — Cucumber y
+  Page Objects/Playwright. Solo se cargan cuando trabajas con esos archivos.
+- **Prompts reutilizables:** [`.github/prompts/`](.github/prompts) — `/generar-casos-cucumber` y
+  `/generar-page-object`.
+- **Guía completa:** [`.github/GUIA-IA.md`](.github/GUIA-IA.md)
 
 **Cómo usarlo:**
 1. Abre el Chat de Copilot en VS Code.
-2. Escribe `/generar-page-object` y pega el nombre de la página + locators + acciones que necesitas.
+2. Escribe `/generar-casos-cucumber` (o `/generar-page-object`) y entrega los datos que pide.
 3. Revisa el código generado antes de aceptarlo — la IA propone, tú apruebas.
 
 > Esto no reemplaza el criterio del QA: la IA acelera el andamiaje repetitivo (getters, imports,
@@ -94,7 +95,10 @@ playwright-curso/
 │   └── README.md
 ├── .github/
 │   ├── workflows/playwright.yml     ← pipeline principal de CI/CD (GitHub Actions)
-│   └── copilot-instructions.md      ← estándares de código y prompts para IA/Copilot
+│   ├── copilot-instructions.md      ← reglas generales para IA/Copilot
+│   ├── instructions/                ← reglas por zona: Cucumber y POM/Playwright
+│   ├── prompts/                     ← /generar-casos-cucumber y /generar-page-object
+│   └── GUIA-IA.md                   ← cómo funcionan instrucciones y prompts
 ├── cucumber.json
 ├── playwright.config.ts             ← reporter nativo html
 └── package.json
@@ -260,14 +264,16 @@ Las convenciones de código, nombrado y prompts reutilizables del proyecto está
 [`.github/copilot-instructions.md`](.github/copilot-instructions.md). Úsalo como referencia antes
 de pedirle a Copilot que genere Page Objects, tests, features o cambios al pipeline.
 
-Cómo funcionan las instrucciones y los prompts (`/generar-page-object`, `/generar-casos-cucumber`,
-`/revisar-bdd`) y qué otras piezas existen está explicado en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
+Cómo funcionan las instrucciones y los prompts (`/generar-casos-cucumber`, `/generar-page-object`)
+y qué otras piezas existen está explicado en [`.github/GUIA-IA.md`](.github/GUIA-IA.md).
 
 ### Archivos de práctica
 
 - `jenkins/Jenkinsfile`
 - `jenkins/README.md`
 - `.github/copilot-instructions.md`
+- `.github/instructions/`
+- `.github/prompts/`
 - `.github/GUIA-IA.md`
 
 ---
@@ -355,7 +361,7 @@ mensaje debe llegar al canal elegido.
 - Jenkins levantado y configurado localmente, corriendo el mismo pipeline
 - Notificaciones a Slack por job/stage
 - Reportes nativos (Playwright + Cucumber) generados en cada corrida
-- Estandarización del uso de IA/Copilot con `.github/copilot-instructions.md`
+- Estandarización del uso de IA/Copilot con instrucciones generales, instrucciones por archivo y prompts
 
 ### 🔜 Clase 8 — Proyecto Final, MCP & Cierre
 
@@ -373,7 +379,9 @@ mensaje debe llegar al canal elegido.
 | `npm run test:report` | Abre el reporte HTML nativo de Playwright |
 | `.github/workflows/playwright.yml` | Pipeline principal (GitHub Actions) |
 | `jenkins/Jenkinsfile` | Pipeline equivalente para Jenkins (demo) |
-| `.github/copilot-instructions.md` | Estándares de código y prompts para Copilot |
+| `.github/copilot-instructions.md` | Reglas generales para Copilot (siempre activas) |
+| `.github/instructions/` | Reglas por zona de código (se cargan al trabajar con esos archivos) |
+| `.github/prompts/` | Tareas repetibles: `/generar-casos-cucumber`, `/generar-page-object` |
 
 ---
 

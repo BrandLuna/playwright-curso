@@ -1,11 +1,14 @@
 ---
 agent: 'agent'
-description: 'Genera un Page Object + spec + feature a partir de locators que tú proporcionas, siguiendo el estándar de este proyecto.'
+description: 'Crea un Page Object nuevo (y su spec) a partir de los locators que tú proporcionas, reutilizando las páginas existentes.'
 ---
 
 Vas a generar los artefactos de automatización para una página nueva del sitio bajo prueba,
-siguiendo **al pie de la letra** los estándares definidos en
-[`copilot-instructions.md`](../copilot-instructions.md).
+siguiendo las reglas de
+[playwright-pom.instructions.md](../instructions/playwright-pom.instructions.md) y
+[copilot-instructions.md](../copilot-instructions.md).
+
+Antes de crear nada, revisa `pages/`: si la página ya existe, amplía esa clase en vez de crear otra.
 
 Si falta información (nombre de la página, locators o acciones), pregúntame antes de generar
 código. No inventes locators que no te di.
