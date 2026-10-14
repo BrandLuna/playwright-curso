@@ -10,7 +10,11 @@ node_modules/
 # Reportes y evidencias generadas en runtime
 /allure-results/
 /allure-report/
-/evidencias/
+/evidencias/*
+# Capturas del README (guia de Slack) si se versionan
+!/evidencias/capturas/
+/evidencias/capturas/*
+!/evidencias/capturas/slack-*.png
 
 # Variables de entorno — nunca subir al repo
 .env
@@ -20,3 +24,5 @@ node_modules/
 
 # Reportes generados por Cucumber
 cucumber-report.html
+/cucumber-report-json/
+/multiple-cucumber-html-report/

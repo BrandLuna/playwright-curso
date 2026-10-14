@@ -130,7 +130,7 @@ jobs:
           name: cucumber-report
           path: cucumber-report.html
           retention-days: 30
-          if-no-files-found: ignore
+          if-no-files-found: ignore 
 
       # Notificacion a Slack al finalizar (pase o falle)
       - name: Notify Slack - Cucumber
