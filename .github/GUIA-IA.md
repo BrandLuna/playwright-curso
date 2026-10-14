@@ -23,7 +23,7 @@ Son reglas que solo importan en una parte del proyecto. Cada archivo declara en 
 | Archivo | Aplica a | Contiene |
 |---|---|---|
 | [`cucumber.instructions.md`](instructions/cucumber.instructions.md) | `tests/features/`, `tests/step-definitions/`, `tests/support/` | Reutilizar steps existentes, redacción sin tildes, uso de `CustomWorld` |
-| [`playwright-pom.instructions.md`](instructions/playwright-pom.instructions.md) | `pages/`, `tests/clase-05/` | `BasePage`, locators como getters, specs sin lógica de UI |
+| [`playwright-pom.instructions.md`](instructions/playwright-pom.instructions.md) | `pages/` y todos los `*.spec.ts` dentro de `tests/` | `BasePage`, locators como getters, specs sin lógica de UI |
 
 Por qué conviene separarlas:
 

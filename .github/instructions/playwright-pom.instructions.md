@@ -1,6 +1,6 @@
 ---
 description: "Reglas de Page Objects y specs de Playwright en este proyecto. Usar al crear o editar paginas en pages/ o specs que usan POM."
-applyTo: "pages/**/*.ts,tests/clase-05/**/*.ts"
+applyTo: "pages/**/*.ts,tests/**/*.spec.ts"
 ---
 
 # Playwright + Page Object Model
