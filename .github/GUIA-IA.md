@@ -1,12 +1,13 @@
 # Guía de IA con Copilot en este proyecto
 
-El proyecto usa tres piezas de personalización de Copilot, todas dentro de `.github/`. Cada una resuelve una necesidad distinta y juntas le dan a la IA el contexto del proyecto sin repetirlo en cada pregunta.
+El proyecto usa cuatro piezas de personalización de Copilot, todas dentro de `.github/`. Cada una resuelve una necesidad distinta y juntas le dan a la IA el contexto del proyecto sin repetirlo en cada pregunta.
 
 | Pieza | Archivo | Cuándo se carga | Para qué |
 |---|---|---|---|
 | Instrucciones generales | `copilot-instructions.md` | Siempre | Reglas que valen para todo el repo |
 | Instrucciones por archivo | `instructions/*.instructions.md` | Solo al trabajar con ciertos archivos | Reglas de una zona concreta del código |
 | Prompts | `prompts/*.prompt.md` | Cuando los invocas con `/` | Tareas repetibles con datos de entrada |
+| Agentes | `agents/*.agent.md` | Cuando lo eliges en el selector del chat | Un rol con herramientas y un flujo propios |
 
 ## 1. Instrucciones generales: `copilot-instructions.md`
 
@@ -57,20 +58,31 @@ En el encabezado de cada prompt, `description` es lo que aparece en la lista y `
 - `agent: 'agent'` puede leer y modificar archivos del repo (lo usan los dos prompts).
 - `agent: 'ask'` solo responde en el chat, sin tocar archivos. Sirve para consultas.
 
-## Qué más existe
+## 4. Agentes: `agents/`
 
-Estas piezas no están implementadas todavía. Se agregan cuando hay una necesidad concreta.
+Un agente es un rol con herramientas limitadas y un flujo de trabajo definido. Se elige en el selector de agentes del chat y trabaja con ese rol durante toda la conversación.
 
-| Pieza | Ubicación | Para qué |
+| Agente | Para qué sirve | Herramientas |
 |---|---|---|
-| `AGENTS.md` | Raíz del repo | Instrucciones para agentes en un formato compartido con otras herramientas; innecesario si ya existe `copilot-instructions.md` |
-| Agentes personalizados | `.github/agents/*.agent.md` | Perfiles con herramientas restringidas, por ejemplo un revisor de solo lectura |
-| Skills | `.github/skills/<nombre>/SKILL.md` | Flujos de varios pasos con plantillas o scripts incluidos |
-| Hooks | `.github/hooks/*.json` | Comandos que se ejecutan siempre en ciertos momentos, a diferencia de las instrucciones que solo guían |
-| MCP | `.vscode/mcp.json` | Conectar Copilot con herramientas y sistemas externos |
+| [`QA Cucumber`](agents/qa-cucumber.agent.md) | Crear o ampliar casos Cucumber reutilizando steps y Page Objects | `read`, `search`, `edit` (sin terminal) |
 
-Regla práctica para decidir dónde poner algo:
+Cómo se relaciona con lo anterior:
+
+- **No repite reglas.** Recibe `copilot-instructions.md` y las instrucciones por archivo, y las enlaza desde su archivo; si una regla cambia, se edita en un solo lugar.
+- **Prompt frente a agente.** El prompt es una tarea con datos de entrada fijos y se ejecuta de una vez. El agente tiene un rol y un flujo (inventario, plan, implementación, revisión), puede preguntar y continuar la conversación.
+- **Herramientas mínimas.** No tiene terminal a propósito: propone el código y el comando, y tú ejecutas.
+
+Cómo usarlo:
+
+1. Abre el chat de Copilot en VS Code.
+2. En el selector de agentes elige **QA Cucumber**.
+3. Describe el flujo que quieres automatizar.
+4. Revisa el plan que propone antes de que genere los archivos.
+5. Ejecuta el feature con el comando que te indica.
+
+## Cuál usar en cada caso
 
 - Aplica a casi todo el trabajo: instrucciones generales.
 - Aplica solo a un tipo de archivo: instrucciones por archivo.
 - Es una tarea repetible con datos de entrada: prompt.
+- Necesita un rol con un flujo y herramientas limitadas: agente.
