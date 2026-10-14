@@ -1,6 +1,6 @@
 # QA Automation con Playwright + TypeScript + Cucumber
 
-Curso completo de automatización de pruebas — **8 clases · 3 horas cada una** (en la clase 8: 45 min de clase + 2 h 15 min de tarea)
+Curso completo de automatización de pruebas — **8 clases · 3 horas cada una** (en la clase 8: 45 min de clase + 2 h 15 min de trabajo guiado, con entrega hasta 5 días después)
 
 ## Requisitos previos
 
@@ -65,7 +65,7 @@ playwright-curso/
 
 # Clase 8 — Agente de IA y MCP de Playwright
 
-> **Duración:** 45 min de clase + 2 h 15 min de tarea &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
+> **Duración:** 45 min de clase + 2 h 15 min de trabajo guiado (entrega hasta 5 días después) &nbsp;|&nbsp; **App:** [saucedemo.com](https://www.saucedemo.com)
 
 ## 🎯 Objetivos
 
@@ -73,7 +73,7 @@ playwright-curso/
 - Entender la diferencia entre un prompt y un agente
 - Usar el agente `QA Cucumber`, que se apoya en lo que ya existe en el proyecto
 - Conocer qué es MCP y cómo se instala el MCP de Playwright en un proyecto (bonus)
-- Replicar lo de la Clase 7 en tu propio repositorio (tarea)
+- Desarrollar un flujo de compra completo con CI/CD en GitHub Actions y notificación a Slack, en tu propio repositorio (tarea)
 
 ---
 
@@ -313,11 +313,52 @@ Hay otras piezas de personalización que existen pero que este curso no usa:
 3. Inicia el servidor: en `mcp.json` aparece **Start** sobre `playwright` (o usa la paleta de
    comandos con `MCP: List Servers`). VS Code te pedirá confirmar que confías en él.
 4. Abre el chat en modo **Agent** y revisa el icono de herramientas: deben aparecer las de Playwright.
-5. Pruébalo: *"Abre https://www.saucedemo.com, inicia sesión con standard_user y lista los productos"*.
+5. Prueba rápida, solo para comprobar que MCP responde: *"Abre https://www.saucedemo.com, inicia sesión con standard_user y lista los productos"*.
 6. Si pide un navegador, instálalo con `npx playwright install chromium`.
 
 > **Seguridad:** un servidor MCP ejecuta código en tu máquina. Instala solo servidores de fuentes de
 > confianza y no uses credenciales reales en las pruebas.
+
+#### Prompt de la demo — crear un proyecto base con POM
+
+Este es el prompt que se usa en la demo. Con el servidor MCP iniciado y el chat en modo **Agent**,
+pega esto en la carpeta vacía:
+
+```text
+Crea un proyecto Playwright + TypeScript con Page Object Model para https://www.saucedemo.com en esta carpeta vacía.
+
+1. Con el navegador MCP, recorre login, inventario y carrito, y anota los selectores data-test reales. No inventes ninguno.
+
+2. Estructura:
+   pages/BasePage.ts, LoginPage.ts, InventoryPage.ts, CartPage.ts
+   tests/specs/compra.spec.ts
+   playwright.config.ts, .env.example, .gitignore
+
+3. Reglas:
+   - BasePage con goto, expectURL y expectErrorMessage; todas las páginas la extienden.
+   - Locators como getters con data-test; métodos de negocio en español; validaciones con prefijo expect.
+   - Los specs solo llaman métodos de las páginas, sin locators. Etiquetas { tag: '@smoke' }.
+   - Sin page.click(selector), page.fill(selector, valor) ni waitForTimeout.
+   - BASE_URL, SAUCEDEMO_USERNAME y SAUCEDEMO_PASSWORD desde .env con dotenv y "valor?.trim() || 'defecto'".
+   - Config: baseURL, solo Chromium, reporter html.
+
+4. Casos: login exitoso, login con credenciales incorrectas y agregar un producto al carrito validando el contador.
+
+5. Instala dependencias, ejecuta npx playwright test y dime el resultado. Si un locator falla, vuelve a inspeccionar con MCP.
+```
+
+Qué hace cada parte:
+
+| Parte | Para qué sirve |
+|---|---|
+| 1. Exploración con MCP | Obtiene los locators reales de la página en lugar de inventarlos |
+| 2. Estructura | Fija la forma del proyecto: `pages/` para los Page Objects y `tests/specs/` para los tests |
+| 3. Reglas | Las mismas convenciones de este curso: `BasePage`, getters `data-test`, specs sin locators y variables en `.env` |
+| 4. Casos | Tres escenarios acotados para gastar pocos tokens |
+| 5. Verificación | Ejecuta las pruebas y corrige los locators que fallen |
+
+Solo explora tres pantallas (login, inventario y carrito) porque cada página que MCP lee devuelve una
+captura larga y eso es lo que más tokens consume.
 
 ### Archivo de práctica → `.vscode/mcp.json` (en la carpeta aparte)
 
@@ -325,8 +366,9 @@ Hay otras piezas de personalización que existen pero que este curso no usa:
 
 ## B3 — Presentación de la tarea `5 min`
 
-La tarea es replicar lo de la Clase 7 en **tu propio repositorio**. Se explica el alcance y los
-criterios de entrega (ver más abajo) y quedan 2 h 15 min para trabajarla.
+Se explica la tarea final (ver más abajo): un flujo de compra completo con CI/CD y Slack en **tu
+propio repositorio**. Los 2 h 15 min restantes trabajas en clase, con el instructor y la IA para
+resolver dudas, y puedes entregarla hasta 5 días después.
 
 ---
 
@@ -352,28 +394,52 @@ criterios de entrega (ver más abajo) y quedan 2 h 15 min para trabajarla.
 
 ---
 
-## 🎯 Tarea (2 h 15 min)
+## 🎯 Tarea final
 
-**Implementa lo de la Clase 7 en tu propio repositorio.** Los pasos detallados de Slack, el
-environment y los secrets están en el
+**Desarrolla, en tu propio repositorio, un flujo de compra completo con CI/CD en GitHub Actions y
+notificación a Slack.** Partes del proyecto que construiste durante el curso y usas la misma
+página: [saucedemo.com](https://www.saucedemo.com).
+
+| Aspecto | Detalle |
+|---|---|
+| Dónde trabajas | En tu propio repositorio de GitHub |
+| Tiempo en clase | 2 h 15 min, con el instructor disponible para resolver dudas |
+| Fecha límite | Hasta 5 días después de la clase |
+| Entrega | El enlace a tu repositorio |
+| IA | Permitida: puedes usar Copilot, los prompts y el agente del curso |
+
+### Qué debes construir
+
+**1. El flujo de compra completo.** Automátizalo con tus Page Objects, de punta a punta:
+
+| Pantalla | Qué debe hacer tu flujo |
+|---|---|
+| Login | Iniciar sesión con las credenciales del entorno |
+| Inventario | Agregar uno o más productos y validar el contador del carrito |
+| Carrito | Comprobar los productos y avanzar al checkout |
+| Checkout, datos | Completar nombre, apellido y código postal |
+| Checkout, resumen | Revisar el pedido y finalizar la compra |
+| Confirmación | Validar el mensaje de pedido completado |
+
+**2. El pipeline de la Clase 7, ejecutando ese flujo:**
+
+- Un workflow en `.github/workflows/` que se dispare con cada `push`.
+- Las variables de GitHub Actions, en el environment `development` de tu repositorio:
+  `BASE_URL`, `SAUCEDEMO_USERNAME` y `SAUCEDEMO_PASSWORD`. El workflow las lee desde ahí, no desde
+  el código.
+- Los jobs que tengas (en la Clase 7 son dos: Playwright y Cucumber).
+
+**3. La notificación a Slack:** un mensaje por job al terminar, con el webhook guardado como secret
+`SLACK_WEBHOOK_URL` en el mismo environment. Los pasos para crearlo están en el
 [README de la rama `clase-07-cicd`](https://github.com/BrandLuna/playwright-curso/blob/clase-07-cicd/README.md).
-
-1. **Pipeline:** un workflow en `.github/workflows/` con un job de Playwright y uno de Cucumber, que
-   use el environment `development`.
-2. **Variables y secret:** `BASE_URL`, `SAUCEDEMO_USERNAME` y `SAUCEDEMO_PASSWORD` como variables del
-   environment, y `SLACK_WEBHOOK_URL` como secret.
-3. **Slack:** una notificación por job al terminar el pipeline.
-4. **IA:** `.github/copilot-instructions.md`, al menos una instrucción por archivo y al menos un
-   prompt. El agente es opcional.
-5. **Prueba de la IA:** genera un caso nuevo con un prompt o con el agente y comprueba que reutiliza
-   los steps existentes.
 
 ### Criterios de entrega
 
-- [ ] El pipeline termina en verde con ambos jobs.
+- [ ] El flujo de compra cubre todas las pantallas de la tabla, del login a la confirmación.
+- [ ] El pipeline corre en GitHub Actions y termina en verde.
+- [ ] La URL y las credenciales se leen de las variables del environment, no están en el código.
 - [ ] Llega un mensaje a Slack por cada job.
-- [ ] Los secretos no están escritos en ningún archivo del repositorio.
-- [ ] El repositorio incluye las instrucciones y al menos un prompt.
-- [ ] Hay un feature generado con IA que reutiliza steps existentes.
+- [ ] El webhook de Slack está guardado como secret y no aparece en ningún archivo del repositorio.
+- [ ] El repositorio es accesible para quien lo revise.
 
-Entrega: enlace a tu repositorio, una captura del pipeline en verde y una captura del mensaje en Slack.
+**Entrega final:** el enlace a tu repositorio, hasta 5 días después de la clase.
